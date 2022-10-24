@@ -50,6 +50,8 @@ microservice-chart:
     APPLICATIONINSIGHTS_ROLE_NAME: "idpayinitiativestatistics"
     APPLICATIONINSIGHTS_INSTRUMENTATION_LOGGING_LEVEL: "OFF"
     APPLICATIONINSIGHTS_INSTRUMENTATION_MICROMETER_ENABLED: "false"
+    KAFKA_ONBOARDING_OUTCOME_CONSUMER_GROUP: "idpay-initiative-onboarding-statistics-group"
+    KAFKA_REWARD_RESPONSE_CONSUMER_GROUP: "idpay-initiative-rewards-statistics-group"
 
   envConfigMapExternals:
     idpay-common:
@@ -59,14 +61,12 @@ microservice-chart:
       KAFKA_SASL_MECHANISM: kafka_sasl_mechanism
       KAFKA_SECURITY_PROTOCOL: kafka_security_protocol
       KAFKA_ONBOARDING_OUTCOME: idpay_onboarding_outcome_topic
-      KAFKA_ONBOARDING_OUTCOME_CONSUMER_GROUP: TODO
+
     idpay-eventhub-01:
       KAFKA_BROKER_01: kafka_broker
       KAFKA_REWARD_SASL_MECHANISM: kafka_sasl_mechanism
       KAFKA_REWARD_SECURITY_PROTOCOL: kafka_security_protocol
       KAFKA_REWARD_RESPONSE_TOPIC: idpay_transaction_topic
-      KAFKA_REWARD_RESPONSE_CONSUMER_GROUP: TODO
-
 
   envSecret:
     #    APPLICATIONINSIGHTS_CONNECTION_STRING: appinsights-instrumentation-key
