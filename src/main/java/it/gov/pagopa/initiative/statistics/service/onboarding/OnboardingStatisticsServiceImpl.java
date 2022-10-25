@@ -39,8 +39,8 @@ public class OnboardingStatisticsServiceImpl extends BaseStatisticsEvaluationSer
     }
 
     @Override
-    protected long retrieveLastProcessedOffset(String initiativeId, int partition) {
-        return initiativeStatRepository.retrieveOnboardingOutcomeCommittedOffset(initiativeId, partition);
+    protected long retrieveLastProcessedOffset(String initiativeId, int partition, OnboardingOutcomeDTO onboardinOutcome) {
+        return initiativeStatRepository.retrieveOnboardingOutcomeCommittedOffset(initiativeId, onboardinOutcome.getOrganizationId(), partition);
     }
 
     @Override

@@ -42,7 +42,7 @@ public class TransactionEvaluationStatisticsServiceImpl extends BaseStatisticsEv
     }
 
     @Override
-    protected long retrieveLastProcessedOffset(String initiativeId, int partition) {
+    protected long retrieveLastProcessedOffset(String initiativeId, int partition, Map.Entry<String, Reward> reward) {
         return initiativeStatRepository.retrieveTransactionEvaluationCommittedOffset(initiativeId, partition);
     }
 

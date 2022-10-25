@@ -34,9 +34,7 @@ class TransactionEvaluationStatisticsServiceTest extends BaseStatisticsEvaluatio
     void test(){
         invokeService("APPNAME", consumerMock, 5, 7, errorNotifierServiceMock);
 
-        Mockito.verify(errorNotifierServiceMock, Mockito.times(expectedErrorNotification)).notifyTransactionEvaluation(Mockito.any()
-                , Mockito.argThat(description -> description.startsWith("[INITIATIVE_STATISTICS_EVALUATION][TRANSACTION_EVALUATION] Unexpected json: "))
-                , Mockito.eq(false), Mockito.any());
+        Mockito.verifyNoMoreInteractions(errorNotifierServiceMock, initiativeStatRepositoryMock, consumerMock);
     }
 
     @Override
@@ -78,6 +76,10 @@ class TransactionEvaluationStatisticsServiceTest extends BaseStatisticsEvaluatio
 
     @Override
     protected void verifyResults(int partition0LastCommittedOffset, int partition1LastCommittedOffset) {
+        Mockito.verify(errorNotifierServiceMock, Mockito.times(expectedErrorNotification)).notifyTransactionEvaluation(Mockito.any()
+                , Mockito.argThat(description -> description.startsWith("[INITIATIVE_STATISTICS_EVALUATION][TRANSACTION_EVALUATION] Unexpected json: "))
+                , Mockito.eq(false), Mockito.any());
+
         Mockito.verify(initiativeStatRepositoryMock).retrieveTransactionEvaluationCommittedOffset("INITIATIVEID1", 0);
         Mockito.verify(initiativeStatRepositoryMock).retrieveTransactionEvaluationCommittedOffset("INITIATIVEID1", 1);
         Mockito.verify(initiativeStatRepositoryMock).retrieveTransactionEvaluationCommittedOffset("INITIATIVEID1", 3);

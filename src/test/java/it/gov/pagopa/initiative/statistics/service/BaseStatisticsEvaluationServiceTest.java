@@ -10,6 +10,7 @@ import org.mockito.Mockito;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -72,6 +73,9 @@ public abstract class BaseStatisticsEvaluationServiceTest {
                 Mockito.mockingDetails(errorNotifierServiceMock).getInvocations().size(),
                 "Unexpected number of errorNotifierService invocations: %s".formatted(Mockito.mockingDetails(errorNotifierServiceMock).getInvocations())
         );
+
+        Mockito.mockingDetails(errorNotifierServiceMock).getInvocations()
+                .forEach(i-> System.out.println("Called errorNotifier: " + Arrays.toString(i.getArguments())));
 
         verifyResults(partition0Offset, partition1Offset);
     }

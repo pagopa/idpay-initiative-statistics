@@ -1,6 +1,7 @@
 package it.gov.pagopa.initiative.statistics.model;
 
 import lombok.*;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -16,6 +17,7 @@ import java.util.List;
 @EqualsAndHashCode
 @Builder
 @Document("initiative_statistics")
+@FieldNameConstants
 public class InitiativeStatistics {
 
   @Id

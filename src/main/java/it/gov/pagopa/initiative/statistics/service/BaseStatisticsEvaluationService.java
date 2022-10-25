@@ -102,7 +102,7 @@ public abstract class BaseStatisticsEvaluationService<E, I> implements Statistic
                 // evaluating last committed offset for initiativeId
                 .map(p -> {
                     String initiativeId = p.getKey();
-                    long lastCommittedOffset = retrieveLastProcessedOffset(initiativeId, partition);
+                    long lastCommittedOffset = retrieveLastProcessedOffset(initiativeId, partition, p.getValue().get(0).getRight());
                     return Pair.of(
                             initiativeId,
                             p.getValue().stream().filter(r2i -> r2i.getLeft().offset() > lastCommittedOffset).map(Triple::getRight).toList()
@@ -134,7 +134,7 @@ public abstract class BaseStatisticsEvaluationService<E, I> implements Statistic
     protected abstract String getFlowName();
 
     /** It will retrieve the last processed offset */
-    protected abstract long retrieveLastProcessedOffset(String initiativeId, int partition);
+    protected abstract long retrieveLastProcessedOffset(String initiativeId, int partition, I right);
 
     /** In case of errors reading a message */
     protected abstract void onRecordError2notify(ConsumerRecord<String, String> message, String description, Throwable exception);
