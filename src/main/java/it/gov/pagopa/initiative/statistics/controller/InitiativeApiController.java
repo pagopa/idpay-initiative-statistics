@@ -25,7 +25,7 @@ public class InitiativeApiController implements InitiativeApi {
         InitiativeStatistics stat = this.initiativeStatService.getStatistics(organizationId, initiativeId);
         return ResponseEntity.ok(InitiativeStatisticsDTO.builder()
                         .onboardedCitizenCount(stat.getOnboardedCitizenCount())
-                        .accruedRewards(stat.getAccruedRewards().toString())
+                        .accruedRewards(stat.getAccruedRewardsCents().toString())
                         .lastUpdatedDateTime(stat.getLastUpdatedDateTime())
                 .build());
     }

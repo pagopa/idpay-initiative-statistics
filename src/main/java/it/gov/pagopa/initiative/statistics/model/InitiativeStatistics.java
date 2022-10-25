@@ -4,8 +4,8 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.List;
 
 /**
  * InitiativeStatisticsDTO
@@ -19,11 +19,20 @@ import java.time.OffsetDateTime;
 public class InitiativeStatistics {
 
   @Id
-  private String initiativeStatisticsId;
   private String initiativeId;
   private String organizationId;
   private OffsetDateTime lastUpdatedDateTime;
+
   private Integer onboardedCitizenCount;
-  private BigDecimal accruedRewards;
+  private List<CommittedOffset> onboardingOutcomeCommittedOffsets;
+
+  private Long accruedRewardsCents;
+  private List<CommittedOffset> transactionEvaluationCommittedOffsets;
+
+  @Data @AllArgsConstructor
+  public static class CommittedOffset{
+    private int partition;
+    private long offset;
+  }
 
 }
