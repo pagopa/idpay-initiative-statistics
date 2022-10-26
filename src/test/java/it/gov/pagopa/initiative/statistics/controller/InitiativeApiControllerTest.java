@@ -1,0 +1,78 @@
+package it.gov.pagopa.initiative.statistics.controller;
+
+import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
+import it.gov.pagopa.initiative.statistics.repository.InitiativeStatRepository;
+import it.gov.pagopa.initiative.statistics.service.InitiativeStatServiceImpl;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Example;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.Optional;
+
+@WebMvcTest(InitiativeApiControllerImpl.class)
+@Import(InitiativeStatServiceImpl.class)
+class InitiativeApiControllerTest {
+
+    @MockBean
+    private InitiativeStatRepository repositoryMock;
+
+    @Autowired
+    private MockMvc mvc;
+
+    @Test
+    void testInitiativeStatisticsSuccessful() throws Exception {
+        Example<InitiativeStatistics> query = Example.of(
+                InitiativeStatistics.builder()
+                        .initiativeId("INITIATIVEID")
+                        .organizationId("ORGANIZATIONID")
+                        .build());
+
+        Mockito.when(repositoryMock.findOne(query)).thenReturn(
+                Optional.of(
+                        InitiativeStatistics.builder()
+                                .initiativeId("INITIATIVEID")
+                                .organizationId("ORGANIZATIONID")
+                                .onboardedCitizenCount(7L)
+                                .accruedRewardsCents(537L)
+                                .lastUpdatedDateTime(OffsetDateTime.of(LocalDate.of(2022, 10, 1), LocalTime.MIDNIGHT, ZoneOffset.UTC))
+                                .build()
+                ));
+
+        MvcResult result = mvc.perform(MockMvcRequestBuilders
+                        .get("/idpay/organization/ORGANIZATIONID/initiative/INITIATIVEID/statistics")
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
+                .andReturn();
+
+        Assertions.assertEquals("{\"lastUpdatedDateTime\":\"2022-10-01T00:00:00Z\",\"onboardedCitizenCount\":7,\"accruedRewards\":\"5.37\"}", result.getResponse().getContentAsString());
+    }
+
+    @Test
+    void testInitiativeStatistics404() throws Exception {
+        Mockito.when(repositoryMock.findOne(Mockito.any())).thenReturn(Optional.empty());
+
+        MvcResult result = mvc.perform(MockMvcRequestBuilders
+                        .get("/idpay/organization/ORGANIZATIONID/initiative/INITIATIVEID/statistics")
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(MockMvcResultMatchers.status().is4xxClientError())
+                .andReturn();
+
+        Assertions.assertEquals(404, result.getResponse().getStatus());
+    }
+}

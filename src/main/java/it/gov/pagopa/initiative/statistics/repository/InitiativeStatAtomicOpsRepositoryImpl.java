@@ -42,7 +42,7 @@ public class InitiativeStatAtomicOpsRepositoryImpl implements InitiativeStatAtom
     public long retrieveTransactionEvaluationCommittedOffset(String initiativeId, int partition) {
         return retrieveOffset(initiativeId, null, partition, InitiativeStatistics::getTransactionEvaluationCommittedOffsets, InitiativeStatistics.Fields.transactionEvaluationCommittedOffsets);
     }
-
+// TODO update lastUpdateDate
     private Long retrieveOffset(String initiativeId, String organizationId, int partition, Function<InitiativeStatistics, List<InitiativeStatistics.CommittedOffset>> commitsgetter, String commitsField){
         InitiativeStatistics entity = createRecordIfNotExists(initiativeId, organizationId);
         Long out = null;
