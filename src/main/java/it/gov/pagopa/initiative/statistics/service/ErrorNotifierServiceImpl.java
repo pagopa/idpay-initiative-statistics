@@ -51,9 +51,9 @@ public class ErrorNotifierServiceImpl implements ErrorNotifierService {
                                     @Value("${app.kafka.consumer.onboarding-outcome.group-id}") String onboardingOutcomeGroup,
 
                                     @Value("kafka") String transactionEvaluationMessagingServiceType,
-                                    @Value("${app.kafka.consumer.onboarding-outcome.bootstrap-servers}") String transactionEvaluationServer,
-                                    @Value("${app.kafka.consumer.onboarding-outcome.topic}") String transactionEvaluationTopic,
-                                    @Value("${app.kafka.consumer.onboarding-outcome.group-id}") String transactionEvaluationGroup) {
+                                    @Value("${app.kafka.consumer.transaction-evaluation.bootstrap-servers}") String transactionEvaluationServer,
+                                    @Value("${app.kafka.consumer.transaction-evaluation.topic}") String transactionEvaluationTopic,
+                                    @Value("${app.kafka.consumer.transaction-evaluation.group-id}") String transactionEvaluationGroup) {
         this.errorPublisher = errorPublisher;
         this.applicationName = applicationName;
 

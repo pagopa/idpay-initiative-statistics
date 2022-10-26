@@ -79,4 +79,14 @@ public class TestUtils {
         }
     }
 
+    private static final String PAYLOAD_FIELD_USER_ID = "\"userId\"";
+    public static String readUserId(String payload) {
+        int userIdIndex = payload.indexOf(PAYLOAD_FIELD_USER_ID);
+        if(userIdIndex>-1){
+            String afterUserId = payload.substring(userIdIndex+8);
+            final int afterOpeningQuote = afterUserId.indexOf('"') + 1;
+            return afterUserId.substring(afterOpeningQuote, afterUserId.indexOf('"', afterOpeningQuote));
+        }
+        return null;
+    }
 }

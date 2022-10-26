@@ -25,7 +25,7 @@ public class InitiativeStatistics {
   private String organizationId;
   private OffsetDateTime lastUpdatedDateTime;
 
-  private Integer onboardedCitizenCount;
+  private Long onboardedCitizenCount;
   private List<CommittedOffset> onboardingOutcomeCommittedOffsets;
 
   private Long accruedRewardsCents;

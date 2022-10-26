@@ -17,7 +17,7 @@ import java.time.OffsetDateTime;
 public class InitiativeStatisticsDTO {
 
   private OffsetDateTime lastUpdatedDateTime;
-  private Integer onboardedCitizenCount;
+  private Long onboardedCitizenCount;
   private String accruedRewards;
 
 }

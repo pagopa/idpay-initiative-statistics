@@ -117,7 +117,7 @@ class InitiativeStatAtomicOpsRepositoryTest extends BaseIntegrationTest {
         }
 
         // successfulUseCase
-        entity.setOnboardedCitizenCount(10);
+        entity.setOnboardedCitizenCount(10L);
         entity.setOnboardingOutcomeCommittedOffsets(List.of(new InitiativeStatistics.CommittedOffset(0, -1)));
         repository.save(entity);
 
