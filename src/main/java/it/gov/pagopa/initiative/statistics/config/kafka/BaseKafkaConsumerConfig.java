@@ -19,13 +19,19 @@ abstract class BaseKafkaConsumerConfig extends KafkaProperties.Consumer {
     @Setter
     protected KafkaProperties.Listener listener;
 
-    protected ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory(ConsumerFactory<String, String> consumerFactory) {
+    protected ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory(ConsumerFactory<String, String> consumerFactory, KafkaProperties defaultKafkaProperties) {
+        fillDefaultListenerProps(defaultKafkaProperties);
+
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(buildConsumerFactory(consumerFactory));
         factory.setConcurrency(listener.getConcurrency());
         factory.setBatchListener(KafkaProperties.Listener.Type.BATCH.equals(listener.getType()));
         configureContainerProperties(factory.getContainerProperties());
         return factory;
+    }
+
+    private void fillDefaultListenerProps(KafkaProperties defaultKafkaProperties) {
+        listener.setAckMode(defaultKafkaProperties.getListener().getAckMode());
     }
 
     private ConsumerFactory<String, String> buildConsumerFactory(ConsumerFactory<String, String> consumerFactory){
@@ -36,8 +42,6 @@ abstract class BaseKafkaConsumerConfig extends KafkaProperties.Consumer {
 
     private void configureContainerProperties(ContainerProperties containerProperties) {
         containerProperties.setAckMode(listener.getAckMode());
-        containerProperties.setAckCount(listener.getAckCount());
-        containerProperties.setAckTime(listener.getAckTime().toMillis());
     }
 
 }

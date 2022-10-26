@@ -31,7 +31,7 @@ public class InitiativeStatistics {
   private Long accruedRewardsCents;
   private List<CommittedOffset> transactionEvaluationCommittedOffsets;
 
-  @Data @AllArgsConstructor
+  @Data @AllArgsConstructor @FieldNameConstants
   public static class CommittedOffset{
     private int partition;
     private long offset;
