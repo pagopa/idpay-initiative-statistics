@@ -22,7 +22,7 @@ public class TransactionEvaluationStatisticsServiceImpl extends BaseStatisticsEv
     private final InitiativeStatRepository initiativeStatRepository;
 
     public TransactionEvaluationStatisticsServiceImpl(
-            @Value("${spring.application.name") String applicationName,
+            @Value("${spring.application.name}") String applicationName,
             ObjectMapper objectMapper,
             ErrorNotifierService errorNotifierService, InitiativeStatRepository initiativeStatRepository) {
         super(applicationName, objectMapper);

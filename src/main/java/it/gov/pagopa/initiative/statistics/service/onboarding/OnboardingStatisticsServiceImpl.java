@@ -19,7 +19,7 @@ public class OnboardingStatisticsServiceImpl extends BaseStatisticsEvaluationSer
     private final InitiativeStatRepository initiativeStatRepository;
 
     public OnboardingStatisticsServiceImpl(
-            @Value("${spring.application.name") String applicationName,
+            @Value("${spring.application.name}") String applicationName,
             ObjectMapper objectMapper,
             ErrorNotifierService errorNotifierService, InitiativeStatRepository initiativeStatRepository) {
         super(applicationName, objectMapper);

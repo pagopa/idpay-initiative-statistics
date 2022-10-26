@@ -70,7 +70,7 @@ public class ErrorNotifierServiceImpl implements ErrorNotifierService {
 
     @Override
     public void notifyOnboardingOutcome(ConsumerRecord<String, String> message, String description, boolean retryable, Throwable exception) {
-        notify(onboardingOutcomeMessagingServiceType, onboardingOutcomeServer, onboardingOutcomeTopic, onboardingOutcomeGroup, message, description, retryable, false, exception);
+        notify(onboardingOutcomeMessagingServiceType, onboardingOutcomeServer, onboardingOutcomeTopic, onboardingOutcomeGroup, message, description, retryable, true, exception);
     }
 
     @Override

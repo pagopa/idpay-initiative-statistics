@@ -44,9 +44,9 @@ public abstract class BaseStatisticsEvaluationService<E, I> implements Statistic
 
     @Override
     public void evaluate(List<ConsumerRecord<String, String>> records, Consumer<?, ?> consumer){
+        log.debug("[INITIATIVE_STATISTICS_EVALUATION][{}] Evaluating {} records", getFlowName(), records.size());
+
         records.parallelStream()
-                // skipping retry messages scheduled by other application
-                .filter(this::isNotRetry)
                 // grouping by partition
                 .collect(Collectors.groupingBy(ConsumerRecord::partition))
                 // evaluating partition records
@@ -54,15 +54,27 @@ public abstract class BaseStatisticsEvaluationService<E, I> implements Statistic
     }
 
     /** It will check if the current record is not a RETRY of another application */
-    private boolean isNotRetry(ConsumerRecord<String, String> r) {
+    private boolean isNotRetry(Pair<ConsumerRecord<String, String>, E> r2e) {
+        ConsumerRecord<String, String> r = r2e.getKey();
+
         Header appNameRecord = r.headers().lastHeader(ErrorNotifierServiceImpl.ERROR_MSG_HEADER_APPLICATION_NAME);
         Header retry = r.headers().lastHeader("RETRY");
-        return retry == null || (appNameRecord != null && applicationName.equals(new String(appNameRecord.value(), StandardCharsets.UTF_8)));
+        boolean out = retry == null || (appNameRecord != null && applicationName.equals(new String(appNameRecord.value(), StandardCharsets.UTF_8)));
+        if(!out){
+            log.info("[INITIATIVE_STATISTICS_EVALUATION][{}] Skipping record because other application retry: appName: {}, retry: {}"
+                    , getFlowName(),
+                    appNameRecord!=null? new String(appNameRecord.value(), StandardCharsets.UTF_8) : "",
+                    new String(retry.value(), StandardCharsets.UTF_8)
+                    );
+        }
+        return out;
     }
 
     /** It will evaluate partition records, committing its offsets at the end */
     @SuppressWarnings("java:S3864") // suppressing peek warning: in this case the optimization described will not be performed
     private void evaluatePartitionRecords(int partition, List<ConsumerRecord<String, String>> records, Consumer<?, ?> consumer){
+        log.debug("[INITIATIVE_STATISTICS_EVALUATION][{}] Evaluating partition {}: {} records", getFlowName(), partition, records.size());
+
         List<Triple<ConsumerRecord<String, String>, String, Throwable>> errorRecords = new ArrayList<>();
 
         AtomicLong maxOffsetAtomic = new AtomicLong(-1);
@@ -83,6 +95,8 @@ public abstract class BaseStatisticsEvaluationService<E, I> implements Statistic
                 .filter(Objects::nonNull)
                 // storing maxOffsetAtomic of valid records
                 .peek(r2e -> maxOffsetAtomic.getAndUpdate(o -> Math.max(o, r2e.getKey().offset())))
+                // skipping retry messages scheduled by other application
+                .filter(this::isNotRetry)
                 // transforming the record2entity stream into a pair record2initiativeBased stream
                 .flatMap(r2e -> toInitiativeBasedEntityStream(r2e.getValue()).map(i -> Triple.of(r2e.getKey(), getInitiativeId(i), i)))
                 // skipping entities without initiativeId
@@ -102,20 +116,30 @@ public abstract class BaseStatisticsEvaluationService<E, I> implements Statistic
                 // evaluating last committed offset for initiativeId
                 .map(p -> {
                     String initiativeId = p.getKey();
+
+                    log.trace("[INITIATIVE_STATISTICS_EVALUATION][{}] Evaluating initiativeId {} read from partition {}: {} records", getFlowName(), initiativeId, partition, records.size());
+
                     long lastCommittedOffset = retrieveLastProcessedOffset(initiativeId, partition, p.getValue().get(0).getRight());
-                    return Pair.of(
+
+                    log.trace("[INITIATIVE_STATISTICS_EVALUATION][{}] Evaluating initiativeId {} read from partition {}: {} records; last processed offset {}", getFlowName(), initiativeId, partition, records.size(), lastCommittedOffset);
+
+                    Pair<String, List<I>> out = Pair.of(
                             initiativeId,
                             p.getValue().stream().filter(r2i -> r2i.getLeft().offset() > lastCommittedOffset).map(Triple::getRight).toList()
                     );
+
+                    log.debug("[INITIATIVE_STATISTICS_EVALUATION][{}] Evaluating initiativeId {} of {} read from partition {}: {} records; last processed offset {}", getFlowName(), initiativeId, partition, out.getValue().size(), records.size(), lastCommittedOffset);
+
+                    return out;
                 })
                 // evaluating each initiative
                 .forEach(i2e -> evaluateInitiative(i2e.getKey(), i2e.getValue(), partition, maxOffset));
 
-        if(!records.isEmpty() && consumer!=null && maxOffset > 0){
+        if(!records.isEmpty() && consumer!=null && maxOffset > -1){
             log.info("[INITIATIVE_STATISTICS_EVALUATION][{}] Committing partition {} and offset {}", getFlowName(), partition, maxOffset);
             TopicPartition topicPartition = new TopicPartition(records.get(0).topic(), partition);
             consumer.commitAsync(
-                    Map.of(topicPartition, new OffsetAndMetadata(maxOffset))
+                    Map.of(topicPartition, new OffsetAndMetadata(maxOffset+1)) // +1 because we have to indicate the next offset to read
                     , errorRecords.isEmpty() ? null :
                             onCommitNotifyErrors(errorRecords.stream()
                                     .filter(r-> {

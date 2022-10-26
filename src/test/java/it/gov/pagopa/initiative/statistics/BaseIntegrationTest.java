@@ -95,6 +95,8 @@ import static org.awaitility.Awaitility.await;
         })
 @AutoConfigureDataMongo
 public abstract class BaseIntegrationTest {
+    public static final String APPLICATION_NAME = "idpay-initiative-statistics";
+
     @Autowired
     protected EmbeddedKafkaBroker kafkaBroker;
     @Autowired
@@ -114,9 +116,9 @@ public abstract class BaseIntegrationTest {
     @Value("${spring.cloud.stream.kafka.binder.zkNodes}")
     private String zkNodes;
 
-    @Value("${app.kafka.consumer.transaction-evaluation.topic}")
-    protected String topicOnboardingOutcome;
     @Value("${app.kafka.consumer.onboarding-outcome.topic}")
+    protected String topicOnboardingOutcome;
+    @Value("${app.kafka.consumer.transaction-evaluation.topic}")
     protected String topicTransactionEvaluation;
     @Value("${app.kafka.producer.errors.topic}")
     protected String topicErrors;
@@ -237,8 +239,13 @@ public abstract class BaseIntegrationTest {
 
     private int totaleMessageSentCounter =0;
     protected void publishIntoEmbeddedKafka(String topic, Iterable<Header> headers, String key, String payload) {
+        publishIntoEmbeddedKafka(topic, null, headers, key, payload);
+    }
+    protected void publishIntoEmbeddedKafka(String topic, Integer partition, Iterable<Header> headers, String key, String payload) {
+        final RecordHeader dummyHeader = new RecordHeader("DUMMY", "VALUE".getBytes(StandardCharsets.UTF_8));
+
         final RecordHeader retryHeader = new RecordHeader("RETRY", "1".getBytes(StandardCharsets.UTF_8));
-        final RecordHeader applicationNameHeader = new RecordHeader(ErrorNotifierServiceImpl.ERROR_MSG_HEADER_APPLICATION_NAME, "idpay-initiative-statistics".getBytes(StandardCharsets.UTF_8));
+        final RecordHeader applicationNameHeader = new RecordHeader(ErrorNotifierServiceImpl.ERROR_MSG_HEADER_APPLICATION_NAME, APPLICATION_NAME.getBytes(StandardCharsets.UTF_8));
 
         AtomicBoolean containAppNameHeader = new AtomicBoolean(false);
         if(headers!= null){
@@ -251,9 +258,9 @@ public abstract class BaseIntegrationTest {
 
         final RecordHeader[] additionalHeaders;
         if(totaleMessageSentCounter++%2 == 0 || containAppNameHeader.get()){
-            additionalHeaders= new RecordHeader[]{retryHeader};
+            additionalHeaders= new RecordHeader[]{dummyHeader};
         } else {
-            additionalHeaders= new RecordHeader[]{retryHeader, applicationNameHeader};
+            additionalHeaders= new RecordHeader[]{dummyHeader, retryHeader, applicationNameHeader};
         }
 
         if (headers == null) {
@@ -264,7 +271,7 @@ public abstract class BaseIntegrationTest {
                             Arrays.stream(additionalHeaders))
                     .collect(Collectors.toList());
         }
-        ProducerRecord<String, String> record = new ProducerRecord<>(topic, null, key, payload, headers);
+        ProducerRecord<String, String> record = new ProducerRecord<>(topic, partition, key, payload, headers);
         template.send(record);
     }
 
@@ -350,9 +357,9 @@ public abstract class BaseIntegrationTest {
     protected void checkErrorMessageHeaders(String srcTopic,String group, ConsumerRecord<String, String> errorMessage, String errorDescription, String expectedPayload, String expectedKey) {
         checkErrorMessageHeaders(srcTopic, group, errorMessage, errorDescription, expectedPayload, expectedKey, true, true);
     }
-    protected void checkErrorMessageHeaders(String srcTopic, String group, ConsumerRecord<String, String> errorMessage, String errorDescription, String expectedPayload, String expectedKey, boolean expectRetryHeader, boolean expectedAppNameHeader) {
+    protected void checkErrorMessageHeaders(String srcTopic, String group, ConsumerRecord<String, String> errorMessage, String errorDescription, String expectedPayload, String expectedKey, boolean expectDummyHeader, boolean expectedAppNameHeader) {
         if(expectedAppNameHeader) {
-            Assertions.assertEquals("idpay-reward-calculator", TestUtils.getHeaderValue(errorMessage, ErrorNotifierServiceImpl.ERROR_MSG_HEADER_APPLICATION_NAME));
+            Assertions.assertEquals(APPLICATION_NAME, TestUtils.getHeaderValue(errorMessage, ErrorNotifierServiceImpl.ERROR_MSG_HEADER_APPLICATION_NAME));
         }
         Assertions.assertEquals(group, TestUtils.getHeaderValue(errorMessage, ErrorNotifierServiceImpl.ERROR_MSG_HEADER_GROUP));
         Assertions.assertEquals("kafka", TestUtils.getHeaderValue(errorMessage, ErrorNotifierServiceImpl.ERROR_MSG_HEADER_SRC_TYPE));
@@ -360,8 +367,8 @@ public abstract class BaseIntegrationTest {
         Assertions.assertEquals(srcTopic, TestUtils.getHeaderValue(errorMessage, ErrorNotifierServiceImpl.ERROR_MSG_HEADER_SRC_TOPIC));
         Assertions.assertNotNull(errorMessage.headers().lastHeader(ErrorNotifierServiceImpl.ERROR_MSG_HEADER_STACKTRACE));
         Assertions.assertEquals(errorDescription, TestUtils.getHeaderValue(errorMessage, ErrorNotifierServiceImpl.ERROR_MSG_HEADER_DESCRIPTION));
-        if(expectRetryHeader){
-            Assertions.assertEquals("1", TestUtils.getHeaderValue(errorMessage, "RETRY")); // to test if headers are correctly propagated
+        if(expectDummyHeader){
+            Assertions.assertEquals("VALUE", TestUtils.getHeaderValue(errorMessage, "DUMMY")); // to test if headers are correctly propagated
         }
         Assertions.assertEquals(expectedPayload, errorMessage.value());
         Assertions.assertEquals(expectedKey, errorMessage.key());
