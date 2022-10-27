@@ -58,7 +58,7 @@ public abstract class BaseStatisticsEvaluationService<E, I> implements Statistic
         ConsumerRecord<String, String> r = r2e.getKey();
 
         Header appNameRecord = r.headers().lastHeader(ErrorNotifierServiceImpl.ERROR_MSG_HEADER_APPLICATION_NAME);
-        Header retry = r.headers().lastHeader("RETRY");
+        Header retry = r.headers().lastHeader("retry");
         boolean out = retry == null || (appNameRecord != null && applicationName.equals(new String(appNameRecord.value(), StandardCharsets.UTF_8)));
         if(!out){
             log.info("[INITIATIVE_STATISTICS_EVALUATION][{}] Skipping record because other application retry: appName: {}, retry: {}"

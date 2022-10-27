@@ -10,14 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.Example;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Optional;
 
 @WebMvcTest(InitiativeApiControllerImpl.class)
@@ -32,12 +33,6 @@ class InitiativeApiControllerTest {
 
     @Test
     void testInitiativeStatisticsSuccessful() throws Exception {
-        Example<InitiativeStatistics> query = Example.of(
-                InitiativeStatistics.builder()
-                        .initiativeId("INITIATIVEID")
-                        .organizationId("ORGANIZATIONID")
-                        .build());
-
         InitiativeStatistics mockedEntity = InitiativeStatistics.builder()
                 .initiativeId("INITIATIVEID")
                 .organizationId("ORGANIZATIONID")
@@ -46,7 +41,7 @@ class InitiativeApiControllerTest {
                 .lastUpdatedDateTime(LocalDateTime.of(LocalDate.of(2022, 10, 1), LocalTime.MIDNIGHT))
                 .build();
 
-        Mockito.when(repositoryMock.findOne(query)).thenReturn(Optional.of(mockedEntity));
+        Mockito.when(repositoryMock.findById("INITIATIVEID")).thenReturn(Optional.of(mockedEntity));
 
         MvcResult result = mvc.perform(MockMvcRequestBuilders
                         .get("/idpay/organization/ORGANIZATIONID/initiative/INITIATIVEID/statistics")
@@ -84,7 +79,7 @@ class InitiativeApiControllerTest {
 
     @Test
     void testInitiativeStatistics404() throws Exception {
-        Mockito.when(repositoryMock.findOne(Mockito.any())).thenReturn(Optional.empty());
+        Mockito.when(repositoryMock.findById(Mockito.any())).thenReturn(Optional.empty());
 
         MvcResult result = mvc.perform(MockMvcRequestBuilders
                         .get("/idpay/organization/ORGANIZATIONID/initiative/INITIATIVEID/statistics")
