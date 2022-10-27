@@ -16,8 +16,8 @@ import org.springframework.data.util.Pair;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -53,14 +53,12 @@ class TransactionEvaluationMessagesListenerTest extends BaseStatisticsMessagesLi
 
     @Override
     protected List<TransactionEvaluationDTO> buildValidEntities(int bias, int size, String initiativeid) {
-        return IntStream.range(bias, bias + size)
-                .mapToObj(i -> TransactionEvaluationDTOFaker.mockInstanceBuilder(i)
-                        .rewards(Map.of(
-                                initiativeid, new Reward(BigDecimal.ONE),
-                                initiativeid+"_2", new Reward(BigDecimal.valueOf(2))
-                                ))
-                        .build())
-                .toList();
+        List<TransactionEvaluationDTO> out = buildValidTransactionEvaluationEntities(bias, size, initiativeid);
+        out.forEach(t -> {
+            t.setRewards(new HashMap<>(t.getRewards()));
+            t.getRewards().put(initiativeid+"_2", new Reward(BigDecimal.valueOf(2)));
+        });
+        return out;
     }
 
     @Override

@@ -2,7 +2,6 @@ package it.gov.pagopa.initiative.statistics.events.consumers;
 
 import it.gov.pagopa.initiative.statistics.BaseIntegrationTest;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
-import it.gov.pagopa.initiative.statistics.repository.InitiativeStatRepository;
 import it.gov.pagopa.initiative.statistics.service.ErrorNotifierService;
 import it.gov.pagopa.initiative.statistics.service.StatisticsEvaluationService;
 import it.gov.pagopa.initiative.statistics.test.utils.TestUtils;
@@ -10,10 +9,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.util.Pair;
-import org.springframework.test.context.TestPropertySource;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,9 +21,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
-@TestPropertySource(properties = {
-        "logging.level.it.gov.pagopa.initiative.statistics=WARN"
-})
 abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
 
     protected static final String INITIATIVEID1 = "INITIATIVEID1";
@@ -34,9 +28,6 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
 
     @SpyBean
     protected ErrorNotifierService errorNotifierServiceSpy;
-
-    @Autowired
-    protected InitiativeStatRepository initiativeStatRepository;
 
     @AfterEach
     void clearData() {
@@ -176,29 +167,11 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
     }
 
     protected long waitForCounterResult(String initiativeId, long expectedCounterValue, long maxWaitingMs) {
-        int millisAttemptDelay = 500;
-        int maxAttempts = (int) maxWaitingMs / millisAttemptDelay;
-
-        long[] countSaved = {0};
-        waitFor(() -> (countSaved[0] = initiativeStatRepository.findById(initiativeId).map(getGetterCounter()).orElse(-1L)) >= expectedCounterValue
-                , () -> "Expected %d counter value for initiative %s, read %d".formatted(expectedCounterValue, initiativeId, countSaved[0])
-                , maxAttempts, millisAttemptDelay);
-        return countSaved[0];
+        return waitForCounterResult(initiativeId, getGetterCounter(), expectedCounterValue, maxWaitingMs);
     }
 
     protected void verifyPartitionOffsetStored(long expectOffsetSum, String initiativeid, boolean assertEquals) {
-        InitiativeStatistics result = initiativeStatRepository.findById(initiativeid).orElse(null);
-        Assertions.assertNotNull(result);
-
-        // -2 because offset start from 0 and we are using 2 partition for test
-        long expectedOffsetSum0Based = expectOffsetSum - 2;
-        long sum = getGetterStatisticsCommittedOffsets().apply(result).stream().mapToLong(InitiativeStatistics.CommittedOffset::getOffset).sum();
-
-        if (assertEquals) {
-            Assertions.assertEquals(expectedOffsetSum0Based, sum);
-        } else {
-            Assertions.assertTrue(expectedOffsetSum0Based>=sum, "Expected at least %d obtained %d".formatted(expectedOffsetSum0Based, sum));
-        }
+        verifyPartitionOffsetStored(expectOffsetSum, initiativeid, getGetterStatisticsCommittedOffsets(), assertEquals);
     }
 
     protected void checkErrorMessageHeaders(ConsumerRecord<String, String> errorMessage, String errorDescription, String expectedPayload, String expectedKey) {

@@ -47,9 +47,7 @@ class OnboardingOutcomeMessagesListenerTest extends BaseStatisticsMessagesListen
 
     @Override
     protected List<OnboardingOutcomeDTO> buildValidEntities(int bias, int size, String initiativeid) {
-        return IntStream.range(bias, bias + size)
-                .mapToObj(i -> OnboardingOutcomeDTOFaker.mockInstance(i, initiativeid))
-                .toList();
+        return buildValidOnboardinOutcomesEntities(bias, size, initiativeid);
     }
 
     @Override

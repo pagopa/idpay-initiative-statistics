@@ -6,7 +6,14 @@ import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.config.MongodConfig;
 import de.flapdoodle.embed.mongo.config.Net;
 import de.flapdoodle.embed.process.runtime.Executable;
+import it.gov.pagopa.initiative.statistics.dto.events.OnboardingOutcomeDTO;
+import it.gov.pagopa.initiative.statistics.dto.events.Reward;
+import it.gov.pagopa.initiative.statistics.dto.events.TransactionEvaluationDTO;
+import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
+import it.gov.pagopa.initiative.statistics.repository.InitiativeStatRepository;
 import it.gov.pagopa.initiative.statistics.service.ErrorNotifierServiceImpl;
+import it.gov.pagopa.initiative.statistics.test.fakers.OnboardingOutcomeDTOFaker;
+import it.gov.pagopa.initiative.statistics.test.fakers.TransactionEvaluationDTOFaker;
 import it.gov.pagopa.initiative.statistics.test.utils.TestUtils;
 import it.gov.pagopa.initiative.statistics.utils.Constants;
 import org.apache.kafka.clients.consumer.Consumer;
@@ -40,6 +47,7 @@ import javax.annotation.PostConstruct;
 import javax.management.*;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -47,10 +55,12 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -70,6 +80,7 @@ import static org.awaitility.Awaitility.await;
                 //region common feature disabled
                 "app.reward-rule.cache.refresh-ms-rate=60000",
                 "logging.level.it.gov.pagopa.initiative.statistics.service.ErrorNotifierServiceImpl=WARN",
+                "logging.level.it.gov.pagopa.initiative.statistics=WARN",
                 //endregion
 
                 //region kafka brokers
@@ -374,4 +385,55 @@ public abstract class BaseIntegrationTest {
         Assertions.assertEquals(expectedPayload, errorMessage.value());
         Assertions.assertEquals(expectedKey, errorMessage.key());
     }
+
+    // region initiativeStatistics statistics utilities
+    protected List<OnboardingOutcomeDTO> buildValidOnboardinOutcomesEntities(int bias, int size, String initiativeid) {
+        return IntStream.range(bias, bias + size)
+                .mapToObj(i -> buildValidOnboardinOutcomeEntity(i, initiativeid))
+                .toList();
+    }
+    protected OnboardingOutcomeDTO buildValidOnboardinOutcomeEntity(int bias, String initiativeid){
+        return OnboardingOutcomeDTOFaker.mockInstance(bias, initiativeid);
+    }
+
+    protected List<TransactionEvaluationDTO> buildValidTransactionEvaluationEntities(int bias, int size, String initiativeid) {
+        return IntStream.range(bias, bias + size)
+                .mapToObj(i -> buildValidTransactionEvaluationEntity(i, initiativeid))
+                .toList();
+    }
+    protected TransactionEvaluationDTO buildValidTransactionEvaluationEntity(int bias, String initiativeid) {
+        return TransactionEvaluationDTOFaker.mockInstanceBuilder(bias)
+                .rewards(Map.of(initiativeid, new Reward(BigDecimal.ONE)))
+                .build();
+    }
+
+
+    @Autowired
+    protected InitiativeStatRepository initiativeStatRepository;
+    protected long waitForCounterResult(String initiativeId, Function<InitiativeStatistics, Long> getterCounter, long expectedCounterValue, long maxWaitingMs) {
+        int millisAttemptDelay = 500;
+        int maxAttempts = (int) maxWaitingMs / millisAttemptDelay;
+
+        long[] countSaved = {0};
+        waitFor(() -> (countSaved[0] = initiativeStatRepository.findById(initiativeId).map(getterCounter).orElse(-1L)) >= expectedCounterValue
+                , () -> "Expected %d counter value for initiative %s, read %d".formatted(expectedCounterValue, initiativeId, countSaved[0])
+                , maxAttempts, millisAttemptDelay);
+        return countSaved[0];
+    }
+
+    protected void verifyPartitionOffsetStored(long expectOffsetSum, String initiativeid, Function<InitiativeStatistics, List<InitiativeStatistics.CommittedOffset>> getterStatisticsCommittedOffsets, boolean assertEquals) {
+        InitiativeStatistics result = initiativeStatRepository.findById(initiativeid).orElse(null);
+        Assertions.assertNotNull(result);
+
+        // -2 because offset start from 0 and we are using 2 partition for test
+        long expectedOffsetSum0Based = expectOffsetSum - 2;
+        long sum = getterStatisticsCommittedOffsets.apply(result).stream().mapToLong(InitiativeStatistics.CommittedOffset::getOffset).sum();
+
+        if (assertEquals) {
+            Assertions.assertEquals(expectedOffsetSum0Based, sum);
+        } else {
+            Assertions.assertTrue(expectedOffsetSum0Based>=sum, "Expected at least %d obtained %d".formatted(expectedOffsetSum0Based, sum));
+        }
+    }
+    //endregion
 }
