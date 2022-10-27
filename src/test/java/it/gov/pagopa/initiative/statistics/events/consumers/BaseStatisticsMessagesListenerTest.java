@@ -75,8 +75,12 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
 
         int expectedTotalSentMessages = msgs.size() + 2; // +2 due to initial published records: offset skip check and notValidMsg
 
-        verifyPartitionOffsetStored(expectedTotalSentMessages, INITIATIVEID1, true);
-        verifyPartitionOffsetStored(expectedTotalSentMessages, INITIATIVEID2, false);
+        long sumOffsets1 = verifyPartitionOffsetStored(expectedTotalSentMessages, INITIATIVEID1, false);
+        long sumOffsets2 = verifyPartitionOffsetStored(expectedTotalSentMessages, INITIATIVEID2, false);
+
+        Assertions.assertTrue(sumOffsets1 == expectedTotalSentMessages || sumOffsets2 == expectedTotalSentMessages,
+                "Unexpected committed offsets stored into db. Expecting: %d; while initiative1 committed: %d and initiative2 committed %d"
+                        .formatted(expectedTotalSentMessages, sumOffsets1, sumOffsets2));
 
         checkErrorsPublished(notValidMsgs, maxWaitingMs, getErrorUseCases());
 
@@ -168,8 +172,8 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
         return waitForCounterResult(initiativeId, organizationId, getGetterCounter(), expectedCounterValue, maxWaitingMs);
     }
 
-    protected void verifyPartitionOffsetStored(long expectOffsetSum, String initiativeid, boolean assertEquals) {
-        verifyPartitionOffsetStored(expectOffsetSum, initiativeid, getGetterStatisticsCommittedOffsets(), assertEquals);
+    protected long verifyPartitionOffsetStored(long expectOffsetSum, String initiativeid, boolean assertEquals) {
+        return verifyPartitionOffsetStored(expectOffsetSum, initiativeid, getGetterStatisticsCommittedOffsets(), assertEquals);
     }
 
     protected void checkErrorMessageHeaders(ConsumerRecord<String, String> errorMessage, String errorDescription, String expectedPayload, String expectedKey) {

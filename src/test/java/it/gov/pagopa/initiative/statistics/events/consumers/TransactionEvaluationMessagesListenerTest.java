@@ -117,9 +117,9 @@ class TransactionEvaluationMessagesListenerTest extends BaseStatisticsMessagesLi
     }
 
     @Override
-    protected void verifyPartitionOffsetStored(long expectOffsetSum, String initiativeid, boolean assertEquals) {
+    protected long verifyPartitionOffsetStored(long expectOffsetSum, String initiativeid, boolean assertEquals) {
         super.verifyPartitionOffsetStored(expectOffsetSum, initiativeid, assertEquals);
-        super.verifyPartitionOffsetStored(expectOffsetSum, initiativeid+"_2", assertEquals);
+        return super.verifyPartitionOffsetStored(expectOffsetSum, initiativeid+"_2", assertEquals);
     }
 
     //region not valid useCases

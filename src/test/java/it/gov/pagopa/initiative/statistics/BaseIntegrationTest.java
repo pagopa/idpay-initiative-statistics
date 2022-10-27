@@ -426,7 +426,7 @@ public abstract class BaseIntegrationTest {
         return countSaved[0];
     }
 
-    protected void verifyPartitionOffsetStored(long expectOffsetSum, String initiativeid, Function<InitiativeStatistics, List<InitiativeStatistics.CommittedOffset>> getterStatisticsCommittedOffsets, boolean assertEquals) {
+    protected long verifyPartitionOffsetStored(long expectOffsetSum, String initiativeid, Function<InitiativeStatistics, List<InitiativeStatistics.CommittedOffset>> getterStatisticsCommittedOffsets, boolean assertEquals) {
         InitiativeStatistics result = initiativeStatRepository.findById(initiativeid).orElse(null);
         Assertions.assertNotNull(result);
 
@@ -439,6 +439,8 @@ public abstract class BaseIntegrationTest {
         } else {
             Assertions.assertTrue(expectedOffsetSum0Based>=sum, "Expected at least %d obtained %d".formatted(expectedOffsetSum0Based, sum));
         }
+
+        return sum + 2;
     }
     //endregion
 }
