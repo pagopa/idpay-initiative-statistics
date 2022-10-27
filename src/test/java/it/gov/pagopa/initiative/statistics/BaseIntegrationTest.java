@@ -255,7 +255,7 @@ public abstract class BaseIntegrationTest {
     protected void publishIntoEmbeddedKafka(String topic, Integer partition, Iterable<Header> headers, String key, String payload) {
         final RecordHeader dummyHeader = new RecordHeader("DUMMY", "VALUE".getBytes(StandardCharsets.UTF_8));
 
-        final RecordHeader retryHeader = new RecordHeader("RETRY", "1".getBytes(StandardCharsets.UTF_8));
+        final RecordHeader retryHeader = new RecordHeader("retry", "1".getBytes(StandardCharsets.UTF_8));
         final RecordHeader applicationNameHeader = new RecordHeader(ErrorNotifierServiceImpl.ERROR_MSG_HEADER_APPLICATION_NAME, APPLICATION_NAME.getBytes(StandardCharsets.UTF_8));
 
         AtomicBoolean containAppNameHeader = new AtomicBoolean(false);

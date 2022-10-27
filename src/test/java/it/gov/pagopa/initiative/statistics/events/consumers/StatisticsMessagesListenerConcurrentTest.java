@@ -42,7 +42,7 @@ class StatisticsMessagesListenerConcurrentTest extends BaseIntegrationTest {
         long timePublishingEnd = System.currentTimeMillis();
 
         Assertions.assertEquals(validMsgs, waitForCounterResult(INITIATIVEID, InitiativeStatistics::getOnboardedCitizenCount, validMsgs, maxWaitingMs));
-        Assertions.assertEquals(validMsgs * 100, waitForCounterResult(INITIATIVEID, InitiativeStatistics::getAccruedRewardsCents, validMsgs, maxWaitingMs));
+        Assertions.assertEquals(validMsgs * 100, waitForCounterResult(INITIATIVEID, InitiativeStatistics::getAccruedRewardsCents, validMsgs * 100, maxWaitingMs));
         long timeCounterUpdated = System.currentTimeMillis();
 
         verifyPartitionOffsetStored(validMsgs, INITIATIVEID, InitiativeStatistics::getOnboardingOutcomeCommittedOffsets, true);

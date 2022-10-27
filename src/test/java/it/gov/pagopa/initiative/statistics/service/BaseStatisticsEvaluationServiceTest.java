@@ -42,7 +42,7 @@ public abstract class BaseStatisticsEvaluationServiceTest {
         records.addAll(
                 useCases.stream().map(p -> {
                     ConsumerRecord<String, String> message = new ConsumerRecord<>(TOPIC_NAME, 0, -1, null, p);
-                    message.headers().add("RETRY", "1".getBytes(StandardCharsets.UTF_8));
+                    message.headers().add("retry", "1".getBytes(StandardCharsets.UTF_8));
                     return message;
                 }).toList()
         );
@@ -60,7 +60,7 @@ public abstract class BaseStatisticsEvaluationServiceTest {
         for (int i = 0; i < useCases.size(); i++) {
             ConsumerRecord<String, String> message = new ConsumerRecord<>(TOPIC_NAME, i % 2, i % 2 == 0 ? ++partition0Offset : ++partition1Offset, null, useCases.get(i));
             if(i%3==0){
-                message.headers().add("RETRY", "1".getBytes(StandardCharsets.UTF_8));
+                message.headers().add("retry", "1".getBytes(StandardCharsets.UTF_8));
                 message.headers().add(ErrorNotifierServiceImpl.ERROR_MSG_HEADER_APPLICATION_NAME, applicationName.getBytes(StandardCharsets.UTF_8));
             }
             records.add(message);
