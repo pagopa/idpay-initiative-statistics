@@ -12,6 +12,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Function;
 
@@ -20,6 +21,7 @@ import java.util.function.Function;
 public class InitiativeStatAtomicOpsRepositoryImpl implements InitiativeStatAtomicOpsRepository {
 
     public static final String FIELD_INITIATIVE_ID = InitiativeStatistics.Fields.initiativeId;
+    public static final String FIELD_LAST_UPDATE_DATE = InitiativeStatistics.Fields.lastUpdatedDateTime;
 
     public static final String FIELD_ONBOARDED_CITIZEN_COUNT = InitiativeStatistics.Fields.onboardedCitizenCount;
     public static final String FIELD_ONBOARDING_OUTCOME_COMMITTED_OFFSETS = InitiativeStatistics.Fields.onboardingOutcomeCommittedOffsets;
@@ -42,7 +44,7 @@ public class InitiativeStatAtomicOpsRepositoryImpl implements InitiativeStatAtom
     public long retrieveTransactionEvaluationCommittedOffset(String initiativeId, int partition) {
         return retrieveOffset(initiativeId, null, partition, InitiativeStatistics::getTransactionEvaluationCommittedOffsets, InitiativeStatistics.Fields.transactionEvaluationCommittedOffsets);
     }
-// TODO update lastUpdateDate
+
     private Long retrieveOffset(String initiativeId, String organizationId, int partition, Function<InitiativeStatistics, List<InitiativeStatistics.CommittedOffset>> commitsgetter, String commitsField){
         InitiativeStatistics entity = createRecordIfNotExists(initiativeId, organizationId);
         Long out = null;
@@ -76,7 +78,8 @@ public class InitiativeStatAtomicOpsRepositoryImpl implements InitiativeStatAtom
             result.setOrganizationId(organizationId);
 
             Update updateQuery = new Update()
-                    .set(FIELD_INITIATIVE_ID, initiativeId);
+                    .set(FIELD_INITIATIVE_ID, initiativeId)
+                    .set(FIELD_LAST_UPDATE_DATE, LocalDateTime.now());
 
             if(!StringUtils.isEmpty(organizationId)){
                 updateQuery.set(InitiativeStatistics.Fields.organizationId, organizationId);
@@ -115,7 +118,8 @@ public class InitiativeStatAtomicOpsRepositoryImpl implements InitiativeStatAtom
                 ),
                 new Update()
                         .inc(fieldCounter, inc)
-                        .set("%s.$.%s".formatted(fieldPartitionCommitted, InitiativeStatistics.CommittedOffset.Fields.offset), offset),
+                        .set("%s.$.%s".formatted(fieldPartitionCommitted, InitiativeStatistics.CommittedOffset.Fields.offset), offset)
+                        .set(FIELD_LAST_UPDATE_DATE, LocalDateTime.now()),
                 InitiativeStatistics.class
         );
         if(updateResult.getModifiedCount()>0){

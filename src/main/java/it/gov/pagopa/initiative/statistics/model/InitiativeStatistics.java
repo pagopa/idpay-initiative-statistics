@@ -5,7 +5,7 @@ import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -23,7 +23,7 @@ public class InitiativeStatistics {
   @Id
   private String initiativeId;
   private String organizationId;
-  private OffsetDateTime lastUpdatedDateTime;
+  private LocalDateTime lastUpdatedDateTime;
 
   private Long onboardedCitizenCount;
   private List<CommittedOffset> onboardingOutcomeCommittedOffsets;

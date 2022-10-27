@@ -133,7 +133,13 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
         waitForEvaluateInvocationTimes(payload);
 
         buildExpectedStoredInitiativeStatisticsAfterSkipBehaviorTest(stored);
-        Assertions.assertEquals(stored, initiativeStatRepository.findById(INITIATIVEID1).orElse(null));
+
+        InitiativeStatistics retrieved = initiativeStatRepository.findById(INITIATIVEID1).orElse(null);
+        Assertions.assertNotNull(retrieved);
+        Assertions.assertNotNull(retrieved.getLastUpdatedDateTime());
+
+        retrieved.setLastUpdatedDateTime(null);
+        Assertions.assertEquals(stored, retrieved);
         Mockito.verifyNoInteractions(errorNotifierServiceSpy);
     }
 

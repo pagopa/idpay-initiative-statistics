@@ -95,9 +95,9 @@ class TransactionEvaluationStatisticsServiceTest extends BaseStatisticsEvaluatio
         Mockito.verify(initiativeStatRepositoryMock).updateAccruedRewards("INITIATIVEID2", BigDecimal.valueOf(8.25), 1, partition1LastCommittedOffset);
         Mockito.verify(initiativeStatRepositoryMock).updateAccruedRewards("INITIATIVEID2", BigDecimal.valueOf(14.38), 3, EXPECTED_PARTITION3_OFFSET);
 
-        Mockito.verify(consumerMock).commitAsync(Mockito.eq(Map.of(new TopicPartition(TOPIC_NAME, 0), new OffsetAndMetadata(partition0LastCommittedOffset))), Mockito.notNull());
-        Mockito.verify(consumerMock).commitAsync(Mockito.eq(Map.of(new TopicPartition(TOPIC_NAME, 1), new OffsetAndMetadata(partition1LastCommittedOffset))), Mockito.isNull()); // no error messages in this partition, so no commit callback
-        Mockito.verify(consumerMock).commitAsync(Mockito.eq(Map.of(new TopicPartition(TOPIC_NAME, 3), new OffsetAndMetadata(EXPECTED_PARTITION3_OFFSET))), Mockito.isNull());
+        Mockito.verify(consumerMock).commitAsync(Mockito.eq(Map.of(new TopicPartition(TOPIC_NAME, 0), new OffsetAndMetadata(partition0LastCommittedOffset+1))), Mockito.notNull());
+        Mockito.verify(consumerMock).commitAsync(Mockito.eq(Map.of(new TopicPartition(TOPIC_NAME, 1), new OffsetAndMetadata(partition1LastCommittedOffset+1))), Mockito.isNull()); // no error messages in this partition, so no commit callback
+        Mockito.verify(consumerMock).commitAsync(Mockito.eq(Map.of(new TopicPartition(TOPIC_NAME, 3), new OffsetAndMetadata(EXPECTED_PARTITION3_OFFSET+1))), Mockito.isNull());
 
         Mockito.verifyNoMoreInteractions(errorNotifierServiceMock, initiativeStatRepositoryMock, consumerMock);
     }

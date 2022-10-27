@@ -17,10 +17,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.util.Optional;
 
 @WebMvcTest(InitiativeApiControllerImpl.class)
@@ -48,7 +45,7 @@ class InitiativeApiControllerTest {
                                 .organizationId("ORGANIZATIONID")
                                 .onboardedCitizenCount(7L)
                                 .accruedRewardsCents(537L)
-                                .lastUpdatedDateTime(OffsetDateTime.of(LocalDate.of(2022, 10, 1), LocalTime.MIDNIGHT, ZoneOffset.UTC))
+                                .lastUpdatedDateTime(LocalDateTime.of(LocalDate.of(2022, 10, 1), LocalTime.MIDNIGHT))
                                 .build()
                 ));
 
@@ -59,7 +56,7 @@ class InitiativeApiControllerTest {
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
                 .andReturn();
 
-        Assertions.assertEquals("{\"lastUpdatedDateTime\":\"2022-10-01T00:00:00Z\",\"onboardedCitizenCount\":7,\"accruedRewards\":\"5.37\"}", result.getResponse().getContentAsString());
+        Assertions.assertEquals("{\"lastUpdatedDateTime\":\"2022-10-01T00:00:00\",\"onboardedCitizenCount\":7,\"accruedRewards\":\"5.37\"}", result.getResponse().getContentAsString());
     }
 
     @Test
