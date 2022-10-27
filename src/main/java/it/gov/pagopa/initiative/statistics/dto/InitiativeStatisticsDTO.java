@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 
 /**
  * InitiativeStatisticsDTO
@@ -16,8 +16,8 @@ import java.time.OffsetDateTime;
 @Builder
 public class InitiativeStatisticsDTO {
 
-  private OffsetDateTime lastUpdatedDateTime;
-  private Integer onboardedCitizenCount;
+  private LocalDateTime lastUpdatedDateTime;
+  private Long onboardedCitizenCount;
   private String accruedRewards;
 
 }
