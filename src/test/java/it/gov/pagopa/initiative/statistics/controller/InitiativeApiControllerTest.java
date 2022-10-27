@@ -50,7 +50,7 @@ class InitiativeApiControllerTest {
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
                 .andReturn();
 
-        Assertions.assertEquals("{\"lastUpdatedDateTime\":\"2022-10-01T00:00:00\",\"onboardedCitizenCount\":7,\"accruedRewards\":\"5.37\"}", result.getResponse().getContentAsString());
+        Assertions.assertEquals("{\"lastUpdatedDateTime\":\"2022-10-01T00:00:00\",\"onboardedCitizenCount\":7,\"accruedRewards\":\"5,37\"}", result.getResponse().getContentAsString());
 
 
         // When not onboarding count
@@ -62,7 +62,7 @@ class InitiativeApiControllerTest {
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
                 .andReturn();
 
-        Assertions.assertEquals("{\"lastUpdatedDateTime\":\"2022-10-01T00:00:00\",\"onboardedCitizenCount\":0,\"accruedRewards\":\"5.37\"}", result2.getResponse().getContentAsString());
+        Assertions.assertEquals("{\"lastUpdatedDateTime\":\"2022-10-01T00:00:00\",\"onboardedCitizenCount\":0,\"accruedRewards\":\"5,37\"}", result2.getResponse().getContentAsString());
 
         // When not accrued rewards
         mockedEntity.setOnboardedCitizenCount(7L);
@@ -74,7 +74,7 @@ class InitiativeApiControllerTest {
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
                 .andReturn();
 
-        Assertions.assertEquals("{\"lastUpdatedDateTime\":\"2022-10-01T00:00:00\",\"onboardedCitizenCount\":7,\"accruedRewards\":\"0.00\"}", result3.getResponse().getContentAsString());
+        Assertions.assertEquals("{\"lastUpdatedDateTime\":\"2022-10-01T00:00:00\",\"onboardedCitizenCount\":7,\"accruedRewards\":\"0,00\"}", result3.getResponse().getContentAsString());
     }
 
     @Test
