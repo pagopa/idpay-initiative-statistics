@@ -4,6 +4,7 @@ import it.gov.pagopa.initiative.statistics.dto.InitiativeStatisticsDTO;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
 import it.gov.pagopa.initiative.statistics.service.InitiativeStatService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,8 +34,8 @@ public class InitiativeApiControllerImpl implements InitiativeApiController {
 
         InitiativeStatistics stat = this.initiativeStatService.getStatistics(organizationId, initiativeId);
         return ResponseEntity.ok(InitiativeStatisticsDTO.builder()
-                        .onboardedCitizenCount(stat.getOnboardedCitizenCount())
-                        .accruedRewards(stat.getAccruedRewardsCents() != null? decimalFormatter.format((double)stat.getAccruedRewardsCents()/100) : null)
+                        .onboardedCitizenCount(ObjectUtils.firstNonNull(stat.getOnboardedCitizenCount(), 0L))
+                        .accruedRewards(stat.getAccruedRewardsCents() != null? decimalFormatter.format((double)stat.getAccruedRewardsCents()/100) : "0.00")
                         .lastUpdatedDateTime(stat.getLastUpdatedDateTime())
                 .build());
     }
