@@ -31,6 +31,7 @@ public class InitiativeApiControllerImpl implements InitiativeApiController {
 
     @Override
     public ResponseEntity<InitiativeStatisticsDTO> initiativeStatistics(String organizationId, String initiativeId) {
+        log.info("Requesting statistics for organization {} and initiative {}", organizationId, initiativeId);
 
         InitiativeStatistics stat = this.initiativeStatService.getStatistics(organizationId, initiativeId);
         return ResponseEntity.ok(InitiativeStatisticsDTO.builder()
