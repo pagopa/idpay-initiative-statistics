@@ -69,9 +69,9 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
         msgs.forEach(p -> publishIntoEmbeddedKafka(getStatisticsMessagesTopic(), null, null, p));
         long timePublishingEnd = System.currentTimeMillis();
 
-        Assertions.assertEquals(getExpectedCounterValue(validMsgs), waitForCounterResult(INITIATIVEID1, validMsgs, maxWaitingMs));
+        Assertions.assertEquals(getExpectedCounterValue(validMsgs), waitForCounterResult(INITIATIVEID1, "ORGANIZATIONID_"+INITIATIVEID1, validMsgs, maxWaitingMs));
         long timeCounterUpdated = System.currentTimeMillis();
-        Assertions.assertEquals(getExpectedCounterValue(validMsgs), waitForCounterResult(INITIATIVEID2, validMsgs, maxWaitingMs));
+        Assertions.assertEquals(getExpectedCounterValue(validMsgs), waitForCounterResult(INITIATIVEID2, "ORGANIZATIONID_"+INITIATIVEID2, validMsgs, maxWaitingMs));
 
         int expectedTotalSentMessages = msgs.size() + 2; // +2 due to initial published records: offset skip check and notValidMsg
 
@@ -123,7 +123,8 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
 
         waitForEvaluateInvocationTimes(payload);
 
-        buildExpectedStoredInitiativeStatisticsAfterSkipBehaviorTest(stored);
+        getSetterCounter().accept(stored, 0L);
+        stored.setOrganizationId("ORGANIZATIONID_"+stored.getInitiativeId());
 
         InitiativeStatistics retrieved = initiativeStatRepository.findById(INITIATIVEID1).orElse(null);
         Assertions.assertNotNull(retrieved);
@@ -134,9 +135,6 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
         Mockito.verifyNoInteractions(errorNotifierServiceSpy);
     }
 
-    protected void buildExpectedStoredInitiativeStatisticsAfterSkipBehaviorTest(InitiativeStatistics stored) {
-        getSetterCounter().accept(stored, 0L);
-    }
 
     private void waitForEvaluateInvocationTimes(String payload) {
         Throwable[] lastException = new Throwable[]{null};
@@ -166,8 +164,8 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
                 .toList();
     }
 
-    protected long waitForCounterResult(String initiativeId, long expectedCounterValue, long maxWaitingMs) {
-        return waitForCounterResult(initiativeId, getGetterCounter(), expectedCounterValue, maxWaitingMs);
+    protected long waitForCounterResult(String initiativeId, String organizationId, long expectedCounterValue, long maxWaitingMs) {
+        return waitForCounterResult(initiativeId, organizationId, getGetterCounter(), expectedCounterValue, maxWaitingMs);
     }
 
     protected void verifyPartitionOffsetStored(long expectOffsetSum, String initiativeid, boolean assertEquals) {

@@ -12,11 +12,10 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 
 @Service
-public class TransactionEvaluationStatisticsServiceImpl extends BaseStatisticsEvaluationService<TransactionEvaluationDTO, Map.Entry<String, Reward>> implements TransactionEvaluationStatisticsService {
+public class TransactionEvaluationStatisticsServiceImpl extends BaseStatisticsEvaluationService<TransactionEvaluationDTO, Reward> implements TransactionEvaluationStatisticsService {
 
     private final ErrorNotifierService errorNotifierService;
     private final InitiativeStatRepository initiativeStatRepository;
@@ -42,8 +41,8 @@ public class TransactionEvaluationStatisticsServiceImpl extends BaseStatisticsEv
     }
 
     @Override
-    protected long retrieveLastProcessedOffset(String initiativeId, int partition, Map.Entry<String, Reward> reward) {
-        return initiativeStatRepository.retrieveTransactionEvaluationCommittedOffset(initiativeId, partition);
+    protected long retrieveLastProcessedOffset(String initiativeId, int partition, Reward reward) {
+        return initiativeStatRepository.retrieveTransactionEvaluationCommittedOffset(initiativeId, reward.getOrganizationId(), partition);
     }
 
     @Override
@@ -52,20 +51,20 @@ public class TransactionEvaluationStatisticsServiceImpl extends BaseStatisticsEv
     }
 
     @Override
-    protected Stream<Map.Entry<String, Reward>> toInitiativeBasedEntityStream(TransactionEvaluationDTO transactionEvaluationDTO) {
-        return transactionEvaluationDTO.getRewards().entrySet().stream();
+    protected Stream<Reward> toInitiativeBasedEntityStream(TransactionEvaluationDTO transactionEvaluationDTO) {
+        return transactionEvaluationDTO.getRewards().values().stream();
     }
 
     @Override
-    protected String getInitiativeId(Map.Entry<String, Reward> t) {
-        return t.getKey();
+    protected String getInitiativeId(Reward reward) {
+        return reward.getInitiativeId();
     }
 
     @Override
-    protected void evaluateInitiative(String initiativeId, List<Map.Entry<String, Reward>> records, int partition, long maxOffset) {
+    protected void evaluateInitiative(String initiativeId, List<Reward> records, int partition, long maxOffset) {
         initiativeStatRepository.updateAccruedRewards(
                 initiativeId,
-                records.stream().map(r -> r.getValue().getAccruedReward()).reduce(BigDecimal::add).orElse(BigDecimal.ZERO),
+                records.stream().map(Reward::getAccruedReward).reduce(BigDecimal::add).orElse(BigDecimal.ZERO),
                 partition, maxOffset);
     }
 }

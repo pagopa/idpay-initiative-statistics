@@ -65,7 +65,7 @@ class InitiativeStatAtomicOpsRepositoryTest extends BaseIntegrationTest {
         InitiativeStatistics.CommittedOffset expectedPartition1 = new InitiativeStatistics.CommittedOffset(1, -1);
 
         // test when not exists not providing organizationId
-        long result = repository.retrieveTransactionEvaluationCommittedOffset(initiativeid, 0);
+        long result = repository.retrieveTransactionEvaluationCommittedOffset(initiativeid, null, 0);
         Assertions.assertEquals(-1L, result);
 
         InitiativeStatistics entity = repository.findById(initiativeid).orElse(null);
@@ -73,24 +73,26 @@ class InitiativeStatAtomicOpsRepositoryTest extends BaseIntegrationTest {
         Assertions.assertEquals(List.of(expectedPartition0), entity.getTransactionEvaluationCommittedOffsets());
 
         // test when exists providing organizationId
-        long result2 = repository.retrieveTransactionEvaluationCommittedOffset(initiativeid, 1);
+        long result2 = repository.retrieveTransactionEvaluationCommittedOffset(initiativeid, "ORGANIZATIONID", 1);
         Assertions.assertEquals(-1L, result2);
 
         InitiativeStatistics entity2 = repository.findById(initiativeid).orElse(null);
         Assertions.assertNotNull(entity2);
         Assertions.assertEquals(List.of(expectedPartition0, expectedPartition1), entity2.getTransactionEvaluationCommittedOffsets());
+        Assertions.assertEquals("ORGANIZATIONID", entity2.getOrganizationId());
 
         // test when initiative and partition already exist, trying to change organization (it cannot be modified)
         InitiativeStatistics.CommittedOffset expectedPartition3 = new InitiativeStatistics.CommittedOffset(3, 50);
         entity2.setTransactionEvaluationCommittedOffsets(List.of(expectedPartition3));
         repository.save(entity2);
 
-        long result3 = repository.retrieveTransactionEvaluationCommittedOffset(initiativeid, 3);
+        long result3 = repository.retrieveTransactionEvaluationCommittedOffset(initiativeid, null, 3);
         Assertions.assertEquals(50, result3);
 
         InitiativeStatistics entity3 = repository.findById(initiativeid).orElse(null);
         Assertions.assertNotNull(entity3);
         Assertions.assertEquals(List.of(expectedPartition3), entity3.getTransactionEvaluationCommittedOffsets());
+        Assertions.assertEquals("ORGANIZATIONID", entity3.getOrganizationId());
     }
 
     @Test

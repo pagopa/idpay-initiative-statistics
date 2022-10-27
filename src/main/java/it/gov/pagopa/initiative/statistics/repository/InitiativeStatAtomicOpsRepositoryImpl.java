@@ -41,8 +41,8 @@ public class InitiativeStatAtomicOpsRepositoryImpl implements InitiativeStatAtom
     }
 
     @Override
-    public long retrieveTransactionEvaluationCommittedOffset(String initiativeId, int partition) {
-        return retrieveOffset(initiativeId, null, partition, InitiativeStatistics::getTransactionEvaluationCommittedOffsets, InitiativeStatistics.Fields.transactionEvaluationCommittedOffsets);
+    public long retrieveTransactionEvaluationCommittedOffset(String initiativeId, String organizationId, int partition) {
+        return retrieveOffset(initiativeId, organizationId, partition, InitiativeStatistics::getTransactionEvaluationCommittedOffsets, InitiativeStatistics.Fields.transactionEvaluationCommittedOffsets);
     }
 
     private Long retrieveOffset(String initiativeId, String organizationId, int partition, Function<InitiativeStatistics, List<InitiativeStatistics.CommittedOffset>> commitsgetter, String commitsField){

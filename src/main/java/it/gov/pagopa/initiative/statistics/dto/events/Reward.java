@@ -10,6 +10,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Reward {
+    private String initiativeId;
+    private String organizationId;
     /** The effective reward after CAP and REFUND evaluation */
     private BigDecimal accruedReward;
 }

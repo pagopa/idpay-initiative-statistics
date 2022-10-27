@@ -56,7 +56,7 @@ class TransactionEvaluationMessagesListenerTest extends BaseStatisticsMessagesLi
         List<TransactionEvaluationDTO> out = buildValidTransactionEvaluationEntities(bias, size, initiativeid);
         out.forEach(t -> {
             t.setRewards(new HashMap<>(t.getRewards()));
-            t.getRewards().put(initiativeid+"_2", new Reward(BigDecimal.valueOf(2)));
+            t.getRewards().put(initiativeid+"_2", new Reward(initiativeid+"_2", "ORGANIZATIONID_"+initiativeid, BigDecimal.valueOf(2)));
         });
         return out;
     }
@@ -111,9 +111,9 @@ class TransactionEvaluationMessagesListenerTest extends BaseStatisticsMessagesLi
     }
 
     @Override
-    protected long waitForCounterResult(String initiativeId, long expectedCounterValue, long maxWaitingMs) {
-        super.waitForCounterResult(initiativeId+"_2", expectedCounterValue*2, maxWaitingMs);
-        return super.waitForCounterResult(initiativeId, expectedCounterValue, maxWaitingMs);
+    protected long waitForCounterResult(String initiativeId, String organizationId, long expectedCounterValue, long maxWaitingMs) {
+        super.waitForCounterResult(initiativeId+"_2", organizationId, expectedCounterValue*2, maxWaitingMs);
+        return super.waitForCounterResult(initiativeId, organizationId, expectedCounterValue, maxWaitingMs);
     }
 
     @Override

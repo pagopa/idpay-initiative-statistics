@@ -46,28 +46,28 @@ class TransactionEvaluationStatisticsServiceTest extends BaseStatisticsEvaluatio
     protected List<String> getUseCases() {
         return Stream.of(
                         TransactionEvaluationDTOFaker.mockInstanceBuilder(0)
-                                .rewards(Map.of("INITIATIVEID1", new Reward(BigDecimal.valueOf(1.1))))
+                                .rewards(Map.of("INITIATIVEID1", new Reward("INITIATIVEID1", "ORGANIZATIONID1", BigDecimal.valueOf(1.1))))
                                 .build(),
                         TransactionEvaluationDTOFaker.mockInstanceBuilder(1)
-                                .rewards(Map.of("INITIATIVEID1", new Reward(BigDecimal.valueOf(2.25))))
+                                .rewards(Map.of("INITIATIVEID1", new Reward("INITIATIVEID1", "ORGANIZATIONID1", BigDecimal.valueOf(2.25))))
                                 .build(),
                         TransactionEvaluationDTOFaker.mockInstanceBuilder(2)
-                                .rewards(Map.of("INITIATIVEID1", new Reward(BigDecimal.valueOf(3))))
+                                .rewards(Map.of("INITIATIVEID1", new Reward("INITIATIVEID1", "ORGANIZATIONID1", BigDecimal.valueOf(3))))
                                 .build(),
                         TransactionEvaluationDTOFaker.mockInstanceBuilder(3, "INITIATIVEID1")
                                 .rewards(Collections.emptyMap())
                                 .build(),
                         TransactionEvaluationDTOFaker.mockInstanceBuilder(4)
-                                .rewards(Map.of("INITIATIVEID2", new Reward(BigDecimal.valueOf(1))))
+                                .rewards(Map.of("INITIATIVEID2", new Reward("INITIATIVEID2", "ORGANIZATIONID2", BigDecimal.valueOf(1))))
                                 .build(),
                         TransactionEvaluationDTOFaker.mockInstanceBuilder(5, "INITIATIVEID2")
                                 .rewards(Collections.emptyMap())
                                 .build(),
                         TransactionEvaluationDTOFaker.mockInstanceBuilder(6)
-                                .rewards(Map.of("INITIATIVEID2", new Reward(BigDecimal.valueOf(5.13))))
+                                .rewards(Map.of("INITIATIVEID2", new Reward("INITIATIVEID2", "ORGANIZATIONID2", BigDecimal.valueOf(5.13))))
                                 .build(),
                         TransactionEvaluationDTOFaker.mockInstanceBuilder(7)
-                                .rewards(Map.of("INITIATIVEID2", new Reward(BigDecimal.valueOf(8.25))))
+                                .rewards(Map.of("INITIATIVEID2", new Reward("INITIATIVEID2", "ORGANIZATIONID2", BigDecimal.valueOf(8.25))))
                                 .build()
                 )
                 .map(TestUtils::jsonSerializer)
@@ -80,12 +80,12 @@ class TransactionEvaluationStatisticsServiceTest extends BaseStatisticsEvaluatio
                 , Mockito.argThat(description -> description.startsWith("[INITIATIVE_STATISTICS_EVALUATION][TRANSACTION_EVALUATION] Unexpected json: "))
                 , Mockito.eq(false), Mockito.any());
 
-        Mockito.verify(initiativeStatRepositoryMock).retrieveTransactionEvaluationCommittedOffset("INITIATIVEID1", 0);
-        Mockito.verify(initiativeStatRepositoryMock).retrieveTransactionEvaluationCommittedOffset("INITIATIVEID1", 1);
-        Mockito.verify(initiativeStatRepositoryMock).retrieveTransactionEvaluationCommittedOffset("INITIATIVEID1", 3);
-        Mockito.verify(initiativeStatRepositoryMock).retrieveTransactionEvaluationCommittedOffset("INITIATIVEID2", 0);
-        Mockito.verify(initiativeStatRepositoryMock).retrieveTransactionEvaluationCommittedOffset("INITIATIVEID2", 1);
-        Mockito.verify(initiativeStatRepositoryMock).retrieveTransactionEvaluationCommittedOffset("INITIATIVEID2", 3);
+        Mockito.verify(initiativeStatRepositoryMock).retrieveTransactionEvaluationCommittedOffset("INITIATIVEID1", "ORGANIZATIONID1", 0);
+        Mockito.verify(initiativeStatRepositoryMock).retrieveTransactionEvaluationCommittedOffset("INITIATIVEID1", "ORGANIZATIONID1", 1);
+        Mockito.verify(initiativeStatRepositoryMock).retrieveTransactionEvaluationCommittedOffset("INITIATIVEID1", "ORGANIZATIONID1", 3);
+        Mockito.verify(initiativeStatRepositoryMock).retrieveTransactionEvaluationCommittedOffset("INITIATIVEID2", "ORGANIZATIONID2", 0);
+        Mockito.verify(initiativeStatRepositoryMock).retrieveTransactionEvaluationCommittedOffset("INITIATIVEID2", "ORGANIZATIONID2", 1);
+        Mockito.verify(initiativeStatRepositoryMock).retrieveTransactionEvaluationCommittedOffset("INITIATIVEID2", "ORGANIZATIONID2", 3);
 
         Mockito.verify(initiativeStatRepositoryMock).updateAccruedRewards("INITIATIVEID1", BigDecimal.valueOf(4.1), 0, partition0LastCommittedOffset);
         Mockito.verify(initiativeStatRepositoryMock).updateAccruedRewards("INITIATIVEID1", BigDecimal.valueOf(2.25), 1, partition1LastCommittedOffset);

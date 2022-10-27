@@ -403,19 +403,24 @@ public abstract class BaseIntegrationTest {
     }
     protected TransactionEvaluationDTO buildValidTransactionEvaluationEntity(int bias, String initiativeid) {
         return TransactionEvaluationDTOFaker.mockInstanceBuilder(bias)
-                .rewards(Map.of(initiativeid, new Reward(BigDecimal.ONE)))
+                .rewards(Map.of(initiativeid, new Reward(initiativeid, "ORGANIZATIONID_%s".formatted(initiativeid), BigDecimal.ONE)))
                 .build();
     }
 
 
     @Autowired
     protected InitiativeStatRepository initiativeStatRepository;
-    protected long waitForCounterResult(String initiativeId, Function<InitiativeStatistics, Long> getterCounter, long expectedCounterValue, long maxWaitingMs) {
+    protected long waitForCounterResult(String initiativeId, String organizationId, Function<InitiativeStatistics, Long> getterCounter, long expectedCounterValue, long maxWaitingMs) {
         int millisAttemptDelay = 500;
         int maxAttempts = (int) maxWaitingMs / millisAttemptDelay;
 
         long[] countSaved = {0};
-        waitFor(() -> (countSaved[0] = initiativeStatRepository.findById(initiativeId).map(getterCounter).orElse(-1L)) >= expectedCounterValue
+        waitFor(() -> (countSaved[0] = initiativeStatRepository.findById(initiativeId)
+                        .filter(r-> {
+                            Assertions.assertEquals(organizationId, r.getOrganizationId());
+                            return true;
+                        })
+                        .map(getterCounter).orElse(-1L)) >= expectedCounterValue
                 , () -> "Expected %d counter value for initiative %s, read %d".formatted(expectedCounterValue, initiativeId, countSaved[0])
                 , maxAttempts, millisAttemptDelay);
         return countSaved[0];
