@@ -202,6 +202,6 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
     }
 
     protected void checkErrorMessageHeaders(ConsumerRecord<String, String> errorMessage, String errorDescription, String expectedPayload, String expectedKey) {
-        checkErrorMessageHeaders(getStatisticsMessagesTopic(), getStatisticsMessagesGroupId(), errorMessage, errorDescription, expectedPayload, expectedKey);
+        checkErrorMessageHeaders(getStatisticsMessagesTopic(), getStatisticsMessagesGroupId(), errorMessage, errorDescription, false, expectedPayload, expectedKey);
     }
 }

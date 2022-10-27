@@ -354,10 +354,10 @@ public abstract class BaseIntegrationTest {
         }
     }
 
-    protected void checkErrorMessageHeaders(String srcTopic,String group, ConsumerRecord<String, String> errorMessage, String errorDescription, String expectedPayload, String expectedKey) {
-        checkErrorMessageHeaders(srcTopic, group, errorMessage, errorDescription, expectedPayload, expectedKey, true, true);
+    protected void checkErrorMessageHeaders(String srcTopic,String group, ConsumerRecord<String, String> errorMessage, String errorDescription, boolean expectedRetriable, String expectedPayload, String expectedKey) {
+        checkErrorMessageHeaders(srcTopic, group, errorMessage, errorDescription, expectedRetriable, expectedPayload, expectedKey, true, true);
     }
-    protected void checkErrorMessageHeaders(String srcTopic, String group, ConsumerRecord<String, String> errorMessage, String errorDescription, String expectedPayload, String expectedKey, boolean expectDummyHeader, boolean expectedAppNameHeader) {
+    protected void checkErrorMessageHeaders(String srcTopic, String group, ConsumerRecord<String, String> errorMessage, String errorDescription, boolean expectedRetriable, String expectedPayload, String expectedKey, boolean expectDummyHeader, boolean expectedAppNameHeader) {
         if(expectedAppNameHeader) {
             Assertions.assertEquals(APPLICATION_NAME, TestUtils.getHeaderValue(errorMessage, ErrorNotifierServiceImpl.ERROR_MSG_HEADER_APPLICATION_NAME));
         }
@@ -367,6 +367,7 @@ public abstract class BaseIntegrationTest {
         Assertions.assertEquals(srcTopic, TestUtils.getHeaderValue(errorMessage, ErrorNotifierServiceImpl.ERROR_MSG_HEADER_SRC_TOPIC));
         Assertions.assertNotNull(errorMessage.headers().lastHeader(ErrorNotifierServiceImpl.ERROR_MSG_HEADER_STACKTRACE));
         Assertions.assertEquals(errorDescription, TestUtils.getHeaderValue(errorMessage, ErrorNotifierServiceImpl.ERROR_MSG_HEADER_DESCRIPTION));
+        Assertions.assertEquals(expectedRetriable+"", TestUtils.getHeaderValue(errorMessage, ErrorNotifierServiceImpl.ERROR_MSG_HEADER_RETRYABLE));
         if(expectDummyHeader){
             Assertions.assertEquals("VALUE", TestUtils.getHeaderValue(errorMessage, "DUMMY")); // to test if headers are correctly propagated
         }
