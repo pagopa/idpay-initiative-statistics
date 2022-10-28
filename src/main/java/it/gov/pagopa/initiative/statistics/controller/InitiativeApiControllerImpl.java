@@ -18,7 +18,7 @@ public class InitiativeApiControllerImpl implements InitiativeApiController {
 
     public static final DecimalFormatSymbols decimalFormatterSymbols = new DecimalFormatSymbols();
     static{
-        decimalFormatterSymbols.setDecimalSeparator('.');
+        decimalFormatterSymbols.setDecimalSeparator(',');
     }
     private static final DecimalFormat decimalFormatter = new DecimalFormat("0.00", decimalFormatterSymbols);
 
@@ -36,7 +36,7 @@ public class InitiativeApiControllerImpl implements InitiativeApiController {
         InitiativeStatistics stat = this.initiativeStatService.getStatistics(organizationId, initiativeId);
         return ResponseEntity.ok(InitiativeStatisticsDTO.builder()
                         .onboardedCitizenCount(ObjectUtils.firstNonNull(stat.getOnboardedCitizenCount(), 0L))
-                        .accruedRewards(stat.getAccruedRewardsCents() != null? decimalFormatter.format((double)stat.getAccruedRewardsCents()/100) : "0.00")
+                        .accruedRewards(stat.getAccruedRewardsCents() != null? decimalFormatter.format((double)stat.getAccruedRewardsCents()/100) : "0,00")
                         .lastUpdatedDateTime(stat.getLastUpdatedDateTime())
                 .build());
     }
