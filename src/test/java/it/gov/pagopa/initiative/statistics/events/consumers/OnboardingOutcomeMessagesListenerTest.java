@@ -91,12 +91,6 @@ class OnboardingOutcomeMessagesListenerTest extends BaseStatisticsMessagesListen
         return validMsgs;
     }
 
-    @Override
-    protected void buildExpectedStoredInitiativeStatisticsAfterSkipBehaviorTest(InitiativeStatistics stored) {
-        super.buildExpectedStoredInitiativeStatisticsAfterSkipBehaviorTest(stored);
-        stored.setOrganizationId("ORGANIZATIONID-1");
-    }
-
     //region not valid useCases
     // all use cases configured must have a unique id recognized by the regexp getErrorUseCaseIdPatternMatch
     protected Pattern getErrorUseCaseIdPatternMatch() {

@@ -64,12 +64,12 @@ class OnboardingStatisticsServiceTest extends BaseStatisticsEvaluationServiceTes
                 , Mockito.argThat(description -> description.startsWith("[INITIATIVE_STATISTICS_EVALUATION][ONBOARDING_OUTCOME] Unexpected json: "))
                 , Mockito.eq(false), Mockito.any());
 
-        Mockito.verify(initiativeStatRepositoryMock).retrieveOnboardingOutcomeCommittedOffset("INITIATIVEID1", "ORGANIZATIONID0", 0);
-        Mockito.verify(initiativeStatRepositoryMock).retrieveOnboardingOutcomeCommittedOffset("INITIATIVEID1", "ORGANIZATIONID1", 1);
-        Mockito.verify(initiativeStatRepositoryMock).retrieveOnboardingOutcomeCommittedOffset("INITIATIVEID1", "ORGANIZATIONID0", 3);
-        Mockito.verify(initiativeStatRepositoryMock).retrieveOnboardingOutcomeCommittedOffset("INITIATIVEID2", "ORGANIZATIONID4", 0);
-        Mockito.verify(initiativeStatRepositoryMock).retrieveOnboardingOutcomeCommittedOffset("INITIATIVEID2", "ORGANIZATIONID5", 1);
-        Mockito.verify(initiativeStatRepositoryMock).retrieveOnboardingOutcomeCommittedOffset("INITIATIVEID2", "ORGANIZATIONID4", 3);
+        Mockito.verify(initiativeStatRepositoryMock).retrieveOnboardingOutcomeCommittedOffset("INITIATIVEID1", "ORGANIZATIONID_INITIATIVEID1", 0);
+        Mockito.verify(initiativeStatRepositoryMock).retrieveOnboardingOutcomeCommittedOffset("INITIATIVEID1", "ORGANIZATIONID_INITIATIVEID1", 1);
+        Mockito.verify(initiativeStatRepositoryMock).retrieveOnboardingOutcomeCommittedOffset("INITIATIVEID1", "ORGANIZATIONID_INITIATIVEID1", 3);
+        Mockito.verify(initiativeStatRepositoryMock).retrieveOnboardingOutcomeCommittedOffset("INITIATIVEID2", "ORGANIZATIONID_INITIATIVEID2", 0);
+        Mockito.verify(initiativeStatRepositoryMock).retrieveOnboardingOutcomeCommittedOffset("INITIATIVEID2", "ORGANIZATIONID_INITIATIVEID2", 1);
+        Mockito.verify(initiativeStatRepositoryMock).retrieveOnboardingOutcomeCommittedOffset("INITIATIVEID2", "ORGANIZATIONID_INITIATIVEID2", 3);
 
         Mockito.verify(initiativeStatRepositoryMock).updateOnboardingCount("INITIATIVEID1", 2, 0, partition0LastCommittedOffset);
         Mockito.verify(initiativeStatRepositoryMock).updateOnboardingCount("INITIATIVEID1", 1, 1, partition1LastCommittedOffset);

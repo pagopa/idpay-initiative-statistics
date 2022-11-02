@@ -65,7 +65,7 @@ class InitiativeStatAtomicOpsRepositoryTest extends BaseIntegrationTest {
         InitiativeStatistics.CommittedOffset expectedPartition1 = new InitiativeStatistics.CommittedOffset(1, -1);
 
         // test when not exists not providing organizationId
-        long result = repository.retrieveTransactionEvaluationCommittedOffset(initiativeid, 0);
+        long result = repository.retrieveTransactionEvaluationCommittedOffset(initiativeid, null, 0);
         Assertions.assertEquals(-1L, result);
 
         InitiativeStatistics entity = repository.findById(initiativeid).orElse(null);
@@ -73,24 +73,26 @@ class InitiativeStatAtomicOpsRepositoryTest extends BaseIntegrationTest {
         Assertions.assertEquals(List.of(expectedPartition0), entity.getTransactionEvaluationCommittedOffsets());
 
         // test when exists providing organizationId
-        long result2 = repository.retrieveTransactionEvaluationCommittedOffset(initiativeid, 1);
+        long result2 = repository.retrieveTransactionEvaluationCommittedOffset(initiativeid, "ORGANIZATIONID", 1);
         Assertions.assertEquals(-1L, result2);
 
         InitiativeStatistics entity2 = repository.findById(initiativeid).orElse(null);
         Assertions.assertNotNull(entity2);
         Assertions.assertEquals(List.of(expectedPartition0, expectedPartition1), entity2.getTransactionEvaluationCommittedOffsets());
+        Assertions.assertEquals("ORGANIZATIONID", entity2.getOrganizationId());
 
         // test when initiative and partition already exist, trying to change organization (it cannot be modified)
         InitiativeStatistics.CommittedOffset expectedPartition3 = new InitiativeStatistics.CommittedOffset(3, 50);
         entity2.setTransactionEvaluationCommittedOffsets(List.of(expectedPartition3));
         repository.save(entity2);
 
-        long result3 = repository.retrieveTransactionEvaluationCommittedOffset(initiativeid, 3);
+        long result3 = repository.retrieveTransactionEvaluationCommittedOffset(initiativeid, null, 3);
         Assertions.assertEquals(50, result3);
 
         InitiativeStatistics entity3 = repository.findById(initiativeid).orElse(null);
         Assertions.assertNotNull(entity3);
         Assertions.assertEquals(List.of(expectedPartition3), entity3.getTransactionEvaluationCommittedOffsets());
+        Assertions.assertEquals("ORGANIZATIONID", entity3.getOrganizationId());
     }
 
     @Test
@@ -135,10 +137,10 @@ class InitiativeStatAtomicOpsRepositoryTest extends BaseIntegrationTest {
     void testUpdateAccruedReward(){
         // increasing when not initiative
         try{
-            repository.updateAccruedRewards(initiativeid, BigDecimal.valueOf(0), 0, 0);
+            repository.updateAccruedRewards(initiativeid, BigDecimal.valueOf(0), 0L, 0, 0);
         } catch (IllegalStateException e){
             Assertions.assertEquals(
-                    "[INITIATIVE_STATISTICS_EVALUATION][INC_accruedRewardsCents] Counter increase called on not existent initiativeId-topicPartition: INITIATIVEID 0",
+                    "[INITIATIVE_STATISTICS_EVALUATION][INC_accruedRewardsCents][INC_rewardedTrxs] Counter increase called on not existent initiativeId-topicPartition: INITIATIVEID 0",
                     e.getMessage());
         }
 
@@ -147,24 +149,26 @@ class InitiativeStatAtomicOpsRepositoryTest extends BaseIntegrationTest {
         repository.save(entity);
 
         try{
-            repository.updateAccruedRewards(initiativeid, BigDecimal.valueOf(0), 0, 0);
+            repository.updateAccruedRewards(initiativeid, BigDecimal.valueOf(0), 0L, 0, 0);
         } catch (IllegalStateException e){
             Assertions.assertEquals(
-                    "[INITIATIVE_STATISTICS_EVALUATION][INC_accruedRewardsCents] Counter increase called on not existent initiativeId-topicPartition: INITIATIVEID 0",
+                    "[INITIATIVE_STATISTICS_EVALUATION][INC_accruedRewardsCents][INC_rewardedTrxs] Counter increase called on not existent initiativeId-topicPartition: INITIATIVEID 0",
                     e.getMessage());
         }
 
         // successfulUseCase
         entity.setAccruedRewardsCents(100L);
+        entity.setRewardedTrxs(10L);
         entity.setTransactionEvaluationCommittedOffsets(List.of(new InitiativeStatistics.CommittedOffset(1, -1)));
         repository.save(entity);
 
-        repository.updateAccruedRewards(initiativeid, BigDecimal.valueOf(5), 1, 10);
+        repository.updateAccruedRewards(initiativeid, BigDecimal.valueOf(5), 1L, 1, 10);
 
         InitiativeStatistics result = repository.findById(initiativeid).orElse(null);
         Assertions.assertNotNull(result);
         Assertions.assertEquals(initiativeid, result.getInitiativeId());
         Assertions.assertEquals(600L, result.getAccruedRewardsCents());
+        Assertions.assertEquals(11L, result.getRewardedTrxs());
         Assertions.assertEquals(List.of(new InitiativeStatistics.CommittedOffset(1, 10)),
                 result.getTransactionEvaluationCommittedOffsets());
     }

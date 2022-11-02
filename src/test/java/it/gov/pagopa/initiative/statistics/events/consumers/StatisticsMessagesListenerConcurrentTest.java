@@ -41,9 +41,10 @@ class StatisticsMessagesListenerConcurrentTest extends BaseIntegrationTest {
         });
         long timePublishingEnd = System.currentTimeMillis();
 
-        Assertions.assertEquals(validMsgs, waitForCounterResult(INITIATIVEID, InitiativeStatistics::getOnboardedCitizenCount, validMsgs, maxWaitingMs));
-        Assertions.assertEquals(validMsgs * 100, waitForCounterResult(INITIATIVEID, InitiativeStatistics::getAccruedRewardsCents, validMsgs * 100, maxWaitingMs));
+        Assertions.assertEquals(validMsgs, waitForCounterResult(INITIATIVEID, "ORGANIZATIONID_"+INITIATIVEID, InitiativeStatistics::getOnboardedCitizenCount, validMsgs, maxWaitingMs));
+        Assertions.assertEquals(validMsgs * 100, waitForCounterResult(INITIATIVEID, "ORGANIZATIONID_"+INITIATIVEID, InitiativeStatistics::getAccruedRewardsCents, validMsgs * 100, maxWaitingMs));
         long timeCounterUpdated = System.currentTimeMillis();
+        Assertions.assertEquals(getExpectedTrxsCount(validMsgs), initiativeStatRepository.findById(INITIATIVEID).map(InitiativeStatistics::getRewardedTrxs).orElse(null));
 
         verifyPartitionOffsetStored(validMsgs, INITIATIVEID, InitiativeStatistics::getOnboardingOutcomeCommittedOffsets, true);
         verifyPartitionOffsetStored(validMsgs, INITIATIVEID, InitiativeStatistics::getTransactionEvaluationCommittedOffsets, false);

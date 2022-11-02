@@ -9,6 +9,7 @@ import it.gov.pagopa.initiative.statistics.test.fakers.TransactionEvaluationDTOF
 import it.gov.pagopa.initiative.statistics.test.utils.TestUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.util.Pair;
@@ -56,7 +57,7 @@ class TransactionEvaluationMessagesListenerTest extends BaseStatisticsMessagesLi
         List<TransactionEvaluationDTO> out = buildValidTransactionEvaluationEntities(bias, size, initiativeid);
         out.forEach(t -> {
             t.setRewards(new HashMap<>(t.getRewards()));
-            t.getRewards().put(initiativeid+"_2", new Reward(BigDecimal.valueOf(2)));
+            t.getRewards().put(initiativeid+"_2", new Reward(initiativeid+"_2", "ORGANIZATIONID_"+initiativeid, BigDecimal.valueOf(2)));
         });
         return out;
     }
@@ -111,15 +112,26 @@ class TransactionEvaluationMessagesListenerTest extends BaseStatisticsMessagesLi
     }
 
     @Override
-    protected long waitForCounterResult(String initiativeId, long expectedCounterValue, long maxWaitingMs) {
-        super.waitForCounterResult(initiativeId+"_2", expectedCounterValue*2, maxWaitingMs);
-        return super.waitForCounterResult(initiativeId, expectedCounterValue, maxWaitingMs);
+    protected long waitForCounterResult(String initiativeId, String organizationId, long expectedCounterValue, long maxWaitingMs) {
+        super.waitForCounterResult(initiativeId+"_2", organizationId, expectedCounterValue*2, maxWaitingMs);
+        return super.waitForCounterResult(initiativeId, organizationId, expectedCounterValue, maxWaitingMs);
     }
 
     @Override
-    protected void verifyPartitionOffsetStored(long expectOffsetSum, String initiativeid, boolean assertEquals) {
+    protected long verifyPartitionOffsetStored(long expectOffsetSum, String initiativeid, boolean assertEquals) {
         super.verifyPartitionOffsetStored(expectOffsetSum, initiativeid, assertEquals);
-        super.verifyPartitionOffsetStored(expectOffsetSum, initiativeid+"_2", assertEquals);
+        return super.verifyPartitionOffsetStored(expectOffsetSum, initiativeid+"_2", assertEquals);
+    }
+
+    @Override
+    protected long checkResults(int validMsgs, long maxWaitingMs) {
+        long out = super.checkResults(validMsgs, maxWaitingMs);
+
+        int expectedTrxsCount = getExpectedTrxsCount(validMsgs);
+        Assertions.assertEquals(expectedTrxsCount, initiativeStatRepository.findById(INITIATIVEID1).map(InitiativeStatistics::getRewardedTrxs).orElse(null));
+        Assertions.assertEquals(expectedTrxsCount, initiativeStatRepository.findById(INITIATIVEID2).map(InitiativeStatistics::getRewardedTrxs).orElse(null));
+
+        return out;
     }
 
     //region not valid useCases
