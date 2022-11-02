@@ -403,7 +403,7 @@ public abstract class BaseIntegrationTest {
     }
     protected TransactionEvaluationDTO buildValidTransactionEvaluationEntity(int bias, String initiativeid) {
         return TransactionEvaluationDTOFaker.mockInstanceBuilder(bias)
-                .rewards(Map.of(initiativeid, new Reward(initiativeid, "ORGANIZATIONID_%s".formatted(initiativeid), BigDecimal.ONE)))
+                .rewards(Map.of(initiativeid, new Reward(initiativeid, "ORGANIZATIONID_%s".formatted(initiativeid), BigDecimal.ONE, bias%3==0, bias%6==0)))
                 .build();
     }
 

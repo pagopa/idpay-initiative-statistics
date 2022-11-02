@@ -51,30 +51,6 @@ class InitiativeApiControllerTest {
                 .andReturn();
 
         Assertions.assertEquals("{\"lastUpdatedDateTime\":\"2022-10-01T00:00:00\",\"onboardedCitizenCount\":7,\"accruedRewards\":\"5,37\"}", result.getResponse().getContentAsString());
-
-
-        // When not onboarding count
-        mockedEntity.setOnboardedCitizenCount(null);
-        MvcResult result2 = mvc.perform(MockMvcRequestBuilders
-                        .get("/idpay/organization/ORGANIZATIONID/initiative/INITIATIVEID/statistics")
-                        .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
-                .andReturn();
-
-        Assertions.assertEquals("{\"lastUpdatedDateTime\":\"2022-10-01T00:00:00\",\"onboardedCitizenCount\":0,\"accruedRewards\":\"5,37\"}", result2.getResponse().getContentAsString());
-
-        // When not accrued rewards
-        mockedEntity.setOnboardedCitizenCount(7L);
-        mockedEntity.setAccruedRewardsCents(null);
-        MvcResult result3 = mvc.perform(MockMvcRequestBuilders
-                        .get("/idpay/organization/ORGANIZATIONID/initiative/INITIATIVEID/statistics")
-                        .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
-                .andReturn();
-
-        Assertions.assertEquals("{\"lastUpdatedDateTime\":\"2022-10-01T00:00:00\",\"onboardedCitizenCount\":7,\"accruedRewards\":\"0,00\"}", result3.getResponse().getContentAsString());
     }
 
     @Test

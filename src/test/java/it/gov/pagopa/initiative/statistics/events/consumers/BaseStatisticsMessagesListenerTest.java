@@ -69,9 +69,7 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
         msgs.forEach(p -> publishIntoEmbeddedKafka(getStatisticsMessagesTopic(), null, null, p));
         long timePublishingEnd = System.currentTimeMillis();
 
-        Assertions.assertEquals(getExpectedCounterValue(validMsgs), waitForCounterResult(INITIATIVEID1, "ORGANIZATIONID_"+INITIATIVEID1, validMsgs, maxWaitingMs));
-        long timeCounterUpdated = System.currentTimeMillis();
-        Assertions.assertEquals(getExpectedCounterValue(validMsgs), waitForCounterResult(INITIATIVEID2, "ORGANIZATIONID_"+INITIATIVEID2, validMsgs, maxWaitingMs));
+        long timeCounterUpdated = checkResults(validMsgs, maxWaitingMs);
 
         int expectedTotalSentMessages = msgs.size() + 2; // +2 due to initial published records: offset skip check and notValidMsg
 
@@ -102,6 +100,13 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
         );
 
         checkCommittedOffsets(getStatisticsMessagesTopic(), getStatisticsMessagesGroupId(), expectedTotalSentMessages);
+    }
+
+    protected long checkResults(int validMsgs, long maxWaitingMs) {
+        Assertions.assertEquals(getExpectedCounterValue(validMsgs), waitForCounterResult(INITIATIVEID1, "ORGANIZATIONID_"+INITIATIVEID1, validMsgs, maxWaitingMs));
+        long timeCounterUpdated = System.currentTimeMillis();
+        Assertions.assertEquals(getExpectedCounterValue(validMsgs), waitForCounterResult(INITIATIVEID2, "ORGANIZATIONID_"+INITIATIVEID2, validMsgs, maxWaitingMs));
+        return timeCounterUpdated;
     }
 
     /** expecting not commit and not notify */

@@ -8,5 +8,5 @@ public interface InitiativeStatAtomicOpsRepository {
     long retrieveTransactionEvaluationCommittedOffset(String initiativeId, String organizationId, int partition);
 
     void updateOnboardingCount(String initiatiativeId, long inc, int partition, long offset);
-    void updateAccruedRewards(String initiatiativeId, BigDecimal rewardEuro , int partition, long offset);
+    void updateAccruedRewards(String initiatiativeId, BigDecimal rewardEuro, Long trxs, int partition, long offset);
 }

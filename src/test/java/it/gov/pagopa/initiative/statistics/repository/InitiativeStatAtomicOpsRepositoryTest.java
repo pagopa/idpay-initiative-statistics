@@ -137,10 +137,10 @@ class InitiativeStatAtomicOpsRepositoryTest extends BaseIntegrationTest {
     void testUpdateAccruedReward(){
         // increasing when not initiative
         try{
-            repository.updateAccruedRewards(initiativeid, BigDecimal.valueOf(0), 0, 0);
+            repository.updateAccruedRewards(initiativeid, BigDecimal.valueOf(0), 0L, 0, 0);
         } catch (IllegalStateException e){
             Assertions.assertEquals(
-                    "[INITIATIVE_STATISTICS_EVALUATION][INC_accruedRewardsCents] Counter increase called on not existent initiativeId-topicPartition: INITIATIVEID 0",
+                    "[INITIATIVE_STATISTICS_EVALUATION][INC_accruedRewardsCents][INC_rewardedTrxs] Counter increase called on not existent initiativeId-topicPartition: INITIATIVEID 0",
                     e.getMessage());
         }
 
@@ -149,24 +149,26 @@ class InitiativeStatAtomicOpsRepositoryTest extends BaseIntegrationTest {
         repository.save(entity);
 
         try{
-            repository.updateAccruedRewards(initiativeid, BigDecimal.valueOf(0), 0, 0);
+            repository.updateAccruedRewards(initiativeid, BigDecimal.valueOf(0), 0L, 0, 0);
         } catch (IllegalStateException e){
             Assertions.assertEquals(
-                    "[INITIATIVE_STATISTICS_EVALUATION][INC_accruedRewardsCents] Counter increase called on not existent initiativeId-topicPartition: INITIATIVEID 0",
+                    "[INITIATIVE_STATISTICS_EVALUATION][INC_accruedRewardsCents][INC_rewardedTrxs] Counter increase called on not existent initiativeId-topicPartition: INITIATIVEID 0",
                     e.getMessage());
         }
 
         // successfulUseCase
         entity.setAccruedRewardsCents(100L);
+        entity.setRewardedTrxs(10L);
         entity.setTransactionEvaluationCommittedOffsets(List.of(new InitiativeStatistics.CommittedOffset(1, -1)));
         repository.save(entity);
 
-        repository.updateAccruedRewards(initiativeid, BigDecimal.valueOf(5), 1, 10);
+        repository.updateAccruedRewards(initiativeid, BigDecimal.valueOf(5), 1L, 1, 10);
 
         InitiativeStatistics result = repository.findById(initiativeid).orElse(null);
         Assertions.assertNotNull(result);
         Assertions.assertEquals(initiativeid, result.getInitiativeId());
         Assertions.assertEquals(600L, result.getAccruedRewardsCents());
+        Assertions.assertEquals(11L, result.getRewardedTrxs());
         Assertions.assertEquals(List.of(new InitiativeStatistics.CommittedOffset(1, 10)),
                 result.getTransactionEvaluationCommittedOffsets());
     }

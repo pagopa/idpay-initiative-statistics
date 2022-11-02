@@ -9,6 +9,7 @@ import it.gov.pagopa.initiative.statistics.test.fakers.TransactionEvaluationDTOF
 import it.gov.pagopa.initiative.statistics.test.utils.TestUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.util.Pair;
@@ -120,6 +121,17 @@ class TransactionEvaluationMessagesListenerTest extends BaseStatisticsMessagesLi
     protected long verifyPartitionOffsetStored(long expectOffsetSum, String initiativeid, boolean assertEquals) {
         super.verifyPartitionOffsetStored(expectOffsetSum, initiativeid, assertEquals);
         return super.verifyPartitionOffsetStored(expectOffsetSum, initiativeid+"_2", assertEquals);
+    }
+
+    @Override
+    protected long checkResults(int validMsgs, long maxWaitingMs) {
+        long out = super.checkResults(validMsgs, maxWaitingMs);
+
+        int expectedTrxsCount = validMsgs - (validMsgs / 6 * 2 +1) - (validMsgs / 3 - validMsgs / 6 +1); // each %3 will be a refund, each %6 will be a complete refund
+        Assertions.assertEquals(expectedTrxsCount, initiativeStatRepository.findById(INITIATIVEID1).map(InitiativeStatistics::getRewardedTrxs).orElse(null));
+        Assertions.assertEquals(expectedTrxsCount, initiativeStatRepository.findById(INITIATIVEID2).map(InitiativeStatistics::getRewardedTrxs).orElse(null));
+
+        return out;
     }
 
     //region not valid useCases

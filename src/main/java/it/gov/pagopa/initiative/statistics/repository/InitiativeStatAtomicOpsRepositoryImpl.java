@@ -14,7 +14,9 @@ import org.springframework.data.mongodb.core.query.Update;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @SuppressWarnings("unused") // used by Spring Data because it has the same name of the interface + "Impl", and this interface is extended by a @Repository
@@ -27,6 +29,7 @@ public class InitiativeStatAtomicOpsRepositoryImpl implements InitiativeStatAtom
     public static final String FIELD_ONBOARDING_OUTCOME_COMMITTED_OFFSETS = InitiativeStatistics.Fields.onboardingOutcomeCommittedOffsets;
 
     public static final String FIELD_ACCRUED_REWARD_CENTS = InitiativeStatistics.Fields.accruedRewardsCents;
+    public static final String FIELD_REWARDED_TRXS = InitiativeStatistics.Fields.rewardedTrxs;
     public static final String FIELD_TRANSACTION_EVALUATION_COMMITTED_OFFSETS = InitiativeStatistics.Fields.transactionEvaluationCommittedOffsets;
 
     private final MongoTemplate client;
@@ -101,31 +104,36 @@ public class InitiativeStatAtomicOpsRepositoryImpl implements InitiativeStatAtom
 
     @Override
     public void updateOnboardingCount(String initiatiativeId, long inc, int partition, long offset) {
-        incrementCounterAndPartitionCommittedOffsets(initiatiativeId, inc, partition, offset, FIELD_ONBOARDED_CITIZEN_COUNT, FIELD_ONBOARDING_OUTCOME_COMMITTED_OFFSETS);
+        incrementCounterAndPartitionCommittedOffsets(initiatiativeId, Map.of(FIELD_ONBOARDED_CITIZEN_COUNT, inc), FIELD_ONBOARDING_OUTCOME_COMMITTED_OFFSETS, partition, offset);
     }
 
     @Override
-    public void updateAccruedRewards(String initiatiativeId, BigDecimal rewardEuro, int partition, long offset) {
-        Long inc = Utils.euro2Cents(rewardEuro);
-        incrementCounterAndPartitionCommittedOffsets(initiatiativeId, inc, partition, offset, FIELD_ACCRUED_REWARD_CENTS, FIELD_TRANSACTION_EVALUATION_COMMITTED_OFFSETS);
+    public void updateAccruedRewards(String initiatiativeId, BigDecimal rewardEuro, Long trxs, int partition, long offset) {
+        Map<String, Long> incrementsMap = Map.of(
+                FIELD_ACCRUED_REWARD_CENTS, Utils.euro2Cents(rewardEuro),
+                FIELD_REWARDED_TRXS, trxs
+        );
+        incrementCounterAndPartitionCommittedOffsets(initiatiativeId, incrementsMap, FIELD_TRANSACTION_EVALUATION_COMMITTED_OFFSETS, partition, offset);
     }
 
-    private void incrementCounterAndPartitionCommittedOffsets(String initiatiativeId, long inc, int partition, long offset, String fieldCounter, String fieldPartitionCommitted) {
+    private void incrementCounterAndPartitionCommittedOffsets(String initiatiativeId, Map<String, Long> fieldCounter2Inc, String fieldPartitionCommitted, int partition, long offset) {
+        Update update = new Update()
+                .set("%s.$.%s".formatted(fieldPartitionCommitted, InitiativeStatistics.CommittedOffset.Fields.offset), offset)
+                .set(FIELD_LAST_UPDATE_DATE, LocalDateTime.now());
+        fieldCounter2Inc.forEach(update::inc);
+
         UpdateResult updateResult = client.updateFirst(
                 Query.query(
                         Criteria.where(FIELD_INITIATIVE_ID).is(initiatiativeId)
                                 .and("%s.%s".formatted(fieldPartitionCommitted, InitiativeStatistics.CommittedOffset.Fields.partition)).is(partition)
                 ),
-                new Update()
-                        .inc(fieldCounter, inc)
-                        .set("%s.$.%s".formatted(fieldPartitionCommitted, InitiativeStatistics.CommittedOffset.Fields.offset), offset)
-                        .set(FIELD_LAST_UPDATE_DATE, LocalDateTime.now()),
+                update,
                 InitiativeStatistics.class
         );
         if(updateResult.getModifiedCount()>0){
-            log.info("[INITIATIVE_STATISTICS_EVALUATION][INC_{}] Counter updated for initiative {} inc by {} and committed offset {}-{}", fieldCounter, initiatiativeId, inc, partition, offset);
+            log.info("[INITIATIVE_STATISTICS_EVALUATION]{} Counter updated for initiative {} inc by {} and committed offset {}-{}", fieldCounter2Inc.keySet().stream().map("[INC_%s]"::formatted).collect(Collectors.joining()), initiatiativeId, fieldCounter2Inc, partition, offset);
         } else {
-            throw new IllegalStateException("[INITIATIVE_STATISTICS_EVALUATION][INC_%s] Counter increase called on not existent initiativeId-topicPartition: %s %s".formatted(fieldCounter, initiatiativeId, partition));
+            throw new IllegalStateException("[INITIATIVE_STATISTICS_EVALUATION]%s Counter increase called on not existent initiativeId-topicPartition: %s %s".formatted(fieldCounter2Inc.keySet().stream().map("[INC_%s]"::formatted).collect(Collectors.joining()), initiatiativeId, partition));
         }
     }
 }

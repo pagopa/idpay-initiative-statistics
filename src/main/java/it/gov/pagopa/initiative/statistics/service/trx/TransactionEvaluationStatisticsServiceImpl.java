@@ -65,6 +65,15 @@ public class TransactionEvaluationStatisticsServiceImpl extends BaseStatisticsEv
         initiativeStatRepository.updateAccruedRewards(
                 initiativeId,
                 records.stream().map(Reward::getAccruedReward).reduce(BigDecimal::add).orElse(BigDecimal.ZERO),
+                records.stream().mapToLong(r-> {
+                    if(r.isCompleteRefund()){
+                        return -1L;
+                    } else if(r.isRefund()){
+                        return 0L;
+                    } else {
+                        return 1L;
+                    }
+                }).sum(),
                 partition, maxOffset);
     }
 }
