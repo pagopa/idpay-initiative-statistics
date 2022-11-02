@@ -406,7 +406,12 @@ public abstract class BaseIntegrationTest {
                 .rewards(Map.of(initiativeid, new Reward(initiativeid, "ORGANIZATIONID_%s".formatted(initiativeid), BigDecimal.ONE, bias%3==0, bias%6==0)))
                 .build();
     }
-
+    protected int getExpectedTrxsCount(int validMsgs) {
+        int zeroBasedFix = validMsgs % 3 == 0 ? 0 : 1; // because 0 based, we have to add 1, but if using a multiple of 3, we have to remove one, compensating the 0 based bias
+        return validMsgs
+                - (validMsgs / 6 * 2 + zeroBasedFix) // each %6 will be a complete refund
+                - (validMsgs / 3 - validMsgs / 6 + zeroBasedFix); // each %3 will be a refund
+    }
 
     @Autowired
     protected InitiativeStatRepository initiativeStatRepository;

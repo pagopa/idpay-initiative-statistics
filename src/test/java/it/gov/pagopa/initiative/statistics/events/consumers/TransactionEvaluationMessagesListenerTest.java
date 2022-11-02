@@ -127,7 +127,7 @@ class TransactionEvaluationMessagesListenerTest extends BaseStatisticsMessagesLi
     protected long checkResults(int validMsgs, long maxWaitingMs) {
         long out = super.checkResults(validMsgs, maxWaitingMs);
 
-        int expectedTrxsCount = validMsgs - (validMsgs / 6 * 2 +1) - (validMsgs / 3 - validMsgs / 6 +1); // each %3 will be a refund, each %6 will be a complete refund
+        int expectedTrxsCount = getExpectedTrxsCount(validMsgs);
         Assertions.assertEquals(expectedTrxsCount, initiativeStatRepository.findById(INITIATIVEID1).map(InitiativeStatistics::getRewardedTrxs).orElse(null));
         Assertions.assertEquals(expectedTrxsCount, initiativeStatRepository.findById(INITIATIVEID2).map(InitiativeStatistics::getRewardedTrxs).orElse(null));
 

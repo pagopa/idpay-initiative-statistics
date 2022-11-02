@@ -103,9 +103,10 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
     }
 
     protected long checkResults(int validMsgs, long maxWaitingMs) {
-        Assertions.assertEquals(getExpectedCounterValue(validMsgs), waitForCounterResult(INITIATIVEID1, "ORGANIZATIONID_"+INITIATIVEID1, validMsgs, maxWaitingMs));
+        long expectedCounterValue = getExpectedCounterValue(validMsgs);
+        Assertions.assertEquals(expectedCounterValue, waitForCounterResult(INITIATIVEID1, "ORGANIZATIONID_"+INITIATIVEID1, expectedCounterValue, maxWaitingMs));
         long timeCounterUpdated = System.currentTimeMillis();
-        Assertions.assertEquals(getExpectedCounterValue(validMsgs), waitForCounterResult(INITIATIVEID2, "ORGANIZATIONID_"+INITIATIVEID2, validMsgs, maxWaitingMs));
+        Assertions.assertEquals(expectedCounterValue, waitForCounterResult(INITIATIVEID2, "ORGANIZATIONID_"+INITIATIVEID2, expectedCounterValue, maxWaitingMs));
         return timeCounterUpdated;
     }
 
