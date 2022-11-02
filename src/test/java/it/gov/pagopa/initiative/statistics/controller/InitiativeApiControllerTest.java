@@ -38,6 +38,7 @@ class InitiativeApiControllerTest {
                 .organizationId("ORGANIZATIONID")
                 .onboardedCitizenCount(7L)
                 .accruedRewardsCents(537L)
+                .rewardedTrxs(13L)
                 .lastUpdatedDateTime(LocalDateTime.of(LocalDate.of(2022, 10, 1), LocalTime.MIDNIGHT))
                 .build();
 
@@ -50,7 +51,7 @@ class InitiativeApiControllerTest {
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
                 .andReturn();
 
-        Assertions.assertEquals("{\"lastUpdatedDateTime\":\"2022-10-01T00:00:00\",\"onboardedCitizenCount\":7,\"accruedRewards\":\"5,37\"}", result.getResponse().getContentAsString());
+        Assertions.assertEquals("{\"lastUpdatedDateTime\":\"2022-10-01T00:00:00\",\"onboardedCitizenCount\":7,\"rewardedTrxs\":13,\"accruedRewards\":\"5,37\"}", result.getResponse().getContentAsString());
     }
 
     @Test
