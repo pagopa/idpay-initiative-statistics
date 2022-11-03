@@ -119,8 +119,9 @@ class TransactionEvaluationMessagesListenerTest extends BaseStatisticsMessagesLi
 
     @Override
     protected long verifyPartitionOffsetStored(long expectOffsetSum, String initiativeid, boolean assertEquals) {
-        super.verifyPartitionOffsetStored(expectOffsetSum, initiativeid, assertEquals);
-        return super.verifyPartitionOffsetStored(expectOffsetSum, initiativeid+"_2", assertEquals);
+        long i1Offsets = super.verifyPartitionOffsetStored(expectOffsetSum, initiativeid, assertEquals);
+        long i2Offsets = super.verifyPartitionOffsetStored(expectOffsetSum, initiativeid + "_2", assertEquals);
+        return Math.max(i1Offsets, i2Offsets);
     }
 
     @Override
