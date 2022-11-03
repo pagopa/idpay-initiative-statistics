@@ -17,7 +17,8 @@ import java.time.LocalDateTime;
 public class InitiativeStatisticsDTO {
 
   private LocalDateTime lastUpdatedDateTime;
-  private Long onboardedCitizenCount;
+  private long onboardedCitizenCount;
+  private long rewardedTrxs;
   private String accruedRewards;
 
 }

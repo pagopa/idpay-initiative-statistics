@@ -69,14 +69,16 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
         msgs.forEach(p -> publishIntoEmbeddedKafka(getStatisticsMessagesTopic(), null, null, p));
         long timePublishingEnd = System.currentTimeMillis();
 
-        Assertions.assertEquals(getExpectedCounterValue(validMsgs), waitForCounterResult(INITIATIVEID1, validMsgs, maxWaitingMs));
-        long timeCounterUpdated = System.currentTimeMillis();
-        Assertions.assertEquals(getExpectedCounterValue(validMsgs), waitForCounterResult(INITIATIVEID2, validMsgs, maxWaitingMs));
+        long timeCounterUpdated = checkResults(validMsgs, maxWaitingMs);
 
         int expectedTotalSentMessages = msgs.size() + 2; // +2 due to initial published records: offset skip check and notValidMsg
 
-        verifyPartitionOffsetStored(expectedTotalSentMessages, INITIATIVEID1, true);
-        verifyPartitionOffsetStored(expectedTotalSentMessages, INITIATIVEID2, false);
+        long sumOffsets1 = verifyPartitionOffsetStored(expectedTotalSentMessages, INITIATIVEID1, false);
+        long sumOffsets2 = verifyPartitionOffsetStored(expectedTotalSentMessages, INITIATIVEID2, false);
+
+        Assertions.assertTrue(sumOffsets1 == expectedTotalSentMessages || sumOffsets2 == expectedTotalSentMessages,
+                "Unexpected committed offsets stored into db. Expecting: %d; while initiative1 committed: %d and initiative2 committed %d"
+                        .formatted(expectedTotalSentMessages, sumOffsets1, sumOffsets2));
 
         checkErrorsPublished(notValidMsgs, maxWaitingMs, getErrorUseCases());
 
@@ -98,6 +100,14 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
         );
 
         checkCommittedOffsets(getStatisticsMessagesTopic(), getStatisticsMessagesGroupId(), expectedTotalSentMessages);
+    }
+
+    protected long checkResults(int validMsgs, long maxWaitingMs) {
+        long expectedCounterValue = getExpectedCounterValue(validMsgs);
+        Assertions.assertEquals(expectedCounterValue, waitForCounterResult(INITIATIVEID1, "ORGANIZATIONID_"+INITIATIVEID1, expectedCounterValue, maxWaitingMs));
+        long timeCounterUpdated = System.currentTimeMillis();
+        Assertions.assertEquals(expectedCounterValue, waitForCounterResult(INITIATIVEID2, "ORGANIZATIONID_"+INITIATIVEID2, expectedCounterValue, maxWaitingMs));
+        return timeCounterUpdated;
     }
 
     /** expecting not commit and not notify */
@@ -123,7 +133,8 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
 
         waitForEvaluateInvocationTimes(payload);
 
-        buildExpectedStoredInitiativeStatisticsAfterSkipBehaviorTest(stored);
+        getSetterCounter().accept(stored, 0L);
+        stored.setOrganizationId("ORGANIZATIONID_"+stored.getInitiativeId());
 
         InitiativeStatistics retrieved = initiativeStatRepository.findById(INITIATIVEID1).orElse(null);
         Assertions.assertNotNull(retrieved);
@@ -134,9 +145,6 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
         Mockito.verifyNoInteractions(errorNotifierServiceSpy);
     }
 
-    protected void buildExpectedStoredInitiativeStatisticsAfterSkipBehaviorTest(InitiativeStatistics stored) {
-        getSetterCounter().accept(stored, 0L);
-    }
 
     private void waitForEvaluateInvocationTimes(String payload) {
         Throwable[] lastException = new Throwable[]{null};
@@ -166,12 +174,12 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
                 .toList();
     }
 
-    protected long waitForCounterResult(String initiativeId, long expectedCounterValue, long maxWaitingMs) {
-        return waitForCounterResult(initiativeId, getGetterCounter(), expectedCounterValue, maxWaitingMs);
+    protected long waitForCounterResult(String initiativeId, String organizationId, long expectedCounterValue, long maxWaitingMs) {
+        return waitForCounterResult(initiativeId, organizationId, getGetterCounter(), expectedCounterValue, maxWaitingMs);
     }
 
-    protected void verifyPartitionOffsetStored(long expectOffsetSum, String initiativeid, boolean assertEquals) {
-        verifyPartitionOffsetStored(expectOffsetSum, initiativeid, getGetterStatisticsCommittedOffsets(), assertEquals);
+    protected long verifyPartitionOffsetStored(long expectOffsetSum, String initiativeid, boolean assertEquals) {
+        return verifyPartitionOffsetStored(expectOffsetSum, initiativeid, getGetterStatisticsCommittedOffsets(), assertEquals);
     }
 
     protected void checkErrorMessageHeaders(ConsumerRecord<String, String> errorMessage, String errorDescription, String expectedPayload, String expectedKey) {

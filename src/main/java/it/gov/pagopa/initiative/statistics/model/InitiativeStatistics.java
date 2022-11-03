@@ -25,10 +25,11 @@ public class InitiativeStatistics {
   private String organizationId;
   private LocalDateTime lastUpdatedDateTime;
 
-  private Long onboardedCitizenCount;
+  private long onboardedCitizenCount;
   private List<CommittedOffset> onboardingOutcomeCommittedOffsets;
 
-  private Long accruedRewardsCents;
+  private long accruedRewardsCents;
+  private long rewardedTrxs;
   private List<CommittedOffset> transactionEvaluationCommittedOffsets;
 
   @Data @AllArgsConstructor @FieldNameConstants

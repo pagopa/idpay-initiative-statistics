@@ -16,10 +16,7 @@ import org.apache.kafka.common.header.Header;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -75,7 +72,7 @@ public abstract class BaseStatisticsEvaluationService<E, I> implements Statistic
     private void evaluatePartitionRecords(int partition, List<ConsumerRecord<String, String>> records, Consumer<?, ?> consumer){
         log.debug("[INITIATIVE_STATISTICS_EVALUATION][{}] Evaluating partition {}: {} records", getFlowName(), partition, records.size());
 
-        List<Triple<ConsumerRecord<String, String>, String, Throwable>> errorRecords = new ArrayList<>();
+        List<Triple<ConsumerRecord<String, String>, String, Throwable>> errorRecords = Collections.synchronizedList(new ArrayList<>());
 
         AtomicLong maxOffsetAtomic = new AtomicLong(-1);
 
