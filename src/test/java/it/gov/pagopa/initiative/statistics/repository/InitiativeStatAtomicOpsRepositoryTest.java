@@ -140,7 +140,7 @@ class InitiativeStatAtomicOpsRepositoryTest extends BaseIntegrationTest {
             repository.updateAccruedRewards(initiativeid, BigDecimal.valueOf(0), 0L, 0, 0);
         } catch (IllegalStateException e){
             Assertions.assertEquals(
-                    "[INITIATIVE_STATISTICS_EVALUATION][INC_accruedRewardsCents][INC_rewardedTrxs] Counter increase called on not existent initiativeId-topicPartition: INITIATIVEID 0",
+                    "[INITIATIVE_STATISTICS_EVALUATION][INC_rewardedTrxs][INC_accruedRewardsCents] Counter increase called on not existent initiativeId-topicPartition: INITIATIVEID 0",
                     e.getMessage());
         }
 
@@ -152,7 +152,7 @@ class InitiativeStatAtomicOpsRepositoryTest extends BaseIntegrationTest {
             repository.updateAccruedRewards(initiativeid, BigDecimal.valueOf(0), 0L, 0, 0);
         } catch (IllegalStateException e){
             Assertions.assertEquals(
-                    "[INITIATIVE_STATISTICS_EVALUATION][INC_accruedRewardsCents][INC_rewardedTrxs] Counter increase called on not existent initiativeId-topicPartition: INITIATIVEID 0",
+                    "[INITIATIVE_STATISTICS_EVALUATION][INC_rewardedTrxs][INC_accruedRewardsCents] Counter increase called on not existent initiativeId-topicPartition: INITIATIVEID 0",
                     e.getMessage());
         }
 
