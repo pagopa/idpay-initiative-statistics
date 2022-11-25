@@ -72,11 +72,7 @@ public class TestUtils {
      */
     public static String getHeaderValue(ConsumerRecord<String, String> errorMessage, String errorMsgHeaderSrcServer) {
         Header header = errorMessage.headers().lastHeader(errorMsgHeaderSrcServer);
-        if(header!=null){
-            return new String(header.value());
-        } else {
-            return null;
-        }
+        return header!=null? new String(header.value()) : null;
     }
 
     private static final String PAYLOAD_FIELD_USER_ID = "\"userId\"";
