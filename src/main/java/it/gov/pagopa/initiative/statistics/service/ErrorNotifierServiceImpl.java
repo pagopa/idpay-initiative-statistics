@@ -83,7 +83,6 @@ public class ErrorNotifierServiceImpl implements ErrorNotifierService {
         log.info("[ERROR_NOTIFIER] notifying error: {}", description, exception);
         final MessageBuilder<String> errorMessage = MessageBuilder.withPayload(message.value())
                 .copyHeaders(getRecordHeaders(message))
-                .setHeader(ERROR_MSG_HEADER_GROUP, group)
                 .setHeader(ERROR_MSG_HEADER_SRC_TYPE, srcType)
                 .setHeader(ERROR_MSG_HEADER_SRC_SERVER, srcServer)
                 .setHeader(ERROR_MSG_HEADER_SRC_TOPIC, srcTopic)
@@ -96,6 +95,7 @@ public class ErrorNotifierServiceImpl implements ErrorNotifierService {
 
         if (resendApplication){
             errorMessage.setHeader(ERROR_MSG_HEADER_APPLICATION_NAME, applicationName);
+            errorMessage.setHeader(ERROR_MSG_HEADER_GROUP, group);
         }
 
         String receivedKey = message.key();
