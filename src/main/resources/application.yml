@@ -54,7 +54,8 @@ app:
 
 spring:
   application:
-    name: idpay-initiative-statistics
+    name: "@project.artifactId@"
+    version: "@project.version@"
   jmx.enabled: true
   kafka:
     consumer:
@@ -89,6 +90,10 @@ spring:
           maxConnectionLifeTimeMS: ${MONGODB_CONNECTIONPOOL_MAX_CONNECTION_LIFE_MS:0}
           maxConnectionIdleTimeMS: ${MONGODB_CONNECTIONPOOL_MAX_CONNECTION_IDLE_MS:120000}
           maxConnecting: ${MONGODB_CONNECTIONPOOL_MAX_CONNECTING:2}
+
+management.endpoints:
+  web:
+    exposure.include: info, health
 
 logging:
   level:
