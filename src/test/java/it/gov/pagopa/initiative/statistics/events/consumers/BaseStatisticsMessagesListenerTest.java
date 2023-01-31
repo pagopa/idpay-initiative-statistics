@@ -9,15 +9,12 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.mockito.Mockito;
-import org.opentest4j.AssertionFailedError;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.util.Pair;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -76,29 +73,12 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
 
         int expectedTotalSentMessages = msgs.size() + 2; // +2 due to initial published records: offset skip check and notValidMsg
 
-        int retry=0;
+        long sumOffsets1 = verifyPartitionOffsetStored(expectedTotalSentMessages, INITIATIVEID1, false);
+        long sumOffsets2 = verifyPartitionOffsetStored(expectedTotalSentMessages, INITIATIVEID2, false);
 
-        while(true) {
-            long sumOffsets1 = verifyPartitionOffsetStored(expectedTotalSentMessages, INITIATIVEID1, false);
-            long sumOffsets2 = verifyPartitionOffsetStored(expectedTotalSentMessages, INITIATIVEID2, false);
-
-            String errorMsg = "Unexpected committed offsets stored into db. Expecting: %d; while initiative1 committed: %d and initiative2 committed %d (after %d retries)"
-                    .formatted(expectedTotalSentMessages, sumOffsets1, sumOffsets2, retry);
-
-            try {
-                Assertions.assertTrue(sumOffsets1 == expectedTotalSentMessages || sumOffsets2 == expectedTotalSentMessages,
-                        errorMsg);
-
-                break;
-            } catch (AssertionFailedError e){
-                if(retry++>3){
-                    throw e;
-                } else {
-                    System.out.printf("%s %s%n", LocalDateTime.now(), errorMsg);
-                    wait(500, TimeUnit.MILLISECONDS);
-                }
-            }
-        }
+        Assertions.assertTrue(sumOffsets1 == expectedTotalSentMessages || sumOffsets2 == expectedTotalSentMessages,
+                "Unexpected committed offsets stored into db. Expecting: %d; while initiative1 committed: %d and initiative2 committed %d"
+                        .formatted(expectedTotalSentMessages, sumOffsets1, sumOffsets2));
 
         checkErrorsPublished(notValidMsgs, maxWaitingMs, getErrorUseCases());
 
