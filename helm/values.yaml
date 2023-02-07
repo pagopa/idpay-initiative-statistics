@@ -69,7 +69,6 @@ microservice-chart:
       KAFKA_ERROR_MESSAGE_TOPIC: idpay_error_topic
 
   envSecret:
-    #    APPLICATIONINSIGHTS_CONNECTION_STRING: appinsights-instrumentation-key
     MONGODB_URI: mongodb-connection-string
     KAFKA_ONBOARDING_OUTCOME_SASL_JAAS_CONFIG: evh-idpay-onboarding-outcome-idpay-onboarding-outcome-consumer-jaas-config-idpay-00
     KAFKA_TRANSACTION_EVALUATION_SASL_JAAS_CONFIG: evh-idpay-transaction-idpay-transaction-consumer-jaas-config-idpay-01
