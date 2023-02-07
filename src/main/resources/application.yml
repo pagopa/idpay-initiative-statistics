@@ -23,7 +23,7 @@ app:
           request.timeout.ms: ${KAFKA_ONBOARDING_OUTCOME_REQUEST_TIMEOUT:60000}
           session.timeout.ms: ${KAFKA_ONBOARDING_OUTCOME_SESSION_TIMEOUT:30000}
           connections.max.idle.ms: ${KAFKA_ONBOARDING_OUTCOME_CONNECTION_MAX_IDLE_TIME:180000}
-          metadata.max.age.ms: ${KAFKA_ONBOARDING_OUTCOME_METADATA_MAX_AGE_INTERVAL:180000}
+          metadata.max.age.ms: ${KAFKA_ONBOARDING_OUTCOME_METADATA_MAX_AGE_INTERVAL:179000}
       transaction-evaluation:
         topic: ${KAFKA_TRANSACTION_EVALUATION_TOPIC:idpay-transactions}
         bootstrap-servers: ${KAFKA_TRANSACTION_EVALUATION_SERVERS:${KAFKA_SERVERS:localhost:9092}}
@@ -43,7 +43,7 @@ app:
           request.timeout.ms: ${KAFKA_TRANSACTION_EVALUATION_REQUEST_TIMEOUT:60000}
           session.timeout.ms: ${KAFKA_TRANSACTION_EVALUATION_SESSION_TIMEOUT:30000}
           connections.max.idle.ms: ${KAFKA_TRANSACTION_EVALUATION_CONNECTION_MAX_IDLE_TIME:180000}
-          metadata.max.age.ms: ${KAFKA_TRANSACTION_EVALUATION_METADATA_MAX_AGE_INTERVAL:180000}
+          metadata.max.age.ms: ${KAFKA_TRANSACTION_EVALUATION_METADATA_MAX_AGE_INTERVAL:179000}
     producer:
       errors:
         topic: ${KAFKA_ERROR_MESSAGE_TOPIC:idpay-errors}
@@ -70,7 +70,7 @@ spring:
         sasl.jaas.config: ${KAFKA_PRODUCER_DEFAULT_SASL_JAAS_CONFIG:${KAFKA_SASL_JAAS_CONFIG:org.apache.kafka.common.security.plain.PlainLoginModule required username="$ConnectionString" password="${KAFKA_ERROR_MESSAGE_CONNECTION_STRING:}";}}
         request.timeout.ms: ${KAFKA_PRODUCER_DEFAULT_REQUEST_TIMEOUT:30000}
         connections.max.idle.ms: ${KAFKA_PRODUCER_DEFAULT_CONNECTION_MAX_IDLE_TIME:180000}
-        metadata.max.age.ms: ${KAFKA_PRODUCER_DEFAULT_METADATA_MAX_AGE_INTERVAL:180000}
+        metadata.max.age.ms: ${KAFKA_PRODUCER_DEFAULT_METADATA_MAX_AGE_INTERVAL:179000}
         metadata.max.idle.ms: ${KAFKA_PRODUCER_DEFAULT_METADATA_MAX_IDLE_MS:180000}
         retry.backoff.ms: ${KAFKA_PRODUCER_DEFAULT_KAFKA_RETRY_MS:${KAFKA_RETRY_MS:10000}}
         linger.ms: ${KAFKA_PRODUCER_DEFAULT_LINGER_MS:${KAFKA_LINGER_MS:2}}
