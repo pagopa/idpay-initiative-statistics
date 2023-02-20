@@ -15,10 +15,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.util.Pair;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -53,11 +50,11 @@ class TransactionEvaluationMessagesListenerTest extends BaseStatisticsMessagesLi
     }
 
     @Override
-    protected List<TransactionEvaluationDTO> buildValidEntities(int bias, int size, String initiativeid) {
-        List<TransactionEvaluationDTO> out = buildValidTransactionEvaluationEntities(bias, size, initiativeid);
+    protected List<TransactionEvaluationDTO> buildValidEntities(int bias, int size, String initiativeId) {
+        List<TransactionEvaluationDTO> out = buildValidTransactionEvaluationEntities(bias, size, initiativeId);
         out.forEach(t -> {
             t.setRewards(new HashMap<>(t.getRewards()));
-            t.getRewards().put(initiativeid+"_2", new Reward(initiativeid+"_2", "ORGANIZATIONID_"+initiativeid, BigDecimal.valueOf(2)));
+            t.getRewards().put(initiativeId+"_2", new Reward(initiativeId+"_2", "ORGANIZATIONID_"+initiativeId, BigDecimal.valueOf(2)));
         });
         return out;
     }
@@ -67,7 +64,11 @@ class TransactionEvaluationMessagesListenerTest extends BaseStatisticsMessagesLi
         return IntStream.range(bias, bias + size)
                 .mapToObj(i -> {
                     TransactionEvaluationDTO out = TransactionEvaluationDTOFaker.mockInstance(i, INITIATIVEID1);
-                    out.setRewards(Collections.emptyMap());
+                    if(i%2==0){
+                        out.setRewards(Collections.emptyMap());
+                    } else {
+                        out.setRewards(Map.of(BaseStatisticsMessagesListenerTest.INITIATIVEID1, new Reward(BaseStatisticsMessagesListenerTest.INITIATIVEID1, "ORGANIZATIONID", BigDecimal.ZERO)));
+                    }
                     return out;
                 })
                 .toList();
