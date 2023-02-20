@@ -46,8 +46,8 @@ class OnboardingOutcomeMessagesListenerTest extends BaseStatisticsMessagesListen
     }
 
     @Override
-    protected List<OnboardingOutcomeDTO> buildValidEntities(int bias, int size, String initiativeid) {
-        return buildValidOnboardinOutcomesEntities(bias, size, initiativeid);
+    protected List<OnboardingOutcomeDTO> buildValidEntities(int bias, int size, String initiativeId) {
+        return buildValidOnboardinOutcomesEntities(bias, size, initiativeId);
     }
 
     @Override

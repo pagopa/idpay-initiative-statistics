@@ -68,6 +68,12 @@ class TransactionEvaluationStatisticsServiceTest extends BaseStatisticsEvaluatio
                                 .build(),
                         TransactionEvaluationDTOFaker.mockInstanceBuilder(7)
                                 .rewards(Map.of("INITIATIVEID2", new Reward("INITIATIVEID2", "ORGANIZATIONID2", BigDecimal.valueOf(8.25), true, true)))
+                                .build(),
+                        TransactionEvaluationDTOFaker.mockInstanceBuilder(8)
+                                .rewards(Map.of("INITIATIVEID1", new Reward("INITIATIVEID1", "ORGANIZATIONID1", BigDecimal.ZERO, false, false)))
+                                .build(),
+                        TransactionEvaluationDTOFaker.mockInstanceBuilder(9)
+                                .rewards(Map.of("INITIATIVEID2", new Reward("INITIATIVEID2", "ORGANIZATIONID2", BigDecimal.ZERO, false, false)))
                                 .build()
                 )
                 .map(TestUtils::jsonSerializer)
