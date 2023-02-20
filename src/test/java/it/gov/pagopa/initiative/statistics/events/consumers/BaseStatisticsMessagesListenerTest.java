@@ -40,7 +40,7 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
     protected abstract StatisticsEvaluationService getStatisticsEvaluationServiceSpy();
     protected abstract String getStatisticsMessagesTopic();
     protected abstract String getStatisticsMessagesGroupId();
-    protected abstract List<?> buildValidEntities(int bias, int size, String initiativeid);
+    protected abstract List<?> buildValidEntities(int bias, int size, String initiativeId);
     protected abstract List<?> buildSkippedEntities(int bias, int size);
     protected abstract List<Pair<Supplier<String>, Consumer<ConsumerRecord<String, String>>>> getErrorUseCases();
     protected abstract Function<InitiativeStatistics, Long> getGetterCounter();
@@ -182,8 +182,8 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
                 200);
     }
 
-    private List<String> buildValidPayloads(int bias, int size, String initiativeid) {
-        return buildValidEntities(bias, size, initiativeid).stream()
+    private List<String> buildValidPayloads(int bias, int size, String initiativeId) {
+        return buildValidEntities(bias, size, initiativeId).stream()
                 .map(TestUtils::jsonSerializer)
                 .toList();
     }
