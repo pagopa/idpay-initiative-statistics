@@ -99,7 +99,16 @@ public abstract class BaseStatisticsEvaluationService<E, I> implements Statistic
                 // skipping retry messages scheduled by other application
                 .filter(this::isNotRetry)
                 // transforming the record2entity stream into a pair record2initiativeBased stream
-                .flatMap(r2e -> toInitiativeBasedEntityStream(r2e.getValue()).map(i -> Triple.of(r2e.getKey(), getInitiativeId(i), i)))
+                .flatMap(r2e -> {
+                    try {
+                        return toInitiativeBasedEntityStream(r2e.getValue()).map(i -> Triple.of(r2e.getKey(), getInitiativeId(i), i));
+                    } catch (Exception e) {
+                        errorRecords.add(Triple.of(r2e.getKey(),
+                            "[INITIATIVE_STATISTICS_EVALUATION][%s] Unexpected error: %s".formatted(getFlowName(), r2e.getValue()),
+                            e));
+                    return null;
+                    }
+                })
                 // skipping entities without initiativeId
                 .filter(r2id2i -> {
                     boolean hasInitiativeId = !StringUtils.isEmpty(r2id2i.getMiddle());

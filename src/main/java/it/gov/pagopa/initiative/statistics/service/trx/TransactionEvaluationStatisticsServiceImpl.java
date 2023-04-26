@@ -52,7 +52,9 @@ public class TransactionEvaluationStatisticsServiceImpl extends BaseStatisticsEv
 
     @Override
     protected Stream<Reward> toInitiativeBasedEntityStream(TransactionEvaluationDTO transactionEvaluationDTO) {
-        return transactionEvaluationDTO.getRewards().values().stream();
+        return transactionEvaluationDTO.getRewards()!= null
+                ? transactionEvaluationDTO.getRewards().values().stream()
+                : Stream.empty();
     }
 
     @Override
