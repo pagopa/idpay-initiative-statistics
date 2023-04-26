@@ -106,7 +106,7 @@ public abstract class BaseStatisticsEvaluationService<E, I> implements Statistic
                         errorRecords.add(Triple.of(r2e.getKey(),
                             "[INITIATIVE_STATISTICS_EVALUATION][%s] Unexpected error: %s".formatted(getFlowName(), r2e.getValue()),
                             e));
-                    return null;
+                    return Stream.empty();
                     }
                 })
                 // skipping entities without initiativeId
