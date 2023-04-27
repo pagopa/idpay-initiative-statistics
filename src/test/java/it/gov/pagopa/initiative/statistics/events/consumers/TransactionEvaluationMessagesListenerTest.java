@@ -64,7 +64,9 @@ class TransactionEvaluationMessagesListenerTest extends BaseStatisticsMessagesLi
         return IntStream.range(bias, bias + size)
                 .mapToObj(i -> {
                     TransactionEvaluationDTO out = TransactionEvaluationDTOFaker.mockInstance(i, INITIATIVEID1);
-                    if(i%2==0){
+                    if(i%3==0){
+                        out.setRewards(null);
+                    } else if(i%3==1) {
                         out.setRewards(Collections.emptyMap());
                     } else {
                         out.setRewards(Map.of(BaseStatisticsMessagesListenerTest.INITIATIVEID1, new Reward(BaseStatisticsMessagesListenerTest.INITIATIVEID1, "ORGANIZATIONID", BigDecimal.ZERO)));
