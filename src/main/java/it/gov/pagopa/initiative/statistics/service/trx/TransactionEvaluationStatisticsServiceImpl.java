@@ -6,6 +6,7 @@ import it.gov.pagopa.initiative.statistics.dto.events.TransactionEvaluationDTO;
 import it.gov.pagopa.initiative.statistics.repository.InitiativeStatRepository;
 import it.gov.pagopa.initiative.statistics.service.BaseStatisticsEvaluationService;
 import it.gov.pagopa.initiative.statistics.service.ErrorNotifierService;
+import it.gov.pagopa.initiative.statistics.utils.Constants;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -52,7 +53,7 @@ public class TransactionEvaluationStatisticsServiceImpl extends BaseStatisticsEv
 
     @Override
     protected Stream<Reward> toInitiativeBasedEntityStream(TransactionEvaluationDTO transactionEvaluationDTO) {
-        return transactionEvaluationDTO.getRewards()!= null
+        return transactionEvaluationDTO.getRewards()!= null && !Constants.TRX_STATUS_AUTHORIZED.equals(transactionEvaluationDTO.getStatus())
                 ? transactionEvaluationDTO.getRewards().values().stream()
                 : Stream.empty();
     }
