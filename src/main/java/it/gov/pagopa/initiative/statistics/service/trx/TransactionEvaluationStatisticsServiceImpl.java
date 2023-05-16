@@ -52,7 +52,9 @@ public class TransactionEvaluationStatisticsServiceImpl extends BaseStatisticsEv
 
     @Override
     protected Stream<Reward> toInitiativeBasedEntityStream(TransactionEvaluationDTO transactionEvaluationDTO) {
-        return transactionEvaluationDTO.getRewards().values().stream();
+        return transactionEvaluationDTO.getRewards()!= null
+                ? transactionEvaluationDTO.getRewards().values().stream()
+                : Stream.empty();
     }
 
     @Override
@@ -65,15 +67,17 @@ public class TransactionEvaluationStatisticsServiceImpl extends BaseStatisticsEv
         initiativeStatRepository.updateAccruedRewards(
                 initiativeId,
                 records.stream().map(Reward::getAccruedReward).reduce(BigDecimal::add).orElse(BigDecimal.ZERO),
-                records.stream().mapToLong(r-> {
-                    if(r.isCompleteRefund()){
-                        return -1L;
-                    } else if(r.isRefund()){
-                        return 0L;
-                    } else {
-                        return 1L;
-                    }
-                }).sum(),
+                records.stream()
+                        .filter(r -> r.getAccruedReward().compareTo(BigDecimal.ZERO) != 0)
+                        .mapToLong(r -> {
+                            if (r.isCompleteRefund()) {
+                                return -1L;
+                            } else if (r.isRefund()) {
+                                return 0L;
+                            } else {
+                                return 1L;
+                            }
+                        }).sum(),
                 partition, maxOffset);
     }
 }

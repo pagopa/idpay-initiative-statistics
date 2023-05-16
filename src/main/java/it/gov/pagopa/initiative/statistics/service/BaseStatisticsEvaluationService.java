@@ -76,6 +76,7 @@ public abstract class BaseStatisticsEvaluationService<E, I> implements Statistic
 
         AtomicLong maxOffsetAtomic = new AtomicLong(-1);
 
+        //noinspection SimplifyStreamApiCallChains: the peek method is a bad choice, suppressing substitution suggestion
         Map<String, List<Triple<ConsumerRecord<String, String>, String, I>>> groupByInitiative = records.parallelStream()
                 // deserializing and returning pair of record and entity
                 .map(r -> {
@@ -91,11 +92,23 @@ public abstract class BaseStatisticsEvaluationService<E, I> implements Statistic
                 // skipping deserialization failed records
                 .filter(Objects::nonNull)
                 // storing maxOffsetAtomic of valid records
-                .peek(r2e -> maxOffsetAtomic.getAndUpdate(o -> Math.max(o, r2e.getKey().offset())))
+                .map(r2e -> {
+                    maxOffsetAtomic.getAndUpdate(o -> Math.max(o, r2e.getKey().offset()));
+                    return r2e;
+                })
                 // skipping retry messages scheduled by other application
                 .filter(this::isNotRetry)
                 // transforming the record2entity stream into a pair record2initiativeBased stream
-                .flatMap(r2e -> toInitiativeBasedEntityStream(r2e.getValue()).map(i -> Triple.of(r2e.getKey(), getInitiativeId(i), i)))
+                .flatMap(r2e -> {
+                    try {
+                        return toInitiativeBasedEntityStream(r2e.getValue()).map(i -> Triple.of(r2e.getKey(), getInitiativeId(i), i));
+                    } catch (Exception e) {
+                        errorRecords.add(Triple.of(r2e.getKey(),
+                            "[INITIATIVE_STATISTICS_EVALUATION][%s] Unexpected error: %s".formatted(getFlowName(), r2e.getValue()),
+                            e));
+                        return Stream.empty();
+                    }
+                })
                 // skipping entities without initiativeId
                 .filter(r2id2i -> {
                     boolean hasInitiativeId = !StringUtils.isEmpty(r2id2i.getMiddle());

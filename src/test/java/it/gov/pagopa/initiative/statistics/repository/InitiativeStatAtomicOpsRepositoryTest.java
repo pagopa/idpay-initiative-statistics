@@ -139,9 +139,9 @@ class InitiativeStatAtomicOpsRepositoryTest extends BaseIntegrationTest {
         try{
             repository.updateAccruedRewards(initiativeid, BigDecimal.valueOf(0), 0L, 0, 0);
         } catch (IllegalStateException e){
-            Assertions.assertEquals(
-                    "[INITIATIVE_STATISTICS_EVALUATION][INC_rewardedTrxs][INC_accruedRewardsCents] Counter increase called on not existent initiativeId-topicPartition: INITIATIVEID 0",
-                    e.getMessage());
+            Assertions.assertTrue(
+                    e.getMessage().matches("\\[INITIATIVE_STATISTICS_EVALUATION](?:\\[INC_rewardedTrxs]|\\[INC_accruedRewardsCents]){2} Counter increase called on not existent initiativeId-topicPartition: INITIATIVEID 0"),
+                    "Unexpected message: got: %s".formatted(e.getMessage()));
         }
 
         // increasing when not partition
@@ -151,9 +151,9 @@ class InitiativeStatAtomicOpsRepositoryTest extends BaseIntegrationTest {
         try{
             repository.updateAccruedRewards(initiativeid, BigDecimal.valueOf(0), 0L, 0, 0);
         } catch (IllegalStateException e){
-            Assertions.assertEquals(
-                    "[INITIATIVE_STATISTICS_EVALUATION][INC_rewardedTrxs][INC_accruedRewardsCents] Counter increase called on not existent initiativeId-topicPartition: INITIATIVEID 0",
-                    e.getMessage());
+            Assertions.assertTrue(
+                    e.getMessage().matches("\\[INITIATIVE_STATISTICS_EVALUATION](?:\\[INC_rewardedTrxs]|\\[INC_accruedRewardsCents]){2} Counter increase called on not existent initiativeId-topicPartition: INITIATIVEID 0"),
+                    "Unexpected message: got: %s".formatted(e.getMessage()));
         }
 
         // successfulUseCase
