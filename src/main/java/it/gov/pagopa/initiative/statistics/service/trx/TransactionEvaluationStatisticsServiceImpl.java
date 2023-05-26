@@ -5,7 +5,7 @@ import it.gov.pagopa.initiative.statistics.dto.events.Reward;
 import it.gov.pagopa.initiative.statistics.dto.events.TransactionEvaluationDTO;
 import it.gov.pagopa.initiative.statistics.repository.InitiativeStatRepository;
 import it.gov.pagopa.initiative.statistics.service.BaseStatisticsEvaluationService;
-import it.gov.pagopa.initiative.statistics.service.ErrorNotifierService;
+import it.gov.pagopa.initiative.statistics.service.StatisticsErrorNotifierService;
 import it.gov.pagopa.initiative.statistics.utils.Constants;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,16 +18,16 @@ import java.util.stream.Stream;
 @Service
 public class TransactionEvaluationStatisticsServiceImpl extends BaseStatisticsEvaluationService<TransactionEvaluationDTO, Reward> implements TransactionEvaluationStatisticsService {
 
-    private final ErrorNotifierService errorNotifierService;
+    private final StatisticsErrorNotifierService statisticsErrorNotifierService;
     private final InitiativeStatRepository initiativeStatRepository;
 
     public TransactionEvaluationStatisticsServiceImpl(
             @Value("${spring.application.name}") String applicationName,
             ObjectMapper objectMapper,
-            ErrorNotifierService errorNotifierService, InitiativeStatRepository initiativeStatRepository) {
+            StatisticsErrorNotifierService statisticsErrorNotifierService, InitiativeStatRepository initiativeStatRepository) {
         super(applicationName, objectMapper);
 
-        this.errorNotifierService = errorNotifierService;
+        this.statisticsErrorNotifierService = statisticsErrorNotifierService;
         this.initiativeStatRepository = initiativeStatRepository;
     }
 
@@ -48,7 +48,7 @@ public class TransactionEvaluationStatisticsServiceImpl extends BaseStatisticsEv
 
     @Override
     protected void onRecordError2notify(ConsumerRecord<String, String> message, String description, Throwable exception) {
-        errorNotifierService.notifyTransactionEvaluation(message, description, false, exception);
+        statisticsErrorNotifierService.notifyTransactionEvaluation(message, description, false, exception);
     }
 
     @Override

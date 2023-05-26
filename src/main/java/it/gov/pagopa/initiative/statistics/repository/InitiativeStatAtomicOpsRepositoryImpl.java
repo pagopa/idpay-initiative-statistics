@@ -2,7 +2,7 @@ package it.gov.pagopa.initiative.statistics.repository;
 
 import com.mongodb.client.result.UpdateResult;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
-import it.gov.pagopa.initiative.statistics.utils.Utils;
+import it.gov.pagopa.common.utils.CommonUtilities;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DuplicateKeyException;
@@ -110,7 +110,7 @@ public class InitiativeStatAtomicOpsRepositoryImpl implements InitiativeStatAtom
     @Override
     public void updateAccruedRewards(String initiatiativeId, BigDecimal rewardEuro, Long trxs, int partition, long offset) {
         Map<String, Long> incrementsMap = Map.of(
-                FIELD_ACCRUED_REWARD_CENTS, Utils.euro2Cents(rewardEuro),
+                FIELD_ACCRUED_REWARD_CENTS, CommonUtilities.euroToCents(rewardEuro),
                 FIELD_REWARDED_TRXS, trxs
         );
         incrementCounterAndPartitionCommittedOffsets(initiatiativeId, incrementsMap, FIELD_TRANSACTION_EVALUATION_COMMITTED_OFFSETS, partition, offset);

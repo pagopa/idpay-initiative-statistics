@@ -3,10 +3,10 @@ package it.gov.pagopa.initiative.statistics.service.trx;
 import it.gov.pagopa.initiative.statistics.dto.events.Reward;
 import it.gov.pagopa.initiative.statistics.repository.InitiativeStatRepository;
 import it.gov.pagopa.initiative.statistics.service.BaseStatisticsEvaluationServiceTest;
-import it.gov.pagopa.initiative.statistics.service.ErrorNotifierService;
+import it.gov.pagopa.initiative.statistics.service.StatisticsErrorNotifierService;
 import it.gov.pagopa.initiative.statistics.service.StatisticsEvaluationService;
 import it.gov.pagopa.initiative.statistics.test.fakers.TransactionEvaluationDTOFaker;
-import it.gov.pagopa.initiative.statistics.test.utils.TestUtils;
+import it.gov.pagopa.common.utils.TestUtils;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
@@ -26,20 +26,20 @@ import java.util.stream.Stream;
 class TransactionEvaluationStatisticsServiceTest extends BaseStatisticsEvaluationServiceTest {
 
     @Mock
-    private ErrorNotifierService errorNotifierServiceMock;
+    private StatisticsErrorNotifierService statisticsErrorNotifierServiceMock;
     @Mock private InitiativeStatRepository initiativeStatRepositoryMock;
     @Mock private Consumer<?,?> consumerMock;
 
     @Test
     void test(){
-        invokeService("APPNAME", consumerMock, 5, 7, errorNotifierServiceMock);
+        invokeService("APPNAME", consumerMock, 5, 7, statisticsErrorNotifierServiceMock);
 
-        Mockito.verifyNoMoreInteractions(errorNotifierServiceMock, initiativeStatRepositoryMock, consumerMock);
+        Mockito.verifyNoMoreInteractions(statisticsErrorNotifierServiceMock, initiativeStatRepositoryMock, consumerMock);
     }
 
     @Override
     protected StatisticsEvaluationService getStatisticsEvaluationServiceImpl() {
-        return new TransactionEvaluationStatisticsServiceImpl("APPNAME", TestUtils.objectMapper, errorNotifierServiceMock, initiativeStatRepositoryMock);
+        return new TransactionEvaluationStatisticsServiceImpl("APPNAME", TestUtils.objectMapper, statisticsErrorNotifierServiceMock, initiativeStatRepositoryMock);
     }
 
     @Override
@@ -82,7 +82,7 @@ class TransactionEvaluationStatisticsServiceTest extends BaseStatisticsEvaluatio
 
     @Override
     protected void verifyResults(int partition0LastCommittedOffset, int partition1LastCommittedOffset) {
-        Mockito.verify(errorNotifierServiceMock, Mockito.times(expectedErrorNotification)).notifyTransactionEvaluation(Mockito.any()
+        Mockito.verify(statisticsErrorNotifierServiceMock, Mockito.times(expectedErrorNotification)).notifyTransactionEvaluation(Mockito.any()
                 , Mockito.argThat(description -> description.startsWith("[INITIATIVE_STATISTICS_EVALUATION][TRANSACTION_EVALUATION] Unexpected json: "))
                 , Mockito.eq(false), Mockito.any());
 
@@ -105,6 +105,6 @@ class TransactionEvaluationStatisticsServiceTest extends BaseStatisticsEvaluatio
         Mockito.verify(consumerMock).commitAsync(Mockito.eq(Map.of(new TopicPartition(TOPIC_NAME, 1), new OffsetAndMetadata(partition1LastCommittedOffset+1))), Mockito.isNull()); // no error messages in this partition, so no commit callback
         Mockito.verify(consumerMock).commitAsync(Mockito.eq(Map.of(new TopicPartition(TOPIC_NAME, 3), new OffsetAndMetadata(EXPECTED_PARTITION3_OFFSET+1))), Mockito.isNull());
 
-        Mockito.verifyNoMoreInteractions(errorNotifierServiceMock, initiativeStatRepositoryMock, consumerMock);
+        Mockito.verifyNoMoreInteractions(statisticsErrorNotifierServiceMock, initiativeStatRepositoryMock, consumerMock);
     }
 }

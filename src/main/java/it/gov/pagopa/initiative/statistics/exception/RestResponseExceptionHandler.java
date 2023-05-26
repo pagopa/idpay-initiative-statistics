@@ -1,6 +1,6 @@
 package it.gov.pagopa.initiative.statistics.exception;
 
-import it.gov.pagopa.initiative.statistics.dto.ErrorDTO;
+import it.gov.pagopa.common.web.dto.ErrorDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
