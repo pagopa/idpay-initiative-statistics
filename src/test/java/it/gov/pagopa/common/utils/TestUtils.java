@@ -1,11 +1,12 @@
-package it.gov.pagopa.initiative.statistics.test.utils;
+package it.gov.pagopa.common.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.gov.pagopa.initiative.statistics.config.JsonConfig;
-import it.gov.pagopa.initiative.statistics.utils.Constants;
+import it.gov.pagopa.common.config.JsonConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
+import org.awaitility.Awaitility;
+import org.awaitility.core.ConditionTimeoutException;
 import org.junit.jupiter.api.Assertions;
 
 import java.math.BigDecimal;
@@ -14,15 +15,19 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestUtils {
+public final class TestUtils {
     private TestUtils() {
     }
 
     static {
-        TimeZone.setDefault(TimeZone.getTimeZone(Constants.ZONEID));
+        TimeZone.setDefault(TimeZone.getTimeZone(CommonConstants.ZONEID));
     }
 
     /**
@@ -75,13 +80,44 @@ public class TestUtils {
         return header!=null? new String(header.value()) : null;
     }
 
-    private static final String PAYLOAD_FIELD_USER_ID = "\"userId\"";
-    public static String readUserId(String payload) {
-        int userIdIndex = payload.indexOf(PAYLOAD_FIELD_USER_ID);
-        if(userIdIndex>-1){
-            String afterUserId = payload.substring(userIdIndex+8);
-            final int afterOpeningQuote = afterUserId.indexOf('"') + 1;
-            return afterUserId.substring(afterOpeningQuote, afterUserId.indexOf('"', afterOpeningQuote));
+    /** it will attempt the test until its invocation successfully ends until the configured maxAttempts, waiting for the configured millis between each invocation */
+    public static void waitFor(Callable<Boolean> test, Supplier<String> buildTestFailureMessage, int maxAttempts, int millisAttemptDelay) {
+        try {
+            await()
+                    .pollInterval(millisAttemptDelay, TimeUnit.MILLISECONDS)
+                    .atMost((long) maxAttempts * millisAttemptDelay, TimeUnit.MILLISECONDS)
+                    .until(test);
+        } catch (RuntimeException e) {
+            Assertions.fail(buildTestFailureMessage.get(), e);
+        }
+    }
+
+    /** To wait for the configured time */
+    public static void wait(long timeout, TimeUnit timeoutUnit) {
+        try{
+            Awaitility.await().timeout(timeout, timeoutUnit).until(()->false);
+        } catch (ConditionTimeoutException ex){
+            // Do Nothing
+        }
+    }
+
+    /** it will truncate the provided datetime field from payload */
+    public static String truncateDateTimeField(String payload, String fieldName){
+        return payload.replaceAll("(\""+fieldName+"\":\"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}):[0-9]{2}:[0-9]{2}\\.?[0-9]*\"", "$1:--\"");
+    }
+
+    /** it will set to null the provided datetime field from payload */
+    public static String setNullFieldValue(String payload, String fieldName) {
+        return payload.replaceAll("(\""+fieldName+"\":)(?:[^,}]+)", "$1:null");
+    }
+
+    /** It will read a field value from json string */
+    public static String readJsonStringFieldValue(String payload, String field) {
+        int fieldIndex = payload.indexOf("\""+field+"\"");
+        if(fieldIndex>-1){
+            String afterField = payload.substring(fieldIndex+field.length()+2);
+            final int afterOpeningQuote = afterField.indexOf('"') + 1;
+            return afterField.substring(afterOpeningQuote, afterField.indexOf('"', afterOpeningQuote));
         }
         return null;
     }

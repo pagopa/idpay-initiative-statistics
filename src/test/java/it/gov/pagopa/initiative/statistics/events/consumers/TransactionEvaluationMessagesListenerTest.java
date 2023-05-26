@@ -1,15 +1,14 @@
 package it.gov.pagopa.initiative.statistics.events.consumers;
 
+import it.gov.pagopa.common.utils.TestUtils;
 import it.gov.pagopa.initiative.statistics.dto.events.Reward;
 import it.gov.pagopa.initiative.statistics.dto.events.TransactionEvaluationDTO;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
 import it.gov.pagopa.initiative.statistics.service.StatisticsEvaluationService;
 import it.gov.pagopa.initiative.statistics.service.trx.TransactionEvaluationStatisticsService;
 import it.gov.pagopa.initiative.statistics.test.fakers.TransactionEvaluationDTOFaker;
-import it.gov.pagopa.initiative.statistics.test.utils.TestUtils;
 import it.gov.pagopa.initiative.statistics.utils.Constants;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.common.header.Header;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -110,11 +109,11 @@ class TransactionEvaluationMessagesListenerTest extends BaseStatisticsMessagesLi
     }
 
     @Override
-    protected void publishIntoEmbeddedKafka(String topic, Integer partition, Iterable<Header> headers, String key, String payload) {
+    protected void publishIntoEmbeddedKafka(Integer partition, String key, String payload) {
         if(key==null){
-            key = TestUtils.readUserId(payload);
+            key = TestUtils.readJsonStringFieldValue(payload, "userId");
         }
-        super.publishIntoEmbeddedKafka(topic, partition, headers, key, payload);
+        super.publishIntoEmbeddedKafka(partition, key, payload);
     }
 
     @Override

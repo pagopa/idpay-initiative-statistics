@@ -3,7 +3,7 @@ package it.gov.pagopa.initiative.statistics.events.consumers;
 import it.gov.pagopa.initiative.statistics.BaseIntegrationTest;
 import it.gov.pagopa.initiative.statistics.dto.events.TransactionEvaluationDTO;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
-import it.gov.pagopa.initiative.statistics.test.utils.TestUtils;
+import it.gov.pagopa.common.utils.TestUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -36,8 +36,8 @@ class StatisticsMessagesListenerConcurrentTest extends BaseIntegrationTest {
 
         long timePublishStart = System.currentTimeMillis();
         msgs.parallelStream().forEach(p -> {
-            publishIntoEmbeddedKafka(topicOnboardingOutcome, null, null, p.getKey());
-            publishIntoEmbeddedKafka(topicTransactionEvaluation, null, p.getValue().getKey(), p.getValue().getValue());
+            kafkaTestUtilitiesService.publishIntoEmbeddedKafka(topicOnboardingOutcome, null, null, p.getKey());
+            kafkaTestUtilitiesService.publishIntoEmbeddedKafka(topicTransactionEvaluation, null, p.getValue().getKey(), p.getValue().getValue());
         });
         long timePublishingEnd = System.currentTimeMillis();
 

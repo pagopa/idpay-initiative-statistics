@@ -1,5 +1,6 @@
 package it.gov.pagopa.initiative.statistics.service;
 
+import it.gov.pagopa.common.kafka.utils.KafkaConstants;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
@@ -21,7 +22,7 @@ public abstract class BaseStatisticsEvaluationServiceTest {
 
     protected int expectedErrorNotification = 2;
 
-    public void invokeService(String applicationName, Consumer<?,?> consumerMock, int partition0Offset, int partition1Offset, ErrorNotifierService errorNotifierServiceMock){
+    public void invokeService(String applicationName, Consumer<?,?> consumerMock, int partition0Offset, int partition1Offset, StatisticsErrorNotifierService statisticsErrorNotifierServiceMock){
         Mockito.doAnswer(i -> {
                     Map<TopicPartition, OffsetAndMetadata> commit = i.getArgument(0);
                     // it will mock an exception when committing partition 1
@@ -61,7 +62,7 @@ public abstract class BaseStatisticsEvaluationServiceTest {
             ConsumerRecord<String, String> message = new ConsumerRecord<>(TOPIC_NAME, i % 2, i % 2 == 0 ? ++partition0Offset : ++partition1Offset, null, useCases.get(i));
             if(i%3==0){
                 message.headers().add("retry", "1".getBytes(StandardCharsets.UTF_8));
-                message.headers().add(ErrorNotifierServiceImpl.ERROR_MSG_HEADER_APPLICATION_NAME, applicationName.getBytes(StandardCharsets.UTF_8));
+                message.headers().add(KafkaConstants.ERROR_MSG_HEADER_APPLICATION_NAME, applicationName.getBytes(StandardCharsets.UTF_8));
             }
             records.add(message);
         }
@@ -70,11 +71,11 @@ public abstract class BaseStatisticsEvaluationServiceTest {
         service.evaluate(records, consumerMock);
 
         Assertions.assertEquals(expectedErrorNotification,
-                Mockito.mockingDetails(errorNotifierServiceMock).getInvocations().size(),
-                "Unexpected number of errorNotifierService invocations: %s".formatted(Mockito.mockingDetails(errorNotifierServiceMock).getInvocations())
+                Mockito.mockingDetails(statisticsErrorNotifierServiceMock).getInvocations().size(),
+                "Unexpected number of errorNotifierService invocations: %s".formatted(Mockito.mockingDetails(statisticsErrorNotifierServiceMock).getInvocations())
         );
 
-        Mockito.mockingDetails(errorNotifierServiceMock).getInvocations()
+        Mockito.mockingDetails(statisticsErrorNotifierServiceMock).getInvocations()
                 .forEach(i-> System.out.println("Called errorNotifier: " + Arrays.toString(i.getArguments())));
 
         verifyResults(partition0Offset, partition1Offset);

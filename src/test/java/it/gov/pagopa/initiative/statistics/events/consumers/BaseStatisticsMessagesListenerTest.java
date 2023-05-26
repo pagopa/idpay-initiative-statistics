@@ -1,10 +1,10 @@
 package it.gov.pagopa.initiative.statistics.events.consumers;
 
+import it.gov.pagopa.common.utils.TestUtils;
 import it.gov.pagopa.initiative.statistics.BaseIntegrationTest;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
-import it.gov.pagopa.initiative.statistics.service.ErrorNotifierService;
+import it.gov.pagopa.initiative.statistics.service.StatisticsErrorNotifierService;
 import it.gov.pagopa.initiative.statistics.service.StatisticsEvaluationService;
-import it.gov.pagopa.initiative.statistics.test.utils.TestUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -30,7 +30,7 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
     protected static final String INITIATIVEID2 = "INITIATIVEID2";
 
     @SpyBean
-    protected ErrorNotifierService errorNotifierServiceSpy;
+    protected StatisticsErrorNotifierService statisticsErrorNotifierServiceSpy;
 
     @AfterEach
     void clearData() {
@@ -69,7 +69,7 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
         msgs.addAll(buildSkippedPayloads(validMsgs, skippedMsgs));
 
         long timePublishStart = System.currentTimeMillis();
-        msgs.forEach(p -> publishIntoEmbeddedKafka(getStatisticsMessagesTopic(), null, null, p));
+        msgs.forEach(p -> publishIntoEmbeddedKafka(null, null, p));
         long timePublishingEnd = System.currentTimeMillis();
 
         long timeCounterUpdated = checkResults(validMsgs, maxWaitingMs);
@@ -95,7 +95,7 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
                     throw e;
                 } else {
                     System.out.printf("%s %s%n", LocalDateTime.now(), errorMsg);
-                    wait(500, TimeUnit.MILLISECONDS);
+                    TestUtils.wait(500, TimeUnit.MILLISECONDS);
                 }
             }
         }
@@ -119,7 +119,7 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
                 timeCounterUpdated - timePublishStart
         );
 
-        checkCommittedOffsets(getStatisticsMessagesTopic(), getStatisticsMessagesGroupId(), expectedTotalSentMessages);
+        kafkaTestUtilitiesService.checkCommittedOffsets(getStatisticsMessagesTopic(), getStatisticsMessagesGroupId(), expectedTotalSentMessages);
     }
 
     protected long checkResults(int validMsgs, long maxWaitingMs) {
@@ -132,12 +132,12 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
 
     /** expecting not commit and not notify */
     protected void checkJustNotValidMsgsBehavior() {
-        publishIntoEmbeddedKafka(getStatisticsMessagesTopic(), 0, null, null, "PROVA");
+        publishIntoEmbeddedKafka(0, null, "PROVA");
 
         waitForEvaluateInvocationTimes("PROVA");
 
         Assertions.assertEquals(Collections.emptyList(), initiativeStatRepository.findAll());
-        Mockito.verifyNoInteractions(errorNotifierServiceSpy);
+        Mockito.verifyNoInteractions(statisticsErrorNotifierServiceSpy);
     }
     /** expecting not processed */
     protected void checkOffsetSkipBehavior() {
@@ -149,7 +149,7 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
         initiativeStatRepository.save(stored);
 
         String payload = buildValidPayloads(-1, 1, INITIATIVEID1).get(0);
-        publishIntoEmbeddedKafka(getStatisticsMessagesTopic(), 0, null, null, payload);
+        publishIntoEmbeddedKafka(0, null, payload);
 
         waitForEvaluateInvocationTimes(payload);
 
@@ -162,13 +162,16 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
 
         retrieved.setLastUpdatedDateTime(null);
         Assertions.assertEquals(stored, retrieved);
-        Mockito.verifyNoInteractions(errorNotifierServiceSpy);
+        Mockito.verifyNoInteractions(statisticsErrorNotifierServiceSpy);
     }
 
+    protected void publishIntoEmbeddedKafka(Integer partition, String key, String payload) {
+        kafkaTestUtilitiesService.publishIntoEmbeddedKafka(getStatisticsMessagesTopic(), partition, null, key, payload);
+    }
 
     private void waitForEvaluateInvocationTimes(String payload) {
         Throwable[] lastException = new Throwable[]{null};
-        waitFor(() -> {
+        TestUtils.waitFor(() -> {
                     try {
                         Mockito.verify(getStatisticsEvaluationServiceSpy()).evaluate(Mockito.argThat(r -> payload.equals(r.get(0).value())), Mockito.notNull());
                         return true;
@@ -203,6 +206,6 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
     }
 
     protected void checkErrorMessageHeaders(ConsumerRecord<String, String> errorMessage, String errorDescription, String expectedPayload, String expectedKey) {
-        checkErrorMessageHeaders(getStatisticsMessagesTopic(), getStatisticsMessagesGroupId(), errorMessage, errorDescription, false, expectedPayload, expectedKey);
+        checkErrorMessageHeaders(getStatisticsMessagesTopic(), getStatisticsMessagesGroupId(), errorMessage, errorDescription, expectedPayload, expectedKey, false, true);
     }
 }

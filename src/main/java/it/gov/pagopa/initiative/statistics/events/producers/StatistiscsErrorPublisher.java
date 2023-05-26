@@ -8,18 +8,19 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class ErrorPublisher {
+public class StatistiscsErrorPublisher implements it.gov.pagopa.common.kafka.service.ErrorPublisher {
 
     private final KafkaTemplate<String, String> publisher;
 
-    public ErrorPublisher(@Qualifier("errors") KafkaTemplate<String, String> errorPublisher) {
+    public StatistiscsErrorPublisher(@Qualifier("errors") KafkaTemplate<String, String> errorPublisher) {
         this.publisher = errorPublisher;
     }
 
-    public void send(Message<String> message){
+    public boolean send(Message<?> message){
         publisher.send(message).addCallback(
                 r -> log.debug("[ERROR_MESSAGE_HANDLER] message successfully sent to {}", publisher.getDefaultTopic()),
                 e -> log.error("[ERROR_MESSAGE_HANDLER] something gone wrong while sending message towards topic {}", publisher.getDefaultTopic(), e)
         );
+        return true;
     }
 }

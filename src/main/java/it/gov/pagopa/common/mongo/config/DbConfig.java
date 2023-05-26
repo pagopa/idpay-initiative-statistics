@@ -1,4 +1,4 @@
-package it.gov.pagopa.initiative.statistics.config;
+package it.gov.pagopa.common.mongo.config;
 
 import com.mongodb.lang.NonNull;
 import it.gov.pagopa.initiative.statistics.repository.InitiativeStatRepository;
