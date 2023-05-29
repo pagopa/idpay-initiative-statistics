@@ -3,6 +3,7 @@ package it.gov.pagopa.initiative.statistics.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import it.gov.pagopa.common.kafka.utils.KafkaConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -54,8 +55,8 @@ public abstract class BaseStatisticsEvaluationService<E, I> implements Statistic
     private boolean isNotRetry(Pair<ConsumerRecord<String, String>, E> r2e) {
         ConsumerRecord<String, String> r = r2e.getKey();
 
-        Header appNameRecord = r.headers().lastHeader(ErrorNotifierServiceImpl.ERROR_MSG_HEADER_APPLICATION_NAME);
-        Header retry = r.headers().lastHeader("retry");
+        Header appNameRecord = r.headers().lastHeader(KafkaConstants.ERROR_MSG_HEADER_APPLICATION_NAME);
+        Header retry = r.headers().lastHeader(KafkaConstants.ERROR_MSG_HEADER_RETRY);
         boolean out = retry == null || (appNameRecord != null && applicationName.equals(new String(appNameRecord.value(), StandardCharsets.UTF_8)));
         if(!out){
             log.info("[INITIATIVE_STATISTICS_EVALUATION][{}] Skipping record because other application retry: appName: {}, retry: {}"

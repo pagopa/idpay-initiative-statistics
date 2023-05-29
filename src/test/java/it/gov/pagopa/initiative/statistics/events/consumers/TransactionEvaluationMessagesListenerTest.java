@@ -1,14 +1,14 @@
 package it.gov.pagopa.initiative.statistics.events.consumers;
 
+import it.gov.pagopa.common.utils.TestUtils;
 import it.gov.pagopa.initiative.statistics.dto.events.Reward;
 import it.gov.pagopa.initiative.statistics.dto.events.TransactionEvaluationDTO;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
 import it.gov.pagopa.initiative.statistics.service.StatisticsEvaluationService;
 import it.gov.pagopa.initiative.statistics.service.trx.TransactionEvaluationStatisticsService;
 import it.gov.pagopa.initiative.statistics.test.fakers.TransactionEvaluationDTOFaker;
-import it.gov.pagopa.initiative.statistics.test.utils.TestUtils;
+import it.gov.pagopa.initiative.statistics.utils.Constants;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.common.header.Header;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -64,12 +64,14 @@ class TransactionEvaluationMessagesListenerTest extends BaseStatisticsMessagesLi
         return IntStream.range(bias, bias + size)
                 .mapToObj(i -> {
                     TransactionEvaluationDTO out = TransactionEvaluationDTOFaker.mockInstance(i, INITIATIVEID1);
-                    if(i%3==0){
+                    if(i%4==0) {
                         out.setRewards(null);
-                    } else if(i%3==1) {
+                    } else if(i%4==1) {
                         out.setRewards(Collections.emptyMap());
-                    } else {
+                    } else  if(i%4==2) {
                         out.setRewards(Map.of(BaseStatisticsMessagesListenerTest.INITIATIVEID1, new Reward(BaseStatisticsMessagesListenerTest.INITIATIVEID1, "ORGANIZATIONID", BigDecimal.ZERO)));
+                    } else {
+                        out.setStatus(Constants.TRX_STATUS_AUTHORIZED);
                     }
                     return out;
                 })
@@ -107,11 +109,11 @@ class TransactionEvaluationMessagesListenerTest extends BaseStatisticsMessagesLi
     }
 
     @Override
-    protected void publishIntoEmbeddedKafka(String topic, Integer partition, Iterable<Header> headers, String key, String payload) {
+    protected void publishIntoEmbeddedKafka(Integer partition, String key, String payload) {
         if(key==null){
-            key = TestUtils.readUserId(payload);
+            key = TestUtils.readJsonStringFieldValue(payload, "userId");
         }
-        super.publishIntoEmbeddedKafka(topic, partition, headers, key, payload);
+        super.publishIntoEmbeddedKafka(partition, key, payload);
     }
 
     @Override

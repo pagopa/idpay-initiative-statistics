@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.initiative.statistics.dto.events.OnboardingOutcomeDTO;
 import it.gov.pagopa.initiative.statistics.repository.InitiativeStatRepository;
 import it.gov.pagopa.initiative.statistics.service.BaseStatisticsEvaluationService;
-import it.gov.pagopa.initiative.statistics.service.ErrorNotifierService;
+import it.gov.pagopa.initiative.statistics.service.StatisticsErrorNotifierService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -15,16 +15,16 @@ import java.util.stream.Stream;
 @Service
 public class OnboardingStatisticsServiceImpl extends BaseStatisticsEvaluationService<OnboardingOutcomeDTO, OnboardingOutcomeDTO> implements OnboardingStatisticsService {
 
-    private final ErrorNotifierService errorNotifierService;
+    private final StatisticsErrorNotifierService statisticsErrorNotifierService;
     private final InitiativeStatRepository initiativeStatRepository;
 
     public OnboardingStatisticsServiceImpl(
             @Value("${spring.application.name}") String applicationName,
             ObjectMapper objectMapper,
-            ErrorNotifierService errorNotifierService, InitiativeStatRepository initiativeStatRepository) {
+            StatisticsErrorNotifierService statisticsErrorNotifierService, InitiativeStatRepository initiativeStatRepository) {
         super(applicationName, objectMapper);
 
-        this.errorNotifierService = errorNotifierService;
+        this.statisticsErrorNotifierService = statisticsErrorNotifierService;
         this.initiativeStatRepository = initiativeStatRepository;
     }
 
@@ -45,7 +45,7 @@ public class OnboardingStatisticsServiceImpl extends BaseStatisticsEvaluationSer
 
     @Override
     protected void onRecordError2notify(ConsumerRecord<String, String> message, String description, Throwable exception) {
-        errorNotifierService.notifyOnboardingOutcome(message, description, false, exception);
+        statisticsErrorNotifierService.notifyOnboardingOutcome(message, description, false, exception);
     }
 
     @Override
