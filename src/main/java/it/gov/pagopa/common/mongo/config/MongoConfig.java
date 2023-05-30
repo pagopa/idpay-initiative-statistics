@@ -20,11 +20,11 @@ import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableMongoRepositories(basePackageClasses = InitiativeStatRepository.class)
-public class DbConfig {
+public class MongoConfig {
 
     @Configuration
     @ConfigurationProperties(prefix = "spring.data.mongodb.config")
-    static class MongoDbCustomProperties {
+    public static class MongoDbCustomProperties {
         @Setter
         ConnectionPoolSettings connectionPool;
 
