@@ -1,7 +1,7 @@
 package it.gov.pagopa.common.mongo.config;
 
 import com.mongodb.lang.NonNull;
-import it.gov.pagopa.initiative.statistics.repository.InitiativeStatRepository;
+import it.gov.pagopa.common.mongo.repository.MongoRepositoryImpl;
 import lombok.Setter;
 import org.bson.types.Decimal128;
 import org.springframework.boot.autoconfigure.mongo.MongoClientSettingsBuilderCustomizer;
@@ -19,7 +19,10 @@ import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
-@EnableMongoRepositories(basePackageClasses = InitiativeStatRepository.class)
+@EnableMongoRepositories(
+        basePackages = "it.gov.pagopa",
+        repositoryBaseClass = MongoRepositoryImpl.class
+)
 public class MongoConfig {
 
     @Configuration
