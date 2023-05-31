@@ -33,6 +33,11 @@ public class StatisticsErrorNotifierServiceImpl implements StatisticsErrorNotifi
     private final String transactionEvaluationTopic;
     private final String transactionEvaluationGroup;
 
+    private final String merchantCountersTransactionMessagingServiceType;
+    private final String merchantCountersTransactionServer;
+    private final String merchantCountersTransactionTopic;
+    private final String merchantCountersTransactionGroup;
+
     @SuppressWarnings("squid:S00107") // suppressing too many parameters constructor alert
     public StatisticsErrorNotifierServiceImpl(ErrorNotifierService errorNotifierService,
 
@@ -44,7 +49,13 @@ public class StatisticsErrorNotifierServiceImpl implements StatisticsErrorNotifi
                                               @Value("kafka") String transactionEvaluationMessagingServiceType,
                                               @Value("${app.kafka.consumer.transaction-evaluation.bootstrap-servers}") String transactionEvaluationServer,
                                               @Value("${app.kafka.consumer.transaction-evaluation.topic}") String transactionEvaluationTopic,
-                                              @Value("${app.kafka.consumer.transaction-evaluation.group-id}") String transactionEvaluationGroup) {
+                                              @Value("${app.kafka.consumer.transaction-evaluation.group-id}") String transactionEvaluationGroup,
+
+                                              @Value("kafka") String merchantCountersTransactionMessagingServiceType,
+                                              @Value("${app.kafka.consumer.merchant-counters-transaction.bootstrap-servers}") String merchantCountersTransactionServer,
+                                              @Value("${app.kafka.consumer.merchant-counters-transaction.topic}") String merchantCountersTransactionTopic,
+                                              @Value("${app.kafka.consumer.merchant-counters-transaction.group-id}") String merchantCountersTransactionGroup
+    ) {
         this.errorNotifierService = errorNotifierService;
 
         this.onboardingOutcomeMessagingServiceType = onboardingOutcomeMessagingServiceType;
@@ -56,6 +67,11 @@ public class StatisticsErrorNotifierServiceImpl implements StatisticsErrorNotifi
         this.transactionEvaluationServer = transactionEvaluationServer;
         this.transactionEvaluationTopic = transactionEvaluationTopic;
         this.transactionEvaluationGroup = transactionEvaluationGroup;
+
+        this.merchantCountersTransactionMessagingServiceType = merchantCountersTransactionMessagingServiceType;
+        this.merchantCountersTransactionServer = merchantCountersTransactionServer;
+        this.merchantCountersTransactionTopic = merchantCountersTransactionTopic;
+        this.merchantCountersTransactionGroup = merchantCountersTransactionGroup;
     }
 
     @Override
@@ -66,6 +82,11 @@ public class StatisticsErrorNotifierServiceImpl implements StatisticsErrorNotifi
     @Override
     public void notifyTransactionEvaluation(ConsumerRecord<String, String> message, String description, boolean retryable, Throwable exception) {
         notify(transactionEvaluationMessagingServiceType, transactionEvaluationServer, transactionEvaluationTopic, transactionEvaluationGroup, message, description, retryable, true, exception);
+    }
+
+    @Override
+    public void notifyMerchantCountersTransaction(ConsumerRecord<String, String> message, String description, boolean retryable, Throwable exception) {
+        notify(merchantCountersTransactionMessagingServiceType, merchantCountersTransactionServer, merchantCountersTransactionTopic, merchantCountersTransactionGroup, message, description, retryable, true, exception);
     }
 
     @Override

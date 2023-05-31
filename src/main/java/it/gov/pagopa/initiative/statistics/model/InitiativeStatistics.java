@@ -32,10 +32,4 @@ public class InitiativeStatistics {
   private long rewardedTrxs;
   private List<CommittedOffset> transactionEvaluationCommittedOffsets;
 
-  @Data @AllArgsConstructor @FieldNameConstants
-  public static class CommittedOffset{
-    private int partition;
-    private long offset;
-  }
-
 }

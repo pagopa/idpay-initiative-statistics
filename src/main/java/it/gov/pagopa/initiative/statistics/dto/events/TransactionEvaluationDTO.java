@@ -15,6 +15,7 @@ public class TransactionEvaluationDTO {
 
     private String id;
     private String userId;
+    private String merchantId;
     private String operationTypeTranscoded;
 
     private String status;

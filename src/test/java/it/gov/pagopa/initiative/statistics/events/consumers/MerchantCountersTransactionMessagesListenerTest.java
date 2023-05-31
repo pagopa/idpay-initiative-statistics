@@ -6,7 +6,7 @@ import it.gov.pagopa.initiative.statistics.dto.events.TransactionEvaluationDTO;
 import it.gov.pagopa.initiative.statistics.model.CommittedOffset;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
 import it.gov.pagopa.initiative.statistics.service.StatisticsEvaluationService;
-import it.gov.pagopa.initiative.statistics.service.trx.TransactionEvaluationStatisticsService;
+import it.gov.pagopa.initiative.statistics.service.merchant.counters.trx.MerchantTransactionService;
 import it.gov.pagopa.initiative.statistics.test.fakers.TransactionEvaluationDTOFaker;
 import it.gov.pagopa.initiative.statistics.utils.Constants;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -24,10 +24,10 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
-class TransactionEvaluationMessagesListenerTest extends BaseStatisticsMessagesListenerTest {
+class MerchantCountersTransactionMessagesListenerTest extends BaseStatisticsMessagesListenerTest {
 
     @SpyBean
-    private TransactionEvaluationStatisticsService transactionEvaluationStatisticsService;
+    private MerchantTransactionService merchantTransactionService;
 
     @Test
     @Override
@@ -37,17 +37,17 @@ class TransactionEvaluationMessagesListenerTest extends BaseStatisticsMessagesLi
 
     @Override
     protected StatisticsEvaluationService getStatisticsEvaluationServiceSpy() {
-        return transactionEvaluationStatisticsService;
+        return merchantTransactionService;
     }
 
     @Override
     protected String getStatisticsMessagesTopic() {
-        return topicTransactionEvaluation;
+        return topicMerchantCountersTransaction;
     }
 
     @Override
     protected String getStatisticsMessagesGroupId() {
-        return groupIdTransactionEvaluation;
+        return groupIdMerchantCountersTransaction;
     }
 
     @Override

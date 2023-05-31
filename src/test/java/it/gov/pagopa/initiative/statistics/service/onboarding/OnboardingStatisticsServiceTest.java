@@ -35,7 +35,7 @@ class OnboardingStatisticsServiceTest extends BaseStatisticsEvaluationServiceTes
 
     @Override
     protected StatisticsEvaluationService getStatisticsEvaluationServiceImpl() {
-        return new OnboardingStatisticsServiceImpl("APPNAME", TestUtils.objectMapper, statisticsErrorNotifierServiceMock, initiativeStatRepositoryMock);
+        return new OnboardingStatisticsServiceImpl("APPNAME", "ONBOARDING_STATISTICS_GROUP", TestUtils.objectMapper, statisticsErrorNotifierServiceMock, initiativeStatRepositoryMock);
     }
 
     @Override

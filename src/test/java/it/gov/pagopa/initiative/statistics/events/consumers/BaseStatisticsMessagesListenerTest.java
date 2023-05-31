@@ -2,6 +2,7 @@ package it.gov.pagopa.initiative.statistics.events.consumers;
 
 import it.gov.pagopa.common.utils.TestUtils;
 import it.gov.pagopa.initiative.statistics.BaseIntegrationTest;
+import it.gov.pagopa.initiative.statistics.model.CommittedOffset;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
 import it.gov.pagopa.initiative.statistics.service.StatisticsErrorNotifierService;
 import it.gov.pagopa.initiative.statistics.service.StatisticsEvaluationService;
@@ -45,8 +46,8 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
     protected abstract List<Pair<Supplier<String>, Consumer<ConsumerRecord<String, String>>>> getErrorUseCases();
     protected abstract Function<InitiativeStatistics, Long> getGetterCounter();
     protected abstract BiConsumer<InitiativeStatistics, Long> getSetterCounter();
-    protected abstract Function<InitiativeStatistics, List<InitiativeStatistics.CommittedOffset>> getGetterStatisticsCommittedOffsets();
-    protected abstract BiConsumer<InitiativeStatistics, List<InitiativeStatistics.CommittedOffset>> getSetterStatisticsCommittedOffsets();
+    protected abstract Function<InitiativeStatistics, List<CommittedOffset>> getGetterStatisticsCommittedOffsets();
+    protected abstract BiConsumer<InitiativeStatistics, List<CommittedOffset>> getSetterStatisticsCommittedOffsets();
 
     protected abstract long getExpectedCounterValue(int validMsgs);
 
@@ -141,7 +142,7 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
     }
     /** expecting not processed */
     protected void checkOffsetSkipBehavior() {
-        InitiativeStatistics.CommittedOffset committedOffset = new InitiativeStatistics.CommittedOffset(0, 1); // 0 offset will be checkJustNotValidMsgsBehavior useCase, while offset 1 will be the current
+        CommittedOffset committedOffset = new CommittedOffset(0, 1); // 0 offset will be checkJustNotValidMsgsBehavior useCase, while offset 1 will be the current
         InitiativeStatistics stored = InitiativeStatistics.builder()
                 .initiativeId(INITIATIVEID1)
                 .build();

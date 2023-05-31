@@ -1,6 +1,7 @@
 package it.gov.pagopa.initiative.statistics.repository;
 
 import com.mongodb.client.result.UpdateResult;
+import it.gov.pagopa.initiative.statistics.model.CommittedOffset;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
 import it.gov.pagopa.common.utils.CommonUtilities;
 import lombok.extern.slf4j.Slf4j;
@@ -48,13 +49,13 @@ public class InitiativeStatAtomicOpsRepositoryImpl implements InitiativeStatAtom
         return retrieveOffset(initiativeId, organizationId, partition, InitiativeStatistics::getTransactionEvaluationCommittedOffsets, InitiativeStatistics.Fields.transactionEvaluationCommittedOffsets);
     }
 
-    private Long retrieveOffset(String initiativeId, String organizationId, int partition, Function<InitiativeStatistics, List<InitiativeStatistics.CommittedOffset>> commitsgetter, String commitsField){
+    private Long retrieveOffset(String initiativeId, String organizationId, int partition, Function<InitiativeStatistics, List<CommittedOffset>> commitsgetter, String commitsField){
         InitiativeStatistics entity = createRecordIfNotExists(initiativeId, organizationId);
         Long out = null;
 
-        List<InitiativeStatistics.CommittedOffset> commits = commitsgetter.apply(entity);
+        List<CommittedOffset> commits = commitsgetter.apply(entity);
         if(commits != null){
-            out = commits.stream().filter(c->partition == c.getPartition()).map(InitiativeStatistics.CommittedOffset::getOffset).findFirst().orElse(null);
+            out = commits.stream().filter(c->partition == c.getPartition()).map(CommittedOffset::getOffset).findFirst().orElse(null);
         }
 
         if(out == null){
@@ -63,7 +64,7 @@ public class InitiativeStatAtomicOpsRepositoryImpl implements InitiativeStatAtom
             client.updateFirst(
                     Query.query(Criteria.where(FIELD_INITIATIVE_ID).is(initiativeId)),
                     new Update()
-                            .push(commitsField, new InitiativeStatistics.CommittedOffset(partition, out)),
+                            .push(commitsField, new CommittedOffset(partition, out)),
                     InitiativeStatistics.class
             );
         }
@@ -103,37 +104,37 @@ public class InitiativeStatAtomicOpsRepositoryImpl implements InitiativeStatAtom
     }
 
     @Override
-    public void updateOnboardingCount(String initiatiativeId, long inc, int partition, long offset) {
-        incrementCounterAndPartitionCommittedOffsets(initiatiativeId, Map.of(FIELD_ONBOARDED_CITIZEN_COUNT, inc), FIELD_ONBOARDING_OUTCOME_COMMITTED_OFFSETS, partition, offset);
+    public void updateOnboardingCount(String initiativeId, long inc, int partition, long offset) {
+        incrementCounterAndPartitionCommittedOffsets(initiativeId, Map.of(FIELD_ONBOARDED_CITIZEN_COUNT, inc), FIELD_ONBOARDING_OUTCOME_COMMITTED_OFFSETS, partition, offset);
     }
 
     @Override
-    public void updateAccruedRewards(String initiatiativeId, BigDecimal rewardEuro, Long trxs, int partition, long offset) {
+    public void updateAccruedRewards(String initiativeId, BigDecimal rewardEuro, Long trxs, int partition, long offset) {
         Map<String, Long> incrementsMap = Map.of(
                 FIELD_ACCRUED_REWARD_CENTS, CommonUtilities.euroToCents(rewardEuro),
                 FIELD_REWARDED_TRXS, trxs
         );
-        incrementCounterAndPartitionCommittedOffsets(initiatiativeId, incrementsMap, FIELD_TRANSACTION_EVALUATION_COMMITTED_OFFSETS, partition, offset);
+        incrementCounterAndPartitionCommittedOffsets(initiativeId, incrementsMap, FIELD_TRANSACTION_EVALUATION_COMMITTED_OFFSETS, partition, offset);
     }
 
-    private void incrementCounterAndPartitionCommittedOffsets(String initiatiativeId, Map<String, Long> fieldCounter2Inc, String fieldPartitionCommitted, int partition, long offset) {
+    private void incrementCounterAndPartitionCommittedOffsets(String initiativeId, Map<String, Long> fieldCounter2Inc, String fieldPartitionCommitted, int partition, long offset) {
         Update update = new Update()
-                .set("%s.$.%s".formatted(fieldPartitionCommitted, InitiativeStatistics.CommittedOffset.Fields.offset), offset)
+                .set("%s.$.%s".formatted(fieldPartitionCommitted, CommittedOffset.Fields.offset), offset)
                 .set(FIELD_LAST_UPDATE_DATE, LocalDateTime.now());
         fieldCounter2Inc.forEach(update::inc);
 
         UpdateResult updateResult = client.updateFirst(
                 Query.query(
-                        Criteria.where(FIELD_INITIATIVE_ID).is(initiatiativeId)
-                                .and("%s.%s".formatted(fieldPartitionCommitted, InitiativeStatistics.CommittedOffset.Fields.partition)).is(partition)
+                        Criteria.where(FIELD_INITIATIVE_ID).is(initiativeId)
+                                .and("%s.%s".formatted(fieldPartitionCommitted, CommittedOffset.Fields.partition)).is(partition)
                 ),
                 update,
                 InitiativeStatistics.class
         );
         if(updateResult.getModifiedCount()>0){
-            log.info("[INITIATIVE_STATISTICS_EVALUATION]{} Counter updated for initiative {} inc by {} and committed offset {}-{}", fieldCounter2Inc.keySet().stream().map("[INC_%s]"::formatted).collect(Collectors.joining()), initiatiativeId, fieldCounter2Inc, partition, offset);
+            log.info("[INITIATIVE_STATISTICS_EVALUATION]{} Counter updated for initiative {} inc by {} and committed offset {}-{}", fieldCounter2Inc.keySet().stream().map("[INC_%s]"::formatted).collect(Collectors.joining()), initiativeId, fieldCounter2Inc, partition, offset);
         } else {
-            throw new IllegalStateException("[INITIATIVE_STATISTICS_EVALUATION]%s Counter increase called on not existent initiativeId-topicPartition: %s %s".formatted(fieldCounter2Inc.keySet().stream().map("[INC_%s]"::formatted).collect(Collectors.joining()), initiatiativeId, partition));
+            throw new IllegalStateException("[INITIATIVE_STATISTICS_EVALUATION]%s Counter increase called on not existent initiativeId-topicPartition: %s %s".formatted(fieldCounter2Inc.keySet().stream().map("[INC_%s]"::formatted).collect(Collectors.joining()), initiativeId, partition));
         }
     }
 }

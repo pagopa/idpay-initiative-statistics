@@ -8,6 +8,7 @@ import it.gov.pagopa.common.utils.TestUtils;
 import it.gov.pagopa.initiative.statistics.dto.events.OnboardingOutcomeDTO;
 import it.gov.pagopa.initiative.statistics.dto.events.Reward;
 import it.gov.pagopa.initiative.statistics.dto.events.TransactionEvaluationDTO;
+import it.gov.pagopa.initiative.statistics.model.CommittedOffset;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
 import it.gov.pagopa.initiative.statistics.repository.InitiativeStatRepository;
 import it.gov.pagopa.initiative.statistics.test.fakers.OnboardingOutcomeDTOFaker;
@@ -90,6 +91,8 @@ public abstract class BaseIntegrationTest {
     protected String topicOnboardingOutcome;
     @Value("${app.kafka.consumer.transaction-evaluation.topic}")
     protected String topicTransactionEvaluation;
+    @Value("${app.kafka.consumer.merchant-counters-transaction.topic}")
+    protected String topicMerchantCountersTransaction;
     @Value("${app.kafka.producer.errors.topic}")
     protected String topicErrors;
 
@@ -97,6 +100,8 @@ public abstract class BaseIntegrationTest {
     protected String groupIdOnboardingOutcome;
     @Value("${app.kafka.consumer.transaction-evaluation.group-id}")
     protected String groupIdTransactionEvaluation;
+    @Value("${app.kafka.consumer.merchant-counters-transaction.group-id}")
+    protected String groupIdMerchantCountersTransaction;
 
     @BeforeAll
     public static void unregisterPreviouslyKafkaServers() throws MalformedObjectNameException, MBeanRegistrationException, InstanceNotFoundException {
@@ -181,13 +186,13 @@ public abstract class BaseIntegrationTest {
         return countSaved[0];
     }
 
-    protected long verifyPartitionOffsetStored(long expectOffsetSum, String initiativeid, Function<InitiativeStatistics, List<InitiativeStatistics.CommittedOffset>> getterStatisticsCommittedOffsets, boolean assertEquals) {
+    protected long verifyPartitionOffsetStored(long expectOffsetSum, String initiativeid, Function<InitiativeStatistics, List<CommittedOffset>> getterStatisticsCommittedOffsets, boolean assertEquals) {
         InitiativeStatistics result = initiativeStatRepository.findById(initiativeid).orElse(null);
         Assertions.assertNotNull(result);
 
         // -2 because offset start from 0 and we are using 2 partition for test
         long expectedOffsetSum0Based = expectOffsetSum - 2;
-        long sum = getterStatisticsCommittedOffsets.apply(result).stream().mapToLong(InitiativeStatistics.CommittedOffset::getOffset).sum();
+        long sum = getterStatisticsCommittedOffsets.apply(result).stream().mapToLong(CommittedOffset::getOffset).sum();
 
         if (assertEquals) {
             Assertions.assertEquals(expectedOffsetSum0Based, sum);

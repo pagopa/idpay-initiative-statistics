@@ -20,9 +20,10 @@ public class OnboardingStatisticsServiceImpl extends BaseStatisticsEvaluationSer
 
     public OnboardingStatisticsServiceImpl(
             @Value("${spring.application.name}") String applicationName,
+            @Value("${app.kafka.consumer.onboarding-outcome.group-id}") String consumerGroup,
             ObjectMapper objectMapper,
             StatisticsErrorNotifierService statisticsErrorNotifierService, InitiativeStatRepository initiativeStatRepository) {
-        super(applicationName, objectMapper);
+        super(applicationName, consumerGroup, objectMapper);
 
         this.statisticsErrorNotifierService = statisticsErrorNotifierService;
         this.initiativeStatRepository = initiativeStatRepository;
@@ -39,8 +40,8 @@ public class OnboardingStatisticsServiceImpl extends BaseStatisticsEvaluationSer
     }
 
     @Override
-    protected long retrieveLastProcessedOffset(String initiativeId, int partition, OnboardingOutcomeDTO onboardinOutcome) {
-        return initiativeStatRepository.retrieveOnboardingOutcomeCommittedOffset(initiativeId, onboardinOutcome.getOrganizationId(), partition);
+    protected long retrieveLastProcessedOffset(String counterId, int partition, OnboardingOutcomeDTO onboardinOutcome) {
+        return initiativeStatRepository.retrieveOnboardingOutcomeCommittedOffset(counterId, onboardinOutcome.getOrganizationId(), partition);
     }
 
     @Override
@@ -54,14 +55,14 @@ public class OnboardingStatisticsServiceImpl extends BaseStatisticsEvaluationSer
     }
 
     @Override
-    protected String getInitiativeId(OnboardingOutcomeDTO t) {
+    protected String getCounterId(OnboardingOutcomeDTO t) {
         return t.getInitiativeId();
     }
 
     @Override
-    protected void evaluateInitiative(String initiativeId, List<OnboardingOutcomeDTO> records, int partition, long maxOffset) {
+    protected void evaluateCounter(String counterId, List<OnboardingOutcomeDTO> records, int partition, long maxOffset) {
         initiativeStatRepository.updateOnboardingCount(
-                initiativeId,
+                counterId,
                 records.stream().filter(o->"ONBOARDING_OK".equals(o.getStatus())).count(),
                 partition, maxOffset
         );
