@@ -1,7 +1,7 @@
 package it.gov.pagopa.initiative.statistics.service.merchant.counters;
 
 import it.gov.pagopa.initiative.statistics.dto.MerchantStatisticsDTO;
-import it.gov.pagopa.initiative.statistics.dto.mapper.MerchantInitiativeCounters2MerchantInitiativeStatisticsDTO;
+import it.gov.pagopa.initiative.statistics.dto.mapper.MerchantInitiativeCounters2MerchantInitiativeStatisticsDTOMapper;
 import it.gov.pagopa.initiative.statistics.exception.MerchantStatException;
 import it.gov.pagopa.initiative.statistics.model.MerchantInitiativeCounters;
 import it.gov.pagopa.initiative.statistics.repository.merchant.counters.MerchantInitiativeCountersRepository;
@@ -15,9 +15,9 @@ import java.text.MessageFormat;
 @Slf4j
 public class MerchantCountersServiceImpl implements MerchantCountersService {
     private final MerchantInitiativeCountersRepository countersRepository;
-    private final MerchantInitiativeCounters2MerchantInitiativeStatisticsDTO counter2DtoMapper;
+    private final MerchantInitiativeCounters2MerchantInitiativeStatisticsDTOMapper counter2DtoMapper;
 
-    public MerchantCountersServiceImpl(MerchantInitiativeCountersRepository countersRepository, MerchantInitiativeCounters2MerchantInitiativeStatisticsDTO counter2DtoMapper) {
+    public MerchantCountersServiceImpl(MerchantInitiativeCountersRepository countersRepository, MerchantInitiativeCounters2MerchantInitiativeStatisticsDTOMapper counter2DtoMapper) {
         this.countersRepository = countersRepository;
         this.counter2DtoMapper = counter2DtoMapper;
     }

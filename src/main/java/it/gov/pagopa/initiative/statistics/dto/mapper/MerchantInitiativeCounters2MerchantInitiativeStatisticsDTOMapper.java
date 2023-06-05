@@ -2,10 +2,12 @@ package it.gov.pagopa.initiative.statistics.dto.mapper;
 
 import it.gov.pagopa.initiative.statistics.dto.MerchantStatisticsDTO;
 import it.gov.pagopa.initiative.statistics.model.MerchantInitiativeCounters;
+import org.springframework.stereotype.Service;
 
 import java.util.function.Function;
 
-public class MerchantInitiativeCounters2MerchantInitiativeStatisticsDTO implements Function<MerchantInitiativeCounters, MerchantStatisticsDTO> {
+@Service
+public class MerchantInitiativeCounters2MerchantInitiativeStatisticsDTOMapper implements Function<MerchantInitiativeCounters, MerchantStatisticsDTO> {
 
     @Override
     public MerchantStatisticsDTO apply(MerchantInitiativeCounters merchantInitiativeCounters) {
