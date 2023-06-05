@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/idpay/merchant/portal")
 public interface MerchantPortalController {
 
-    @GetMapping(value = "/{merchantId}/initiative/{initiativeId}/statistics",
+    @GetMapping(value = "/initiatives/{initiativeId}/statistics",
             produces = {"application/json"})
     ResponseEntity<MerchantStatisticsDTO> getMerchantInitiativeStatistics(
             @RequestHeader("x-merchant-id") String merchantId,
