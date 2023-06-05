@@ -21,6 +21,12 @@ public class RestResponseExceptionHandler {
                 ex.getHttpStatus());
     }
 
+    @ExceptionHandler({MerchantStatException.class})
+    public ResponseEntity<ErrorDTO> handleMerchantException(MerchantStatException ex) {
+        return new ResponseEntity<>(new ErrorDTO(ex.getCode(), ex.getMessage()),
+                ex.getHttpStatus());
+    }
+
     @ExceptionHandler({MethodArgumentNotValidException.class})
     public ResponseEntity<ErrorDTO> handleMethodArgumentNotValidExceptions(MethodArgumentNotValidException ex) {
         List<String> errors = new ArrayList<>();
