@@ -165,12 +165,17 @@ class InitiativeStatAtomicOpsRepositoryTest extends BaseIntegrationTest {
 
         repository.updateAccruedRewards(initiativeid, BigDecimal.valueOf(5), 1L, 1, 10);
 
-        InitiativeStatistics result = repository.findById(initiativeid).orElse(null);
+        InitiativeStatistics result = repository.findById(buildCounterId(initiativeid)).orElse(null);
         Assertions.assertNotNull(result);
         Assertions.assertEquals(initiativeid, result.getInitiativeId());
         Assertions.assertEquals(600L, result.getAccruedRewardsCents());
         Assertions.assertEquals(11L, result.getRewardedTrxs());
         Assertions.assertEquals(List.of(new CommittedOffset(1, 10)),
                 result.getTransactionEvaluationCommittedOffsets());
+    }
+
+    @Override
+    protected String buildCounterId(String initiativeId) {
+        return initiativeId;
     }
 }

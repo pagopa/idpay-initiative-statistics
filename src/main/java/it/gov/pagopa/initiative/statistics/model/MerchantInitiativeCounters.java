@@ -5,8 +5,6 @@ import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 
 @Data
@@ -25,16 +23,16 @@ public class MerchantInitiativeCounters {
     private String initiativeId;
 
     /**
-     * the total amount dispensed
+     * the total amount dispensed in cents
      */
     @Builder.Default
-    private BigDecimal totalAmount = BigDecimal.ZERO.setScale(2, RoundingMode.UNNECESSARY);
+    private Long totalAmount = 0L;
 
     /**
-     * the total amount already refunded
+     * the total amount already refunded in cents
      */
     @Builder.Default
-    private BigDecimal totalRefunded = BigDecimal.ZERO.setScale(2, RoundingMode.UNNECESSARY);
+    private Long totalRefunded = 0L;
     private long trxNumber;
     private long refundedNumber;
 

@@ -4,10 +4,12 @@ import it.gov.pagopa.initiative.statistics.BaseIntegrationTest;
 import it.gov.pagopa.initiative.statistics.dto.events.TransactionEvaluationDTO;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
 import it.gov.pagopa.common.utils.TestUtils;
+import it.gov.pagopa.initiative.statistics.repository.InitiativeStatRepository;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.stream.IntStream;
@@ -15,6 +17,9 @@ import java.util.stream.IntStream;
 class StatisticsMessagesListenerConcurrentTest extends BaseIntegrationTest {
 
     public static final String INITIATIVEID = "INITIATIVEID";
+
+    @Autowired
+    protected InitiativeStatRepository initiativeStatRepository;
 
     @AfterEach
     void clearData() {
@@ -41,13 +46,13 @@ class StatisticsMessagesListenerConcurrentTest extends BaseIntegrationTest {
         });
         long timePublishingEnd = System.currentTimeMillis();
 
-        Assertions.assertEquals(validMsgs, waitForCounterResult(INITIATIVEID, "ORGANIZATIONID_"+INITIATIVEID, InitiativeStatistics::getOnboardedCitizenCount, validMsgs, maxWaitingMs));
-        Assertions.assertEquals(validMsgs * 100, waitForCounterResult(INITIATIVEID, "ORGANIZATIONID_"+INITIATIVEID, InitiativeStatistics::getAccruedRewardsCents, validMsgs * 100, maxWaitingMs));
+        Assertions.assertEquals(validMsgs, waitForCounterResult(INITIATIVEID, "ORGANIZATIONID_"+INITIATIVEID, InitiativeStatistics::getOnboardedCitizenCount, validMsgs, maxWaitingMs, initiativeStatRepository));
+        Assertions.assertEquals(validMsgs * 100, waitForCounterResult(INITIATIVEID, "ORGANIZATIONID_"+INITIATIVEID, InitiativeStatistics::getAccruedRewardsCents, validMsgs * 100, maxWaitingMs, initiativeStatRepository));
         long timeCounterUpdated = System.currentTimeMillis();
-        Assertions.assertEquals(getExpectedTrxsCount(validMsgs), initiativeStatRepository.findById(INITIATIVEID).map(InitiativeStatistics::getRewardedTrxs).orElse(null));
+        Assertions.assertEquals(getExpectedTrxsCount(validMsgs), initiativeStatRepository.findById(buildCounterId(INITIATIVEID)).map(InitiativeStatistics::getRewardedTrxs).orElse(null));
 
-        verifyPartitionOffsetStored(validMsgs, INITIATIVEID, InitiativeStatistics::getOnboardingOutcomeCommittedOffsets, true);
-        verifyPartitionOffsetStored(validMsgs, INITIATIVEID, InitiativeStatistics::getTransactionEvaluationCommittedOffsets, false);
+        verifyPartitionOffsetStored(validMsgs, INITIATIVEID, InitiativeStatistics::getOnboardingOutcomeCommittedOffsets, true, initiativeStatRepository);
+        verifyPartitionOffsetStored(validMsgs, INITIATIVEID, InitiativeStatistics::getTransactionEvaluationCommittedOffsets, false, initiativeStatRepository);
 
         System.out.printf("""
                         ************************
@@ -63,5 +68,10 @@ class StatisticsMessagesListenerConcurrentTest extends BaseIntegrationTest {
                 timeCounterUpdated - timePublishingEnd,
                 timeCounterUpdated - timePublishStart
         );
+    }
+
+    @Override
+    protected String buildCounterId(String initiativeId) {
+        return initiativeId;
     }
 }

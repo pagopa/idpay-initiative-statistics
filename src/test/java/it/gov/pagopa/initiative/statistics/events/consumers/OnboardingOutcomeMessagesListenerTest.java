@@ -20,7 +20,7 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
-class OnboardingOutcomeMessagesListenerTest extends BaseStatisticsMessagesListenerTest {
+class OnboardingOutcomeMessagesListenerTest extends BaseInitiativeStatisticsMessageListenerTest {
 
     @SpyBean
     private OnboardingStatisticsService onboardingStatisticsServiceSpy;

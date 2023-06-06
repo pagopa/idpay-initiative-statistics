@@ -1,6 +1,7 @@
 package it.gov.pagopa.initiative.statistics.repository.merchant.counters;
 
 import com.mongodb.client.result.UpdateResult;
+import it.gov.pagopa.common.utils.CommonUtilities;
 import it.gov.pagopa.initiative.statistics.model.CommittedOffset;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
 import it.gov.pagopa.initiative.statistics.model.MerchantInitiativeCounters;
@@ -29,6 +30,11 @@ public class MerchantInitiativeCountersOpsRepositoryImpl implements MerchantInit
     @Override
     public long retrieveMerchantCountersTransactionCommittedOffset(String counterId, int partition) {
         return retrieveOffset(counterId, partition, MerchantInitiativeCounters::getTrxCommittedOffsets, MerchantInitiativeCounters.Fields.trxCommittedOffsets);
+    }
+
+    @Override
+    public long retrieveMerchantCountersNotificationCommittedOffset(String counterId, int partition) {
+        return retrieveOffset(counterId, partition, MerchantInitiativeCounters::getRewardNotificationCommittedOffsets, MerchantInitiativeCounters.Fields.rewardNotificationCommittedOffsets);
     }
 
     private Long retrieveOffset(String counterId, int partition, Function<MerchantInitiativeCounters, List<CommittedOffset>> commitsgetter, String commitsField){
@@ -87,10 +93,19 @@ public class MerchantInitiativeCountersOpsRepositoryImpl implements MerchantInit
     @Override
     public void updateCountersFromTransaction(String initiativeId, BigDecimal amount, Long trxs, int partition, long offset) {
         Map<String, Number> incrementsMap = Map.of(
-                MerchantInitiativeCounters.Fields.totalAmount, amount,
+                MerchantInitiativeCounters.Fields.totalAmount, CommonUtilities.euroToCents(amount),
                 MerchantInitiativeCounters.Fields.trxNumber, trxs
         );
         incrementCounterAndPartitionCommittedOffsets(initiativeId, incrementsMap, MerchantInitiativeCounters.Fields.trxCommittedOffsets, partition, offset);
+    }
+
+    @Override
+    public void updateCountersFromRewardNotification(String initiativeId, BigDecimal refunded, Long trxs, int partition, long offset) {
+        Map<String, Number> incrementsMap = Map.of(
+                MerchantInitiativeCounters.Fields.totalRefunded, CommonUtilities.euroToCents(refunded),
+                MerchantInitiativeCounters.Fields.refundedNumber, trxs
+        );
+        incrementCounterAndPartitionCommittedOffsets(initiativeId, incrementsMap, MerchantInitiativeCounters.Fields.rewardNotificationCommittedOffsets, partition, offset);
     }
 
     private void incrementCounterAndPartitionCommittedOffsets(String counterId, Map<String, Number> fieldCounter2Inc, String fieldPartitionCommitted, int partition, long offset) {

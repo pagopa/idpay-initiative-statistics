@@ -19,16 +19,16 @@ import java.util.stream.Stream;
 
 @Service
 @Slf4j
-public class MerchantTransactionServiceImpl extends BaseStatisticsEvaluationService<TransactionEvaluationDTO, MerchantReward> implements MerchantTransactionService {
+public class MerchantTransactionStatisticsServiceImpl extends BaseStatisticsEvaluationService<TransactionEvaluationDTO, MerchantReward> implements MerchantTransactionStatisticsService {
 
     private final StatisticsErrorNotifierService statisticsErrorNotifierService;
     private final MerchantInitiativeCountersRepository merchantCountersRepository;
 
-    protected MerchantTransactionServiceImpl(@Value("${spring.application.name}") String applicationName,
-                                             @Value("${app.kafka.consumer.merchant-counters-transaction.group-id}") String consumerGroup,
-                                             ObjectMapper objectMapper,
-                                             StatisticsErrorNotifierService statisticsErrorNotifierService,
-                                             MerchantInitiativeCountersRepository merchantCountersRepository) {
+    protected MerchantTransactionStatisticsServiceImpl(@Value("${spring.application.name}") String applicationName,
+                                                       @Value("${app.kafka.consumer.merchant-counters-transaction.group-id}") String consumerGroup,
+                                                       ObjectMapper objectMapper,
+                                                       StatisticsErrorNotifierService statisticsErrorNotifierService,
+                                                       MerchantInitiativeCountersRepository merchantCountersRepository) {
         super(applicationName, consumerGroup, objectMapper);
 
         this.statisticsErrorNotifierService = statisticsErrorNotifierService;

@@ -3,10 +3,9 @@ package it.gov.pagopa.initiative.statistics.events.consumers;
 import it.gov.pagopa.common.utils.TestUtils;
 import it.gov.pagopa.initiative.statistics.dto.events.Reward;
 import it.gov.pagopa.initiative.statistics.dto.events.TransactionEvaluationDTO;
-import it.gov.pagopa.initiative.statistics.model.CommittedOffset;
-import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
+import it.gov.pagopa.initiative.statistics.model.MerchantInitiativeCounters;
 import it.gov.pagopa.initiative.statistics.service.StatisticsEvaluationService;
-import it.gov.pagopa.initiative.statistics.service.merchant.counters.trx.MerchantTransactionService;
+import it.gov.pagopa.initiative.statistics.service.merchant.counters.trx.MerchantTransactionStatisticsService;
 import it.gov.pagopa.initiative.statistics.test.fakers.TransactionEvaluationDTOFaker;
 import it.gov.pagopa.initiative.statistics.utils.Constants;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -17,17 +16,15 @@ import org.springframework.data.util.Pair;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
-class MerchantCountersTransactionMessagesListenerTest extends BaseStatisticsMessagesListenerTest {
+class MerchantCountersTransactionMessagesListenerTest extends BaseMerchantStatisticsMessageListenerTest {
 
     @SpyBean
-    private MerchantTransactionService merchantTransactionService;
+    private MerchantTransactionStatisticsService merchantTransactionStatisticsService;
 
     @Test
     @Override
@@ -37,7 +34,7 @@ class MerchantCountersTransactionMessagesListenerTest extends BaseStatisticsMess
 
     @Override
     protected StatisticsEvaluationService getStatisticsEvaluationServiceSpy() {
-        return merchantTransactionService;
+        return merchantTransactionStatisticsService;
     }
 
     @Override
@@ -70,7 +67,7 @@ class MerchantCountersTransactionMessagesListenerTest extends BaseStatisticsMess
                     } else if(i%4==1) {
                         out.setRewards(Collections.emptyMap());
                     } else  if(i%4==2) {
-                        out.setRewards(Map.of(BaseStatisticsMessagesListenerTest.INITIATIVEID1, new Reward(BaseStatisticsMessagesListenerTest.INITIATIVEID1, "ORGANIZATIONID", BigDecimal.ZERO)));
+                        out.setRewards(Map.of(INITIATIVEID1, new Reward(INITIATIVEID1, "ORGANIZATIONID", BigDecimal.ZERO)));
                     } else {
                         out.setStatus(Constants.TRX_STATUS_AUTHORIZED);
                     }
@@ -82,26 +79,6 @@ class MerchantCountersTransactionMessagesListenerTest extends BaseStatisticsMess
     @Override
     protected List<Pair<Supplier<String>, Consumer<ConsumerRecord<String, String>>>> getErrorUseCases() {
         return errorUseCases;
-    }
-
-    @Override
-    protected Function<InitiativeStatistics, Long> getGetterCounter() {
-        return InitiativeStatistics::getAccruedRewardsCents;
-    }
-
-    @Override
-    protected BiConsumer<InitiativeStatistics, Long> getSetterCounter() {
-        return InitiativeStatistics::setAccruedRewardsCents;
-    }
-
-    @Override
-    protected Function<InitiativeStatistics, List<CommittedOffset>> getGetterStatisticsCommittedOffsets() {
-        return InitiativeStatistics::getTransactionEvaluationCommittedOffsets;
-    }
-
-    @Override
-    protected BiConsumer<InitiativeStatistics, List<CommittedOffset>> getSetterStatisticsCommittedOffsets() {
-        return InitiativeStatistics::setTransactionEvaluationCommittedOffsets;
     }
 
     @Override
@@ -135,11 +112,18 @@ class MerchantCountersTransactionMessagesListenerTest extends BaseStatisticsMess
         long out = super.checkResults(validMsgs, maxWaitingMs);
 
         int expectedTrxsCount = getExpectedTrxsCount(validMsgs);
-        Assertions.assertEquals(expectedTrxsCount, initiativeStatRepository.findById(INITIATIVEID1).map(InitiativeStatistics::getRewardedTrxs).orElse(null));
-        Assertions.assertEquals(expectedTrxsCount, initiativeStatRepository.findById(INITIATIVEID2).map(InitiativeStatistics::getRewardedTrxs).orElse(null));
+        Assertions.assertEquals(expectedTrxsCount, getStatRepository().findById(buildCounterId(INITIATIVEID1)).map(MerchantInitiativeCounters::getTrxNumber).orElse(null));
+        Assertions.assertEquals(expectedTrxsCount, getStatRepository().findById(buildCounterId(INITIATIVEID2)).map(MerchantInitiativeCounters::getTrxNumber).orElse(null));
 
         return out;
     }
+
+    @Override
+    protected String buildCounterId(String initiativeId) {
+        return "%s_%s".formatted(MERCHANTID, initiativeId);
+    }
+
+
 
     //region not valid useCases
     // all use cases configured must have a unique id recognized by the regexp getErrorUseCaseIdPatternMatch
@@ -153,13 +137,13 @@ class MerchantCountersTransactionMessagesListenerTest extends BaseStatisticsMess
         String jsonNotExpected = "{\"userId\":\"USERID0\",unexpectedStructure:0}";
         errorUseCases.add(Pair.of(
                 () -> jsonNotExpected,
-                errorMessage -> checkErrorMessageHeaders(errorMessage, "[INITIATIVE_STATISTICS_EVALUATION][TRANSACTION_EVALUATION] Unexpected json: {\"userId\":\"USERID0\",unexpectedStructure:0}", jsonNotExpected, "USERID0")
+                errorMessage -> checkErrorMessageHeaders(errorMessage, "[INITIATIVE_STATISTICS_EVALUATION][MERCHANT_COUNTERS_UPDATE_FROM_TRANSACTION] Unexpected json: {\"userId\":\"USERID0\",unexpectedStructure:0}", jsonNotExpected, "USERID0")
         ));
 
         String jsonNotValid = "{\"userId\":\"USERID1\",invalidJson";
         errorUseCases.add(Pair.of(
                 () -> jsonNotValid,
-                errorMessage -> checkErrorMessageHeaders(errorMessage, "[INITIATIVE_STATISTICS_EVALUATION][TRANSACTION_EVALUATION] Unexpected json: {\"userId\":\"USERID1\",invalidJson", jsonNotValid, "USERID1")
+                errorMessage -> checkErrorMessageHeaders(errorMessage, "[INITIATIVE_STATISTICS_EVALUATION][MERCHANT_COUNTERS_UPDATE_FROM_TRANSACTION] Unexpected json: {\"userId\":\"USERID1\",invalidJson", jsonNotValid, "USERID1")
         ));
     }
     //endregion

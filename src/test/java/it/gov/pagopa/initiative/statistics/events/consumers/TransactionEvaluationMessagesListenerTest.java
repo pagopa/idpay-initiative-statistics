@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
-class TransactionEvaluationMessagesListenerTest extends BaseStatisticsMessagesListenerTest {
+class TransactionEvaluationMessagesListenerTest extends BaseInitiativeStatisticsMessageListenerTest {
 
     @SpyBean
     private TransactionEvaluationStatisticsService transactionEvaluationStatisticsService;

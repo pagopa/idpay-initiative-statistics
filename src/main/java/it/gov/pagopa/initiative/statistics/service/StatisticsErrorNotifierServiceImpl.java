@@ -38,6 +38,11 @@ public class StatisticsErrorNotifierServiceImpl implements StatisticsErrorNotifi
     private final String merchantCountersTransactionTopic;
     private final String merchantCountersTransactionGroup;
 
+    private final String merchantCountersNotificationMessagingServiceType;
+    private final String merchantCountersNotificationServer;
+    private final String merchantCountersNotificationTopic;
+    private final String merchantCountersNotificationGroup;
+
     @SuppressWarnings("squid:S00107") // suppressing too many parameters constructor alert
     public StatisticsErrorNotifierServiceImpl(ErrorNotifierService errorNotifierService,
 
@@ -54,8 +59,12 @@ public class StatisticsErrorNotifierServiceImpl implements StatisticsErrorNotifi
                                               @Value("kafka") String merchantCountersTransactionMessagingServiceType,
                                               @Value("${app.kafka.consumer.merchant-counters-transaction.bootstrap-servers}") String merchantCountersTransactionServer,
                                               @Value("${app.kafka.consumer.merchant-counters-transaction.topic}") String merchantCountersTransactionTopic,
-                                              @Value("${app.kafka.consumer.merchant-counters-transaction.group-id}") String merchantCountersTransactionGroup
-    ) {
+                                              @Value("${app.kafka.consumer.merchant-counters-transaction.group-id}") String merchantCountersTransactionGroup,
+
+                                              @Value("kafka") String merchantCountersNotificationMessagingServiceType,
+                                              @Value("${app.kafka.consumer.merchant-counters-reward-notification.bootstrap-servers}") String merchantCountersNotificationServer,
+                                              @Value("${app.kafka.consumer.merchant-counters-reward-notification.topic}") String merchantCountersNotificationTopic,
+                                              @Value("${app.kafka.consumer.merchant-counters-reward-notification.group-id}") String merchantCountersNotificationGroup) {
         this.errorNotifierService = errorNotifierService;
 
         this.onboardingOutcomeMessagingServiceType = onboardingOutcomeMessagingServiceType;
@@ -72,6 +81,11 @@ public class StatisticsErrorNotifierServiceImpl implements StatisticsErrorNotifi
         this.merchantCountersTransactionServer = merchantCountersTransactionServer;
         this.merchantCountersTransactionTopic = merchantCountersTransactionTopic;
         this.merchantCountersTransactionGroup = merchantCountersTransactionGroup;
+
+        this.merchantCountersNotificationMessagingServiceType = merchantCountersNotificationMessagingServiceType;
+        this.merchantCountersNotificationServer = merchantCountersNotificationServer;
+        this.merchantCountersNotificationTopic = merchantCountersNotificationTopic;
+        this.merchantCountersNotificationGroup = merchantCountersNotificationGroup;
     }
 
     @Override
@@ -87,6 +101,11 @@ public class StatisticsErrorNotifierServiceImpl implements StatisticsErrorNotifi
     @Override
     public void notifyMerchantCountersTransaction(ConsumerRecord<String, String> message, String description, boolean retryable, Throwable exception) {
         notify(merchantCountersTransactionMessagingServiceType, merchantCountersTransactionServer, merchantCountersTransactionTopic, merchantCountersTransactionGroup, message, description, retryable, true, exception);
+    }
+
+    @Override
+    public void notifyMerchantCountersRewardNotification(ConsumerRecord<String, String> message, String description, boolean retryable, Throwable exception) {
+        notify(merchantCountersNotificationMessagingServiceType, merchantCountersNotificationServer, merchantCountersNotificationTopic, merchantCountersNotificationGroup, message, description, retryable, true, exception);
     }
 
     @Override

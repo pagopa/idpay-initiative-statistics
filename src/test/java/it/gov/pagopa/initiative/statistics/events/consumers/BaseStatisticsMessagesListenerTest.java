@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Assertions;
 import org.mockito.Mockito;
 import org.opentest4j.AssertionFailedError;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.util.Pair;
 
 import java.time.LocalDateTime;
@@ -25,7 +26,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
-abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
+abstract class BaseStatisticsMessagesListenerTest<T> extends BaseIntegrationTest {
 
     protected static final String INITIATIVEID1 = "INITIATIVEID1";
     protected static final String INITIATIVEID2 = "INITIATIVEID2";
@@ -35,19 +36,21 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
 
     @AfterEach
     void clearData() {
-        initiativeStatRepository.deleteAll();
+        getStatRepository().deleteAll();
     }
-    
+
+    protected abstract MongoRepository<T, String> getStatRepository();
+
     protected abstract StatisticsEvaluationService getStatisticsEvaluationServiceSpy();
     protected abstract String getStatisticsMessagesTopic();
     protected abstract String getStatisticsMessagesGroupId();
     protected abstract List<?> buildValidEntities(int bias, int size, String initiativeId);
     protected abstract List<?> buildSkippedEntities(int bias, int size);
     protected abstract List<Pair<Supplier<String>, Consumer<ConsumerRecord<String, String>>>> getErrorUseCases();
-    protected abstract Function<InitiativeStatistics, Long> getGetterCounter();
-    protected abstract BiConsumer<InitiativeStatistics, Long> getSetterCounter();
-    protected abstract Function<InitiativeStatistics, List<CommittedOffset>> getGetterStatisticsCommittedOffsets();
-    protected abstract BiConsumer<InitiativeStatistics, List<CommittedOffset>> getSetterStatisticsCommittedOffsets();
+    protected abstract Function<T, Long> getGetterCounter();
+    protected abstract BiConsumer<T, Long> getSetterCounter();
+    protected abstract Function<T, List<CommittedOffset>> getGetterStatisticsCommittedOffsets();
+    protected abstract BiConsumer<T, List<CommittedOffset>> getSetterStatisticsCommittedOffsets();
 
     protected abstract long getExpectedCounterValue(int validMsgs);
 
@@ -137,17 +140,15 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
 
         waitForEvaluateInvocationTimes("PROVA");
 
-        Assertions.assertEquals(Collections.emptyList(), initiativeStatRepository.findAll());
+        Assertions.assertEquals(Collections.emptyList(), getStatRepository().findAll());
         Mockito.verifyNoInteractions(statisticsErrorNotifierServiceSpy);
     }
     /** expecting not processed */
     protected void checkOffsetSkipBehavior() {
         CommittedOffset committedOffset = new CommittedOffset(0, 1); // 0 offset will be checkJustNotValidMsgsBehavior useCase, while offset 1 will be the current
-        InitiativeStatistics stored = InitiativeStatistics.builder()
-                .initiativeId(INITIATIVEID1)
-                .build();
+        T stored = buildStatisticInstance(INITIATIVEID1);
         getSetterStatisticsCommittedOffsets().accept(stored, List.of(committedOffset));
-        initiativeStatRepository.save(stored);
+        getStatRepository().save(stored);
 
         String payload = buildValidPayloads(-1, 1, INITIATIVEID1).get(0);
         publishIntoEmbeddedKafka(0, null, payload);
@@ -155,16 +156,20 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
         waitForEvaluateInvocationTimes(payload);
 
         getSetterCounter().accept(stored, 0L);
-        stored.setOrganizationId("ORGANIZATIONID_"+stored.getInitiativeId());
+        if (stored instanceof InitiativeStatistics storedInitiativeStatistics) {
+            storedInitiativeStatistics.setOrganizationId("ORGANIZATIONID_" + storedInitiativeStatistics.getInitiativeId());
+        }
 
-        InitiativeStatistics retrieved = initiativeStatRepository.findById(INITIATIVEID1).orElse(null);
+        T retrieved = getStatRepository().findById(buildCounterId(INITIATIVEID1)).orElse(null);
         Assertions.assertNotNull(retrieved);
-        Assertions.assertNotNull(retrieved.getLastUpdatedDateTime());
-
-        retrieved.setLastUpdatedDateTime(null);
+        checkAndEmptyTimestampFields(retrieved);
         Assertions.assertEquals(stored, retrieved);
         Mockito.verifyNoInteractions(statisticsErrorNotifierServiceSpy);
     }
+
+    protected void checkAndEmptyTimestampFields(T retrieved) {}
+
+    protected abstract T buildStatisticInstance(String initiativeId);
 
     protected void publishIntoEmbeddedKafka(Integer partition, String key, String payload) {
         kafkaTestUtilitiesService.publishIntoEmbeddedKafka(getStatisticsMessagesTopic(), partition, null, key, payload);
@@ -199,11 +204,11 @@ abstract class BaseStatisticsMessagesListenerTest extends BaseIntegrationTest {
     }
 
     protected long waitForCounterResult(String initiativeId, String organizationId, long expectedCounterValue, long maxWaitingMs) {
-        return waitForCounterResult(initiativeId, organizationId, getGetterCounter(), expectedCounterValue, maxWaitingMs);
+        return waitForCounterResult(initiativeId, organizationId, getGetterCounter(), expectedCounterValue, maxWaitingMs, getStatRepository());
     }
 
     protected long verifyPartitionOffsetStored(long expectOffsetSum, String initiativeid, boolean assertEquals) {
-        return verifyPartitionOffsetStored(expectOffsetSum, initiativeid, getGetterStatisticsCommittedOffsets(), assertEquals);
+        return verifyPartitionOffsetStored(expectOffsetSum, initiativeid, getGetterStatisticsCommittedOffsets(), assertEquals, getStatRepository());
     }
 
     protected void checkErrorMessageHeaders(ConsumerRecord<String, String> errorMessage, String errorDescription, String expectedPayload, String expectedKey) {
