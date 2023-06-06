@@ -60,12 +60,12 @@ public class MerchantNotificationStatisticsServiceImpl extends BaseStatisticsEva
 
     @Override
     protected void evaluateCounter(String counterId, List<RewardNotificationDTO> records, int partition, long maxOffset) {
-//        merchantCountersRepository.updateCountersFromRewardNotification(
-//                counterId,
-//                TransactionEvaluationStatisticsServiceImpl.aggregateReward(rewards),
-//                TransactionEvaluationStatisticsServiceImpl.aggregateTrxNumber(rewards),
-//                partition,
-//                maxOffset);
+        merchantCountersRepository.updateCountersFromRewardNotification(
+                counterId,
+                aggregateReward(records),
+                aggregateTrxNumber(records),
+                partition,
+                maxOffset);
     }
 
     @Override
@@ -73,5 +73,15 @@ public class MerchantNotificationStatisticsServiceImpl extends BaseStatisticsEva
         return MerchantInitiativeCounters.buildId(rewardNotification.getBeneficiaryId(), rewardNotification.getInitiativeId());
     }
 
+    private Long aggregateReward(List<RewardNotificationDTO> records) {
+        return records.stream().map(RewardNotificationDTO::getRewardCents).reduce(Long::sum).orElse(0L);
+    }
 
+    private long aggregateTrxNumber(List<RewardNotificationDTO> records) {
+        return records.stream()
+                .filter(r -> r.getRewardCents() != 0)
+                // TODO handle refundType?
+                .mapToLong(r -> 1L)
+                .sum();
+    }
 }

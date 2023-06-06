@@ -43,6 +43,10 @@ public class RewardNotificationDTOFaker {
         return mockInstanceBuilder(bias, merchant).build();
     }
 
+    public static RewardNotificationDTO mockInstance(Integer bias, String initiativeId) {
+        return mockInstanceBuilder(bias, initiativeId, true).build();
+    }
+
     /**
      * It will return an example of {@link RewardNotificationDTO}. Providing a bias, it will return a pseudo-casual object
      */
@@ -52,6 +56,9 @@ public class RewardNotificationDTOFaker {
 
     public static RewardNotificationDTO.RewardNotificationDTOBuilder mockInstanceBuilder(Integer bias, boolean merchant) {
         return mockInstanceBuilder(bias, "INITIATIVEID", merchant);
+    }
+    public static RewardNotificationDTO.RewardNotificationDTOBuilder mockInstanceBuilder(Integer bias, String initiativeId) {
+        return mockInstanceBuilder(bias, initiativeId, true);
     }
     public static RewardNotificationDTO.RewardNotificationDTOBuilder mockInstanceBuilder(Integer bias, String initiativeId, boolean merchant) {
         LocalDate now = LocalDate.now();

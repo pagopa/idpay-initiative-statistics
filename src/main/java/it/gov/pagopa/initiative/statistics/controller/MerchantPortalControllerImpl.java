@@ -18,6 +18,8 @@ public class MerchantPortalControllerImpl implements MerchantPortalController {
 
     @Override
     public ResponseEntity<MerchantStatisticsDTO> getMerchantInitiativeStatistics(String merchantId, String initiativeId) {
+        log.info("Requesting statistics for merchant {} and initiative {}", merchantId, initiativeId);
+
         return ResponseEntity.ok(
                 merchantCountersService.getMerchantInitiativeStatistics(merchantId, initiativeId)
         );

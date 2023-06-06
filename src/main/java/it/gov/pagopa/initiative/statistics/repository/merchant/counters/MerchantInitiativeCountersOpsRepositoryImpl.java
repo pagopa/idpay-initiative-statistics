@@ -3,7 +3,6 @@ package it.gov.pagopa.initiative.statistics.repository.merchant.counters;
 import com.mongodb.client.result.UpdateResult;
 import it.gov.pagopa.common.utils.CommonUtilities;
 import it.gov.pagopa.initiative.statistics.model.CommittedOffset;
-import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
 import it.gov.pagopa.initiative.statistics.model.MerchantInitiativeCounters;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
@@ -53,7 +52,7 @@ public class MerchantInitiativeCountersOpsRepositoryImpl implements MerchantInit
                     Query.query(Criteria.where(MerchantInitiativeCounters.Fields.id).is(counterId)),
                     new Update()
                             .push(commitsField, new CommittedOffset(partition, out)),
-                    InitiativeStatistics.class
+                    MerchantInitiativeCounters.class
             );
         }
         return out;
@@ -80,7 +79,7 @@ public class MerchantInitiativeCountersOpsRepositoryImpl implements MerchantInit
                 client.upsert(
                         Query.query(Criteria.where(MerchantInitiativeCounters.Fields.id).is(counterId)),
                         updateQuery,
-                        InitiativeStatistics.class
+                        MerchantInitiativeCounters.class
                 );
             } catch (DuplicateKeyException e){
                 // Do nothing!
@@ -91,21 +90,21 @@ public class MerchantInitiativeCountersOpsRepositoryImpl implements MerchantInit
     }
 
     @Override
-    public void updateCountersFromTransaction(String initiativeId, BigDecimal amount, Long trxs, int partition, long offset) {
+    public void updateCountersFromTransaction(String counterId, BigDecimal amount, Long trxs, int partition, long offset) {
         Map<String, Number> incrementsMap = Map.of(
                 MerchantInitiativeCounters.Fields.totalAmount, CommonUtilities.euroToCents(amount),
                 MerchantInitiativeCounters.Fields.trxNumber, trxs
         );
-        incrementCounterAndPartitionCommittedOffsets(initiativeId, incrementsMap, MerchantInitiativeCounters.Fields.trxCommittedOffsets, partition, offset);
+        incrementCounterAndPartitionCommittedOffsets(counterId, incrementsMap, MerchantInitiativeCounters.Fields.trxCommittedOffsets, partition, offset);
     }
 
     @Override
-    public void updateCountersFromRewardNotification(String initiativeId, BigDecimal refunded, Long trxs, int partition, long offset) {
+    public void updateCountersFromRewardNotification(String counterId, Long refunded, Long trxs, int partition, long offset) {
         Map<String, Number> incrementsMap = Map.of(
-                MerchantInitiativeCounters.Fields.totalRefunded, CommonUtilities.euroToCents(refunded),
+                MerchantInitiativeCounters.Fields.totalRefunded, refunded,
                 MerchantInitiativeCounters.Fields.refundedNumber, trxs
         );
-        incrementCounterAndPartitionCommittedOffsets(initiativeId, incrementsMap, MerchantInitiativeCounters.Fields.rewardNotificationCommittedOffsets, partition, offset);
+        incrementCounterAndPartitionCommittedOffsets(counterId, incrementsMap, MerchantInitiativeCounters.Fields.rewardNotificationCommittedOffsets, partition, offset);
     }
 
     private void incrementCounterAndPartitionCommittedOffsets(String counterId, Map<String, Number> fieldCounter2Inc, String fieldPartitionCommitted, int partition, long offset) {
