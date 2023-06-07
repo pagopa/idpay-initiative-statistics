@@ -58,7 +58,6 @@ class MerchantNotificationStatisticsServiceTest extends BaseStatisticsEvaluation
                         RewardNotificationDTOFaker.mockInstanceBuilder(3, "INITIATIVEID1")
                                 .rewardCents(0L)
                                 .beneficiaryId(MERCHANTID)
-                                .status("ONBOARDING_KO")
                                 .build(),
                         RewardNotificationDTOFaker.mockInstanceBuilder(4, "INITIATIVEID2")
                                 .rewardCents(6130L)
@@ -67,7 +66,6 @@ class MerchantNotificationStatisticsServiceTest extends BaseStatisticsEvaluation
                         RewardNotificationDTOFaker.mockInstanceBuilder(5, "INITIATIVEID2")
                                 .rewardCents(8250L)
                                 .beneficiaryId(MERCHANTID)
-                                .status("ONBOARDING_KO")
                                 .build(),
                         RewardNotificationDTOFaker.mockInstanceBuilder(6, "INITIATIVEID2")
                                 .rewardCents(14380L)
@@ -76,8 +74,12 @@ class MerchantNotificationStatisticsServiceTest extends BaseStatisticsEvaluation
                         RewardNotificationDTOFaker.mockInstanceBuilder(7, "INITIATIVEID2")
                                 .rewardCents(0L)
                                 .beneficiaryId(MERCHANTID)
+                                .build(),
+                        RewardNotificationDTOFaker.mockInstanceBuilder(8, "INITIATIVEID1")
+                                .rewardCents(-100L)
+                                .beneficiaryId(MERCHANTID)
                                 .build()
-                )
+                        )
                 .map(TestUtils::jsonSerializer)
                 .toList();
     }
@@ -95,9 +97,9 @@ class MerchantNotificationStatisticsServiceTest extends BaseStatisticsEvaluation
         Mockito.verify(merchantInitiativeCountersRepositoryMock).retrieveMerchantCountersNotificationCommittedOffset(buildCounterId("INITIATIVEID2"), MERCHANTID, "INITIATIVEID2", 1);
         Mockito.verify(merchantInitiativeCountersRepositoryMock).retrieveMerchantCountersNotificationCommittedOffset(buildCounterId("INITIATIVEID2"), MERCHANTID, "INITIATIVEID2", 3);
 
-        Mockito.verify(merchantInitiativeCountersRepositoryMock).updateCountersFromRewardNotification(buildCounterId("INITIATIVEID1"), 10450L, 2L, 0, partition0LastCommittedOffset);
+        Mockito.verify(merchantInitiativeCountersRepositoryMock).updateCountersFromRewardNotification(buildCounterId("INITIATIVEID1"), 10450L-100L, 2L-1L, 0, partition0LastCommittedOffset); // subtract the negative rewardCents of useCase 8
         Mockito.verify(merchantInitiativeCountersRepositoryMock).updateCountersFromRewardNotification(buildCounterId("INITIATIVEID1"), 2250L, 1L, 1, partition1LastCommittedOffset);
-        Mockito.verify(merchantInitiativeCountersRepositoryMock).updateCountersFromRewardNotification(buildCounterId("INITIATIVEID1"), 12700L, 3L, 3, EXPECTED_PARTITION3_OFFSET);
+        Mockito.verify(merchantInitiativeCountersRepositoryMock).updateCountersFromRewardNotification(buildCounterId("INITIATIVEID1"), 12700L-100L, 3L-1L, 3, EXPECTED_PARTITION3_OFFSET); // subtract the negative rewardCents of useCase 8
 
         Mockito.verify(merchantInitiativeCountersRepositoryMock).updateCountersFromRewardNotification(buildCounterId("INITIATIVEID2"), 20510L, 2L, 0, partition0LastCommittedOffset);
         Mockito.verify(merchantInitiativeCountersRepositoryMock).updateCountersFromRewardNotification(buildCounterId("INITIATIVEID2"), 8250L,  1L, 1, partition1LastCommittedOffset);
@@ -108,8 +110,6 @@ class MerchantNotificationStatisticsServiceTest extends BaseStatisticsEvaluation
         Mockito.verify(consumerMock).commitAsync(Mockito.eq(Map.of(new TopicPartition(TOPIC_NAME, 3), new OffsetAndMetadata(EXPECTED_PARTITION3_OFFSET+1))), Mockito.isNull());
 
         Mockito.verifyNoMoreInteractions(statisticsErrorNotifierServiceMock, merchantInitiativeCountersRepositoryMock, consumerMock);
-
-        // TODO test reward < 0
     }
 
     private String buildCounterId(String initiativeId) {
