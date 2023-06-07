@@ -48,7 +48,7 @@ app:
         topic: ${KAFKA_TRANSACTION_EVALUATION_TOPIC:idpay-transactions}
         bootstrap-servers: ${KAFKA_TRANSACTION_EVALUATION_SERVERS:${KAFKA_SERVERS:localhost:9092}}
         group-id: ${KAFKA_MERCHANT_COUNTERS_TRANSACTION_GROUP_ID:idpay-merchant-counters-transaction-group}
-        client-id: ${KAFKA_TRANSACTION_EVALUATION_CLIENT_ID:idpay-transaction-evaluation-initiative-statistics}
+        client-id: ${KAFKA_MERCHANT_COUNTERS_TRANSACTION_CLIENT_ID:idpay-merchant-counters-transaction-initiative-statistics}
         auto-offset-reset: ${KAFKA_TRANSACTION_EVALUATION_OFFSET_RESET:earliest}
         heartbeat-interval: ${KAFKA_TRANSACTION_EVALUATION_HEARTBEAT_INTERVAL:3000}
         security.protocol: ${KAFKA_TRANSACTION_EVALUATION_SECURITY_PROTOCOL:${KAFKA_SECURITY_PROTOCOL:SASL_SSL}}
@@ -68,7 +68,7 @@ app:
         topic: ${KAFKA_REWARD_NOTIFICATION_TOPIC:idpay-reward-notification-response}
         bootstrap-servers: ${KAFKA_REWARD_NOTIFICATION_SERVERS:${KAFKA_SERVERS:localhost:9092}}
         group-id: ${KAFKA_MERCHANT_COUNTERS_REWARD_NOTIFICATION_GROUP_ID:idpay-merchant-counters-notification-group}
-        client-id: ${KAFKA_REWARD_NOTIFICATION_CLIENT_ID:idpay-transaction-evaluation-initiative-statistics}
+        client-id: ${KAFKA_REWARD_NOTIFICATION_CLIENT_ID:idpay-merchant-counters-notification-initiative-statistics}
         auto-offset-reset: ${KAFKA_REWARD_NOTIFICATION_OFFSET_RESET:earliest}
         heartbeat-interval: ${KAFKA_REWARD_NOTIFICATION_HEARTBEAT_INTERVAL:3000}
         security.protocol: ${KAFKA_REWARD_NOTIFICATION_SECURITY_PROTOCOL:${KAFKA_SECURITY_PROTOCOL:SASL_SSL}}

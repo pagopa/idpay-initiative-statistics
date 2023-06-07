@@ -2,6 +2,7 @@ package it.gov.pagopa.initiative.statistics.service.merchant.counters.trx;
 
 import it.gov.pagopa.common.utils.TestUtils;
 import it.gov.pagopa.initiative.statistics.dto.events.Reward;
+import it.gov.pagopa.initiative.statistics.model.MerchantInitiativeCounters;
 import it.gov.pagopa.initiative.statistics.repository.merchant.counters.MerchantInitiativeCountersRepository;
 import it.gov.pagopa.initiative.statistics.service.BaseStatisticsEvaluationServiceTest;
 import it.gov.pagopa.initiative.statistics.service.StatisticsErrorNotifierService;
@@ -98,12 +99,12 @@ class MerchantTransactionStatisticsServiceTest extends BaseStatisticsEvaluationS
                 , Mockito.argThat(description -> description.startsWith("[INITIATIVE_STATISTICS_EVALUATION][MERCHANT_COUNTERS_UPDATE_FROM_TRANSACTION] Unexpected json: "))
                 , Mockito.eq(false), Mockito.any());
 
-        Mockito.verify(merchantInitiativeCountersRepositoryMock).retrieveMerchantCountersTransactionCommittedOffset(buildCounterId("INITIATIVEID1"), 0);
-        Mockito.verify(merchantInitiativeCountersRepositoryMock).retrieveMerchantCountersTransactionCommittedOffset(buildCounterId("INITIATIVEID1"), 1);
-        Mockito.verify(merchantInitiativeCountersRepositoryMock).retrieveMerchantCountersTransactionCommittedOffset(buildCounterId("INITIATIVEID1"), 3);
-        Mockito.verify(merchantInitiativeCountersRepositoryMock).retrieveMerchantCountersTransactionCommittedOffset(buildCounterId("INITIATIVEID2"), 0);
-        Mockito.verify(merchantInitiativeCountersRepositoryMock).retrieveMerchantCountersTransactionCommittedOffset(buildCounterId("INITIATIVEID2"), 1);
-        Mockito.verify(merchantInitiativeCountersRepositoryMock).retrieveMerchantCountersTransactionCommittedOffset(buildCounterId("INITIATIVEID2"), 3);
+        Mockito.verify(merchantInitiativeCountersRepositoryMock).retrieveMerchantCountersTransactionCommittedOffset(buildCounterId("INITIATIVEID1"), MERCHANTID, "INITIATIVEID1", 0);
+        Mockito.verify(merchantInitiativeCountersRepositoryMock).retrieveMerchantCountersTransactionCommittedOffset(buildCounterId("INITIATIVEID1"), MERCHANTID, "INITIATIVEID1", 1);
+        Mockito.verify(merchantInitiativeCountersRepositoryMock).retrieveMerchantCountersTransactionCommittedOffset(buildCounterId("INITIATIVEID1"), MERCHANTID, "INITIATIVEID1", 3);
+        Mockito.verify(merchantInitiativeCountersRepositoryMock).retrieveMerchantCountersTransactionCommittedOffset(buildCounterId("INITIATIVEID2"), MERCHANTID, "INITIATIVEID2", 0);
+        Mockito.verify(merchantInitiativeCountersRepositoryMock).retrieveMerchantCountersTransactionCommittedOffset(buildCounterId("INITIATIVEID2"), MERCHANTID, "INITIATIVEID2", 1);
+        Mockito.verify(merchantInitiativeCountersRepositoryMock).retrieveMerchantCountersTransactionCommittedOffset(buildCounterId("INITIATIVEID2"), MERCHANTID, "INITIATIVEID2", 3);
 
         Mockito.verify(merchantInitiativeCountersRepositoryMock).updateCountersFromTransaction(buildCounterId("INITIATIVEID1"), BigDecimal.valueOf(4.1), 0L, 0, partition0LastCommittedOffset);
         Mockito.verify(merchantInitiativeCountersRepositoryMock).updateCountersFromTransaction(buildCounterId("INITIATIVEID1"), BigDecimal.valueOf(2.25), 0L, 1, partition1LastCommittedOffset);
@@ -121,6 +122,6 @@ class MerchantTransactionStatisticsServiceTest extends BaseStatisticsEvaluationS
     }
 
     private String buildCounterId(String initiativeId) {
-        return "%s_%s".formatted(MERCHANTID, initiativeId);
+        return MerchantInitiativeCounters.buildId(MERCHANTID, initiativeId);
     }
 }

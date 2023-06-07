@@ -35,12 +35,9 @@ class MerchantPortalControllerImplTest {
     void testSuccessful() throws Exception {
         List<CommittedOffset> mockedOffsets = List.of(new CommittedOffset(1, 1));
 
-        MerchantInitiativeCounters mockedEntity = MerchantInitiativeCounters.builder()
-                .id("MERCHANTID_INITIATIVEID")
-                .merchantId("MERCHANTID")
-                .initiativeId("INITIATIVEID")
-                .totalAmount(10000L)
-                .totalRefunded(100L)
+        MerchantInitiativeCounters mockedEntity = MerchantInitiativeCounters.builder("MERCHANTID", "INITIATIVEID")
+                .totalProvidedCents(10000L)
+                .totalRefundedCents(100L)
                 .trxNumber(5)
                 .refundedNumber(1)
                 .trxCommittedOffsets(mockedOffsets)

@@ -1,9 +1,9 @@
 package it.gov.pagopa.initiative.statistics.repository;
 
 import com.mongodb.client.result.UpdateResult;
+import it.gov.pagopa.common.utils.CommonUtilities;
 import it.gov.pagopa.initiative.statistics.model.CommittedOffset;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
-import it.gov.pagopa.common.utils.CommonUtilities;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DuplicateKeyException;
@@ -13,7 +13,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -83,7 +82,7 @@ public class InitiativeStatAtomicOpsRepositoryImpl implements InitiativeStatAtom
 
             Update updateQuery = new Update()
                     .set(FIELD_INITIATIVE_ID, initiativeId)
-                    .set(FIELD_LAST_UPDATE_DATE, LocalDateTime.now());
+                    .currentDate(FIELD_LAST_UPDATE_DATE);
 
             if(!StringUtils.isEmpty(organizationId)){
                 updateQuery.set(InitiativeStatistics.Fields.organizationId, organizationId);
@@ -120,7 +119,7 @@ public class InitiativeStatAtomicOpsRepositoryImpl implements InitiativeStatAtom
     private void incrementCounterAndPartitionCommittedOffsets(String initiativeId, Map<String, Long> fieldCounter2Inc, String fieldPartitionCommitted, int partition, long offset) {
         Update update = new Update()
                 .set("%s.$.%s".formatted(fieldPartitionCommitted, CommittedOffset.Fields.offset), offset)
-                .set(FIELD_LAST_UPDATE_DATE, LocalDateTime.now());
+                .currentDate(FIELD_LAST_UPDATE_DATE);
         fieldCounter2Inc.forEach(update::inc);
 
         UpdateResult updateResult = client.updateFirst(

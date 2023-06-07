@@ -44,8 +44,8 @@ public class MerchantNotificationStatisticsServiceImpl extends BaseStatisticsEva
     }
 
     @Override
-    protected long retrieveLastProcessedOffset(String counterId, int partition, RewardNotificationDTO right) {
-        return merchantCountersRepository.retrieveMerchantCountersNotificationCommittedOffset(counterId, partition);
+    protected long retrieveLastProcessedOffset(String counterId, int partition, RewardNotificationDTO rewardNotificationDTO) {
+        return merchantCountersRepository.retrieveMerchantCountersNotificationCommittedOffset(counterId, rewardNotificationDTO.getBeneficiaryId(), rewardNotificationDTO.getInitiativeId(), partition);
     }
 
     @Override
@@ -80,8 +80,13 @@ public class MerchantNotificationStatisticsServiceImpl extends BaseStatisticsEva
     private long aggregateTrxNumber(List<RewardNotificationDTO> records) {
         return records.stream()
                 .filter(r -> r.getRewardCents() != 0)
-                // TODO handle refundType?
-                .mapToLong(r -> 1L)
+                .mapToLong(r -> {
+                    if (r.getRewardCents() < 0) {
+                        return -1L;
+                    } else {
+                        return 1L;
+                    }
+                })
                 .sum();
     }
 }

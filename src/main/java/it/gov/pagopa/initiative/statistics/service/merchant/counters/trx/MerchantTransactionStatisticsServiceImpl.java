@@ -48,7 +48,7 @@ public class MerchantTransactionStatisticsServiceImpl extends BaseStatisticsEval
 
     @Override
     protected long retrieveLastProcessedOffset(String counterId, int partition, MerchantReward merchantReward) {
-        return merchantCountersRepository.retrieveMerchantCountersTransactionCommittedOffset(counterId, partition);
+        return merchantCountersRepository.retrieveMerchantCountersTransactionCommittedOffset(counterId, merchantReward.getMerchantId(), merchantReward.getReward().getInitiativeId(), partition);
     }
 
     @Override

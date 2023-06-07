@@ -62,17 +62,23 @@ class TransactionEvaluationMessagesListenerTest extends BaseInitiativeStatistics
 
     @Override
     protected List<TransactionEvaluationDTO> buildSkippedEntities(int bias, int size) {
+        return buildTransactionSkippedEntities(bias, size);
+    }
+
+    public static List<TransactionEvaluationDTO> buildTransactionSkippedEntities(int bias, int size) {
         return IntStream.range(bias, bias + size)
                 .mapToObj(i -> {
                     TransactionEvaluationDTO out = TransactionEvaluationDTOFaker.mockInstance(i, INITIATIVEID1);
-                    if(i%4==0) {
+                    if (i % 5 == 0) {
                         out.setRewards(null);
-                    } else if(i%4==1) {
+                    } else if (i % 5 == 1) {
                         out.setRewards(Collections.emptyMap());
-                    } else  if(i%4==2) {
-                        out.setRewards(Map.of(BaseStatisticsMessagesListenerTest.INITIATIVEID1, new Reward(BaseStatisticsMessagesListenerTest.INITIATIVEID1, "ORGANIZATIONID", BigDecimal.ZERO)));
-                    } else {
+                    } else if (i % 5 == 2) {
+                        out.setRewards(Map.of(INITIATIVEID1, new Reward(INITIATIVEID1, "ORGANIZATIONID", BigDecimal.ZERO)));
+                    } else if (i % 5 == 3) {
                         out.setStatus(Constants.TRX_STATUS_AUTHORIZED);
+                    } else {
+                        out.setStatus(Constants.TRX_STATUS_CANCELLED);
                     }
                     return out;
                 })

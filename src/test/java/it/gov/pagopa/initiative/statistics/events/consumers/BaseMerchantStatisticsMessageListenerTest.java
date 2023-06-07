@@ -1,16 +1,13 @@
 package it.gov.pagopa.initiative.statistics.events.consumers;
 
-import it.gov.pagopa.initiative.statistics.model.CommittedOffset;
+import it.gov.pagopa.initiative.statistics.dto.events.RewardNotificationDTO;
+import it.gov.pagopa.initiative.statistics.dto.events.TransactionEvaluationDTO;
 import it.gov.pagopa.initiative.statistics.model.MerchantInitiativeCounters;
 import it.gov.pagopa.initiative.statistics.repository.merchant.counters.MerchantInitiativeCountersRepository;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-
 public abstract class BaseMerchantStatisticsMessageListenerTest extends BaseStatisticsMessagesListenerTest<MerchantInitiativeCounters> {
-
     protected static final String MERCHANTID = "MERCHANTID";
 
     @Autowired
@@ -23,35 +20,32 @@ public abstract class BaseMerchantStatisticsMessageListenerTest extends BaseStat
 
     @Override
     protected MerchantInitiativeCounters buildStatisticInstance(String initiativeId) {
-        return MerchantInitiativeCounters.builder()
-                .id(buildCounterId(initiativeId))
-                .merchantId(MERCHANTID)
-                .initiativeId(initiativeId)
-                .build();
+        return MerchantInitiativeCounters.builder(MERCHANTID, initiativeId).build();
     }
 
     @Override
     protected String buildCounterId(String initiativeId) {
-        return "%s_%s".formatted(MERCHANTID, initiativeId);
+        return MerchantInitiativeCounters.buildId(MERCHANTID, initiativeId);
     }
 
     @Override
-    protected Function<MerchantInitiativeCounters, Long> getGetterCounter() {
-        return MerchantInitiativeCounters::getTotalAmount;
+    protected TransactionEvaluationDTO buildValidTransactionEvaluationEntity(int bias, String initiativeid) {
+        TransactionEvaluationDTO out = super.buildValidTransactionEvaluationEntity(bias, initiativeid);
+        out.setMerchantId(MERCHANTID);
+        return out;
     }
 
     @Override
-    protected BiConsumer<MerchantInitiativeCounters, Long> getSetterCounter() {
-        return MerchantInitiativeCounters::setTotalAmount;
+    protected RewardNotificationDTO buildValidRewardNotificationEntity(int bias, String initiativeid, boolean merchant) {
+        RewardNotificationDTO out = super.buildValidRewardNotificationEntity(bias, initiativeid, merchant);
+        out.setBeneficiaryId(MERCHANTID);
+        return out;
     }
 
     @Override
-    protected Function<MerchantInitiativeCounters, List<CommittedOffset>> getGetterStatisticsCommittedOffsets() {
-        return MerchantInitiativeCounters::getTrxCommittedOffsets;
-    }
+    protected void checkAndEmptyTimestampFields(MerchantInitiativeCounters retrieved) {
+        Assertions.assertNotNull(retrieved.getLastUpdatedDateTime());
 
-    @Override
-    protected BiConsumer<MerchantInitiativeCounters, List<CommittedOffset>> getSetterStatisticsCommittedOffsets() {
-        return MerchantInitiativeCounters::setTrxCommittedOffsets;
+        retrieved.setLastUpdatedDateTime(null);
     }
 }

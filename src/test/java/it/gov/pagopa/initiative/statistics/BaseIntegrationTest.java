@@ -45,6 +45,8 @@ import java.util.stream.IntStream;
         "${app.kafka.producer.errors.topic}",
         "${app.kafka.consumer.onboarding-outcome.topic}",
         "${app.kafka.consumer.transaction-evaluation.topic}",
+        "merchant-counters-transaction", // "${app.kafka.consumer.merchant-counters-transaction.topic}", Overridden in TestPropertySource
+        "${app.kafka.consumer.merchant-counters-reward-notification.topic}",
 }, controlledShutdown = true)
 @TestPropertySource(
         properties = {
@@ -68,8 +70,16 @@ import java.util.stream.IntStream;
                 "app.kafka.consumer.onboarding-outcome.security.protocol=PLAINTEXT",
                 "app.kafka.consumer.transaction-evaluation.bootstrap-servers=${spring.embedded.kafka.brokers}",
                 "app.kafka.consumer.transaction-evaluation.security.protocol=PLAINTEXT",
+                "app.kafka.consumer.merchant-counters-transaction.bootstrap-servers=${spring.embedded.kafka.brokers}",
+                "app.kafka.consumer.merchant-counters-transaction.security.protocol=PLAINTEXT",
+                "app.kafka.consumer.merchant-counters-reward-notification.bootstrap-servers=${spring.embedded.kafka.brokers}",
+                "app.kafka.consumer.merchant-counters-reward-notification.security.protocol=PLAINTEXT",
                 "app.kafka.producer.errors.bootstrap.servers=${spring.embedded.kafka.brokers}",
                 "spring.kafka.producer.security.protocol=PLAINTEXT",
+                //endregion
+
+                //region kafka test overrides
+                "app.kafka.consumer.merchant-counters-transaction.topic=merchant-counters-transaction",
                 //endregion
 
                 //region mongodb
@@ -173,7 +183,9 @@ public abstract class BaseIntegrationTest {
                 .toList();
     }
     protected RewardNotificationDTO buildValidRewardNotificationEntity(int bias, String initiativeid, boolean merchant) {
-        return RewardNotificationDTOFaker.mockInstance(bias, initiativeid, merchant);
+        return RewardNotificationDTOFaker.mockInstanceBuilder(bias, initiativeid, merchant)
+                .rewardCents(100L)
+                .build();
     }
     protected int getExpectedTrxsCount(int validMsgs) {
         int zeroBasedFix = validMsgs % 3 == 0 ? 0 : 1; // because 0 based, we have to add 1, but if using a multiple of 3, we have to remove one, compensating the 0 based bias
@@ -200,8 +212,8 @@ public abstract class BaseIntegrationTest {
         return countSaved[0];
     }
 
-    protected <T> long verifyPartitionOffsetStored(long expectOffsetSum, String initiativeid, Function<T, List<CommittedOffset>> getterStatisticsCommittedOffsets, boolean assertEquals, MongoRepository<T, String> statisticRepository) {
-        T result = statisticRepository.findById(buildCounterId(initiativeid)).orElse(null);
+    protected <T> long verifyPartitionOffsetStored(long expectOffsetSum, String initiativeId, Function<T, List<CommittedOffset>> getterStatisticsCommittedOffsets, boolean assertEquals, MongoRepository<T, String> statisticRepository) {
+        T result = statisticRepository.findById(buildCounterId(initiativeId)).orElse(null);
         Assertions.assertNotNull(result);
 
         // -2 because offset start from 0 and we are using 2 partition for test

@@ -1,6 +1,8 @@
 package it.gov.pagopa.initiative.statistics.events.consumers;
 
 import it.gov.pagopa.initiative.statistics.dto.events.RewardNotificationDTO;
+import it.gov.pagopa.initiative.statistics.model.CommittedOffset;
+import it.gov.pagopa.initiative.statistics.model.MerchantInitiativeCounters;
 import it.gov.pagopa.initiative.statistics.service.StatisticsEvaluationService;
 import it.gov.pagopa.initiative.statistics.service.merchant.counters.notification.MerchantNotificationStatisticsService;
 import it.gov.pagopa.initiative.statistics.test.fakers.RewardNotificationDTOFaker;
@@ -11,7 +13,9 @@ import org.springframework.data.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
@@ -60,8 +64,28 @@ class MerchantCountersRewardMessagesListenerTest extends BaseMerchantStatisticsM
     }
 
     @Override
+    protected Function<MerchantInitiativeCounters, Long> getGetterCounter() {
+        return MerchantInitiativeCounters::getTotalRefundedCents;
+    }
+
+    @Override
+    protected BiConsumer<MerchantInitiativeCounters, Long> getSetterCounter() {
+        return MerchantInitiativeCounters::setTotalRefundedCents;
+    }
+
+    @Override
+    protected Function<MerchantInitiativeCounters, List<CommittedOffset>> getGetterStatisticsCommittedOffsets() {
+        return MerchantInitiativeCounters::getRewardNotificationCommittedOffsets;
+    }
+
+    @Override
+    protected BiConsumer<MerchantInitiativeCounters, List<CommittedOffset>> getSetterStatisticsCommittedOffsets() {
+        return MerchantInitiativeCounters::setRewardNotificationCommittedOffsets;
+    }
+
+    @Override
     protected long getExpectedCounterValue(int validMsgs) {
-        return validMsgs;
+        return validMsgs * 100L;
     }
 
     //region not valid useCases
@@ -70,24 +94,19 @@ class MerchantCountersRewardMessagesListenerTest extends BaseMerchantStatisticsM
         return Pattern.compile("\"userId\":\"USERID([0-9]+)\"");
     }
 
-    @Override
-    protected String buildCounterId(String initiativeId) {
-        return null;
-    }
-
     private final List<Pair<Supplier<String>, Consumer<ConsumerRecord<String, String>>>> errorUseCases = new ArrayList<>();
 
     {
-        String jsonNotExpected = "{\"userId\":\"USERID0\",unexpectedStructure:0}";
+        String jsonNotExpected = "{\"userId\":\"USERID0\",\"merchantId\":\"MERCHANTID\",unexpectedStructure:0}";
         errorUseCases.add(Pair.of(
                 () -> jsonNotExpected,
-                errorMessage -> checkErrorMessageHeaders(errorMessage, "[INITIATIVE_STATISTICS_EVALUATION][MERCHANT_COUNTERS_UPDATE_FROM_REWARD_NOTIFICATION] Unexpected json: {\"userId\":\"USERID0\",unexpectedStructure:0}", jsonNotExpected, null)
+                errorMessage -> checkErrorMessageHeaders(errorMessage, "[INITIATIVE_STATISTICS_EVALUATION][MERCHANT_COUNTERS_UPDATE_FROM_REWARD_NOTIFICATION] Unexpected json: {\"userId\":\"USERID0\",\"merchantId\":\"MERCHANTID\",unexpectedStructure:0}", jsonNotExpected, MERCHANTID)
         ));
 
-        String jsonNotValid = "{\"userId\":\"USERID1\",invalidJson";
+        String jsonNotValid = "{\"userId\":\"USERID1\",\"merchantId\":\"MERCHANTID\",invalidJson";
         errorUseCases.add(Pair.of(
                 () -> jsonNotValid,
-                errorMessage -> checkErrorMessageHeaders(errorMessage, "[INITIATIVE_STATISTICS_EVALUATION][MERCHANT_COUNTERS_UPDATE_FROM_REWARD_NOTIFICATION] Unexpected json: {\"userId\":\"USERID1\",invalidJson", jsonNotValid, null)
+                errorMessage -> checkErrorMessageHeaders(errorMessage, "[INITIATIVE_STATISTICS_EVALUATION][MERCHANT_COUNTERS_UPDATE_FROM_REWARD_NOTIFICATION] Unexpected json: {\"userId\":\"USERID1\",\"merchantId\":\"MERCHANTID\",invalidJson", jsonNotValid, MERCHANTID)
         ));
     }
     //endregion

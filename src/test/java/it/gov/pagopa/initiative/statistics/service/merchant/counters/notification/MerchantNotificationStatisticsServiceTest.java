@@ -87,12 +87,12 @@ class MerchantNotificationStatisticsServiceTest extends BaseStatisticsEvaluation
                 , Mockito.argThat(description -> description.startsWith("[INITIATIVE_STATISTICS_EVALUATION][MERCHANT_COUNTERS_UPDATE_FROM_REWARD_NOTIFICATION] Unexpected json: "))
                 , Mockito.eq(false), Mockito.any());
 
-        Mockito.verify(merchantInitiativeCountersRepositoryMock).retrieveMerchantCountersNotificationCommittedOffset(buildCounterId("INITIATIVEID1"), 0);
-        Mockito.verify(merchantInitiativeCountersRepositoryMock).retrieveMerchantCountersNotificationCommittedOffset(buildCounterId("INITIATIVEID1"), 1);
-        Mockito.verify(merchantInitiativeCountersRepositoryMock).retrieveMerchantCountersNotificationCommittedOffset(buildCounterId("INITIATIVEID1"), 3);
-        Mockito.verify(merchantInitiativeCountersRepositoryMock).retrieveMerchantCountersNotificationCommittedOffset(buildCounterId("INITIATIVEID2"), 0);
-        Mockito.verify(merchantInitiativeCountersRepositoryMock).retrieveMerchantCountersNotificationCommittedOffset(buildCounterId("INITIATIVEID2"), 1);
-        Mockito.verify(merchantInitiativeCountersRepositoryMock).retrieveMerchantCountersNotificationCommittedOffset(buildCounterId("INITIATIVEID2"), 3);
+        Mockito.verify(merchantInitiativeCountersRepositoryMock).retrieveMerchantCountersNotificationCommittedOffset(buildCounterId("INITIATIVEID1"), MERCHANTID, "INITIATIVEID1", 0);
+        Mockito.verify(merchantInitiativeCountersRepositoryMock).retrieveMerchantCountersNotificationCommittedOffset(buildCounterId("INITIATIVEID1"), MERCHANTID, "INITIATIVEID1", 1);
+        Mockito.verify(merchantInitiativeCountersRepositoryMock).retrieveMerchantCountersNotificationCommittedOffset(buildCounterId("INITIATIVEID1"), MERCHANTID, "INITIATIVEID1", 3);
+        Mockito.verify(merchantInitiativeCountersRepositoryMock).retrieveMerchantCountersNotificationCommittedOffset(buildCounterId("INITIATIVEID2"), MERCHANTID, "INITIATIVEID2", 0);
+        Mockito.verify(merchantInitiativeCountersRepositoryMock).retrieveMerchantCountersNotificationCommittedOffset(buildCounterId("INITIATIVEID2"), MERCHANTID, "INITIATIVEID2", 1);
+        Mockito.verify(merchantInitiativeCountersRepositoryMock).retrieveMerchantCountersNotificationCommittedOffset(buildCounterId("INITIATIVEID2"), MERCHANTID, "INITIATIVEID2", 3);
 
         Mockito.verify(merchantInitiativeCountersRepositoryMock).updateCountersFromRewardNotification(buildCounterId("INITIATIVEID1"), 10450L, 2L, 0, partition0LastCommittedOffset);
         Mockito.verify(merchantInitiativeCountersRepositoryMock).updateCountersFromRewardNotification(buildCounterId("INITIATIVEID1"), 2250L, 1L, 1, partition1LastCommittedOffset);
@@ -107,6 +107,8 @@ class MerchantNotificationStatisticsServiceTest extends BaseStatisticsEvaluation
         Mockito.verify(consumerMock).commitAsync(Mockito.eq(Map.of(new TopicPartition(TOPIC_NAME, 3), new OffsetAndMetadata(EXPECTED_PARTITION3_OFFSET+1))), Mockito.isNull());
 
         Mockito.verifyNoMoreInteractions(statisticsErrorNotifierServiceMock, merchantInitiativeCountersRepositoryMock, consumerMock);
+
+        // TODO test reward < 0
     }
 
     private String buildCounterId(String initiativeId) {

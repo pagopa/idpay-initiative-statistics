@@ -27,17 +27,17 @@ public class MerchantInitiativeCountersOpsRepositoryImpl implements MerchantInit
     }
 
     @Override
-    public long retrieveMerchantCountersTransactionCommittedOffset(String counterId, int partition) {
-        return retrieveOffset(counterId, partition, MerchantInitiativeCounters::getTrxCommittedOffsets, MerchantInitiativeCounters.Fields.trxCommittedOffsets);
+    public long retrieveMerchantCountersTransactionCommittedOffset(String counterId, String merchantId, String initiativeId, int partition) {
+        return retrieveOffset(counterId, merchantId, initiativeId, partition, MerchantInitiativeCounters::getTrxCommittedOffsets, MerchantInitiativeCounters.Fields.trxCommittedOffsets);
     }
 
     @Override
-    public long retrieveMerchantCountersNotificationCommittedOffset(String counterId, int partition) {
-        return retrieveOffset(counterId, partition, MerchantInitiativeCounters::getRewardNotificationCommittedOffsets, MerchantInitiativeCounters.Fields.rewardNotificationCommittedOffsets);
+    public long retrieveMerchantCountersNotificationCommittedOffset(String counterId, String merchantId, String initiativeId, int partition) {
+        return retrieveOffset(counterId, merchantId, initiativeId, partition, MerchantInitiativeCounters::getRewardNotificationCommittedOffsets, MerchantInitiativeCounters.Fields.rewardNotificationCommittedOffsets);
     }
 
-    private Long retrieveOffset(String counterId, int partition, Function<MerchantInitiativeCounters, List<CommittedOffset>> commitsgetter, String commitsField){
-        MerchantInitiativeCounters entity = createRecordIfNotExists(counterId);
+    private Long retrieveOffset(String counterId, String merchantId, String initiativeId, int partition, Function<MerchantInitiativeCounters, List<CommittedOffset>> commitsgetter, String commitsField){
+        MerchantInitiativeCounters entity = createRecordIfNotExists(counterId, merchantId, initiativeId);
         Long out = null;
 
         List<CommittedOffset> commits = commitsgetter.apply(entity);
@@ -58,22 +58,18 @@ public class MerchantInitiativeCountersOpsRepositoryImpl implements MerchantInit
         return out;
     }
 
-    private MerchantInitiativeCounters createRecordIfNotExists(String counterId) {
-        String merchantId = MerchantInitiativeCounters.splitId(counterId)[0];
-        String initiativeId = MerchantInitiativeCounters.splitId(counterId)[1];
+    private MerchantInitiativeCounters createRecordIfNotExists(String counterId, String merchantId, String initiativeId) {
 
         MerchantInitiativeCounters result = client.findById(counterId, MerchantInitiativeCounters.class);
 
         if(result==null){
-            result = new MerchantInitiativeCounters();
-            result.setId(counterId);
-            result.setMerchantId(merchantId);
-            result.setInitiativeId(initiativeId);
+            result = new MerchantInitiativeCounters(merchantId, initiativeId);
 
             Update updateQuery = new Update()
                     .set(MerchantInitiativeCounters.Fields.id, counterId)
                     .set(MerchantInitiativeCounters.Fields.merchantId, merchantId)
-                    .set(MerchantInitiativeCounters.Fields.initiativeId, initiativeId);
+                    .set(MerchantInitiativeCounters.Fields.initiativeId, initiativeId)
+                    .currentDate(MerchantInitiativeCounters.Fields.lastUpdatedDateTime);
 
             try {
                 client.upsert(
@@ -91,8 +87,8 @@ public class MerchantInitiativeCountersOpsRepositoryImpl implements MerchantInit
 
     @Override
     public void updateCountersFromTransaction(String counterId, BigDecimal amount, Long trxs, int partition, long offset) {
-        Map<String, Number> incrementsMap = Map.of(
-                MerchantInitiativeCounters.Fields.totalAmount, CommonUtilities.euroToCents(amount),
+        Map<String, Long> incrementsMap = Map.of(
+                MerchantInitiativeCounters.Fields.totalProvidedCents, CommonUtilities.euroToCents(amount),
                 MerchantInitiativeCounters.Fields.trxNumber, trxs
         );
         incrementCounterAndPartitionCommittedOffsets(counterId, incrementsMap, MerchantInitiativeCounters.Fields.trxCommittedOffsets, partition, offset);
@@ -100,16 +96,17 @@ public class MerchantInitiativeCountersOpsRepositoryImpl implements MerchantInit
 
     @Override
     public void updateCountersFromRewardNotification(String counterId, Long refunded, Long trxs, int partition, long offset) {
-        Map<String, Number> incrementsMap = Map.of(
-                MerchantInitiativeCounters.Fields.totalRefunded, refunded,
+        Map<String, Long> incrementsMap = Map.of(
+                MerchantInitiativeCounters.Fields.totalRefundedCents, refunded,
                 MerchantInitiativeCounters.Fields.refundedNumber, trxs
         );
         incrementCounterAndPartitionCommittedOffsets(counterId, incrementsMap, MerchantInitiativeCounters.Fields.rewardNotificationCommittedOffsets, partition, offset);
     }
 
-    private void incrementCounterAndPartitionCommittedOffsets(String counterId, Map<String, Number> fieldCounter2Inc, String fieldPartitionCommitted, int partition, long offset) {
+    private void incrementCounterAndPartitionCommittedOffsets(String counterId, Map<String, Long> fieldCounter2Inc, String fieldPartitionCommitted, int partition, long offset) {
         Update update = new Update()
-                .set("%s.$.%s".formatted(fieldPartitionCommitted, CommittedOffset.Fields.offset), offset);
+                .set("%s.$.%s".formatted(fieldPartitionCommitted, CommittedOffset.Fields.offset), offset)
+                .currentDate(MerchantInitiativeCounters.Fields.lastUpdatedDateTime);
         fieldCounter2Inc.forEach(update::inc);
 
         UpdateResult updateResult = client.updateFirst(

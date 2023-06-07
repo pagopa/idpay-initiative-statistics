@@ -13,9 +13,9 @@ public class MerchantInitiativeCounters2MerchantInitiativeStatisticsDTOMapper im
     @Override
     public MerchantStatisticsDTO apply(MerchantInitiativeCounters merchantInitiativeCounters) {
         return MerchantStatisticsDTO.builder()
-                .amount(CommonUtilities.centsToEuro(merchantInitiativeCounters.getTotalAmount()))
-                .accrued(CommonUtilities.centsToEuro(merchantInitiativeCounters.getTotalAmount() - merchantInitiativeCounters.getTotalRefunded()))
-                .refunded(CommonUtilities.centsToEuro(merchantInitiativeCounters.getTotalRefunded()))
+                .amount(CommonUtilities.centsToEuro(merchantInitiativeCounters.getTotalProvidedCents()))
+                .accrued(CommonUtilities.centsToEuro(merchantInitiativeCounters.getTotalProvidedCents() - merchantInitiativeCounters.getTotalRefundedCents()))
+                .refunded(CommonUtilities.centsToEuro(merchantInitiativeCounters.getTotalRefundedCents()))
                 .build();
     }
 }

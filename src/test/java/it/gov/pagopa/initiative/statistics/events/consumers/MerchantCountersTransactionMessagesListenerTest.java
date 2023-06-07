@@ -3,11 +3,10 @@ package it.gov.pagopa.initiative.statistics.events.consumers;
 import it.gov.pagopa.common.utils.TestUtils;
 import it.gov.pagopa.initiative.statistics.dto.events.Reward;
 import it.gov.pagopa.initiative.statistics.dto.events.TransactionEvaluationDTO;
+import it.gov.pagopa.initiative.statistics.model.CommittedOffset;
 import it.gov.pagopa.initiative.statistics.model.MerchantInitiativeCounters;
 import it.gov.pagopa.initiative.statistics.service.StatisticsEvaluationService;
 import it.gov.pagopa.initiative.statistics.service.merchant.counters.trx.MerchantTransactionStatisticsService;
-import it.gov.pagopa.initiative.statistics.test.fakers.TransactionEvaluationDTOFaker;
-import it.gov.pagopa.initiative.statistics.utils.Constants;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -15,11 +14,14 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.util.Pair;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
-import java.util.stream.IntStream;
 
 class MerchantCountersTransactionMessagesListenerTest extends BaseMerchantStatisticsMessageListenerTest {
 
@@ -48,6 +50,26 @@ class MerchantCountersTransactionMessagesListenerTest extends BaseMerchantStatis
     }
 
     @Override
+    protected Function<MerchantInitiativeCounters, Long> getGetterCounter() {
+        return MerchantInitiativeCounters::getTotalProvidedCents;
+    }
+
+    @Override
+    protected BiConsumer<MerchantInitiativeCounters, Long> getSetterCounter() {
+        return MerchantInitiativeCounters::setTotalProvidedCents;
+    }
+
+    @Override
+    protected Function<MerchantInitiativeCounters, List<CommittedOffset>> getGetterStatisticsCommittedOffsets() {
+        return MerchantInitiativeCounters::getTrxCommittedOffsets;
+    }
+
+    @Override
+    protected BiConsumer<MerchantInitiativeCounters, List<CommittedOffset>> getSetterStatisticsCommittedOffsets() {
+        return MerchantInitiativeCounters::setTrxCommittedOffsets;
+    }
+
+    @Override
     protected List<TransactionEvaluationDTO> buildValidEntities(int bias, int size, String initiativeId) {
         List<TransactionEvaluationDTO> out = buildValidTransactionEvaluationEntities(bias, size, initiativeId);
         out.forEach(t -> {
@@ -59,22 +81,11 @@ class MerchantCountersTransactionMessagesListenerTest extends BaseMerchantStatis
 
     @Override
     protected List<TransactionEvaluationDTO> buildSkippedEntities(int bias, int size) {
-        return IntStream.range(bias, bias + size)
-                .mapToObj(i -> {
-                    TransactionEvaluationDTO out = TransactionEvaluationDTOFaker.mockInstance(i, INITIATIVEID1);
-                    if(i%4==0) {
-                        out.setRewards(null);
-                    } else if(i%4==1) {
-                        out.setRewards(Collections.emptyMap());
-                    } else  if(i%4==2) {
-                        out.setRewards(Map.of(INITIATIVEID1, new Reward(INITIATIVEID1, "ORGANIZATIONID", BigDecimal.ZERO)));
-                    } else {
-                        out.setStatus(Constants.TRX_STATUS_AUTHORIZED);
-                    }
-                    return out;
-                })
-                .toList();
+        List<TransactionEvaluationDTO> out = TransactionEvaluationMessagesListenerTest.buildTransactionSkippedEntities(bias, size);
+        out.forEach(t -> t.setMerchantId(MERCHANTID));
+        return out;
     }
+    // TODO add valid entity on different merchantId
 
     @Override
     protected List<Pair<Supplier<String>, Consumer<ConsumerRecord<String, String>>>> getErrorUseCases() {
@@ -89,7 +100,7 @@ class MerchantCountersTransactionMessagesListenerTest extends BaseMerchantStatis
     @Override
     protected void publishIntoEmbeddedKafka(Integer partition, String key, String payload) {
         if(key==null){
-            key = TestUtils.readJsonStringFieldValue(payload, "userId");
+            key = TestUtils.readJsonStringFieldValue(payload, "merchantId");
         }
         super.publishIntoEmbeddedKafka(partition, key, payload);
     }
@@ -118,13 +129,6 @@ class MerchantCountersTransactionMessagesListenerTest extends BaseMerchantStatis
         return out;
     }
 
-    @Override
-    protected String buildCounterId(String initiativeId) {
-        return "%s_%s".formatted(MERCHANTID, initiativeId);
-    }
-
-
-
     //region not valid useCases
     // all use cases configured must have a unique id recognized by the regexp getErrorUseCaseIdPatternMatch
     protected Pattern getErrorUseCaseIdPatternMatch() {
@@ -134,16 +138,16 @@ class MerchantCountersTransactionMessagesListenerTest extends BaseMerchantStatis
     private final List<Pair<Supplier<String>, Consumer<ConsumerRecord<String, String>>>> errorUseCases = new ArrayList<>();
 
     {
-        String jsonNotExpected = "{\"userId\":\"USERID0\",unexpectedStructure:0}";
+        String jsonNotExpected = "{\"userId\":\"USERID0\", \"merchantId\":\"MERCHANTID\",unexpectedStructure:0}";
         errorUseCases.add(Pair.of(
                 () -> jsonNotExpected,
-                errorMessage -> checkErrorMessageHeaders(errorMessage, "[INITIATIVE_STATISTICS_EVALUATION][MERCHANT_COUNTERS_UPDATE_FROM_TRANSACTION] Unexpected json: {\"userId\":\"USERID0\",unexpectedStructure:0}", jsonNotExpected, "USERID0")
+                errorMessage -> checkErrorMessageHeaders(errorMessage, "[INITIATIVE_STATISTICS_EVALUATION][MERCHANT_COUNTERS_UPDATE_FROM_TRANSACTION] Unexpected json: {\"userId\":\"USERID0\", \"merchantId\":\"MERCHANTID\",unexpectedStructure:0}", jsonNotExpected, MERCHANTID)
         ));
 
-        String jsonNotValid = "{\"userId\":\"USERID1\",invalidJson";
+        String jsonNotValid = "{\"userId\":\"USERID1\", \"merchantId\":\"MERCHANTID\",invalidJson";
         errorUseCases.add(Pair.of(
                 () -> jsonNotValid,
-                errorMessage -> checkErrorMessageHeaders(errorMessage, "[INITIATIVE_STATISTICS_EVALUATION][MERCHANT_COUNTERS_UPDATE_FROM_TRANSACTION] Unexpected json: {\"userId\":\"USERID1\",invalidJson", jsonNotValid, "USERID1")
+                errorMessage -> checkErrorMessageHeaders(errorMessage, "[INITIATIVE_STATISTICS_EVALUATION][MERCHANT_COUNTERS_UPDATE_FROM_TRANSACTION] Unexpected json: {\"userId\":\"USERID1\", \"merchantId\":\"MERCHANTID\",invalidJson", jsonNotValid, MERCHANTID)
         ));
     }
     //endregion
