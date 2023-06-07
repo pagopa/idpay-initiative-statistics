@@ -9,6 +9,7 @@ import it.gov.pagopa.initiative.statistics.repository.merchant.counters.Merchant
 import it.gov.pagopa.initiative.statistics.service.BaseStatisticsEvaluationService;
 import it.gov.pagopa.initiative.statistics.service.StatisticsErrorNotifierService;
 import it.gov.pagopa.initiative.statistics.service.trx.TransactionEvaluationStatisticsServiceImpl;
+import it.gov.pagopa.initiative.statistics.utils.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,8 +59,16 @@ public class MerchantTransactionStatisticsServiceImpl extends BaseStatisticsEval
 
     @Override
     protected Stream<MerchantReward> toInitiativeBasedEntityStream(TransactionEvaluationDTO transactionEvaluationDTO) {
-        return TransactionEvaluationStatisticsServiceImpl.trxEvaluationDto2InitiativeBasedEntityStream(transactionEvaluationDTO)
+        return trxEvaluationDto2InitiativeBasedEntityStream(transactionEvaluationDTO)
                 .map(r -> new MerchantReward(transactionEvaluationDTO.getMerchantId(), r));
+    }
+
+    public static Stream<Reward> trxEvaluationDto2InitiativeBasedEntityStream(TransactionEvaluationDTO transactionEvaluationDTO) {
+        return transactionEvaluationDTO.getRewards() != null
+                && !Constants.EXCLUDED_TRX_STATUSES.contains(transactionEvaluationDTO.getStatus())
+                && transactionEvaluationDTO.getMerchantId() != null
+                ? transactionEvaluationDTO.getRewards().values().stream()
+                : Stream.empty();
     }
 
     @Override

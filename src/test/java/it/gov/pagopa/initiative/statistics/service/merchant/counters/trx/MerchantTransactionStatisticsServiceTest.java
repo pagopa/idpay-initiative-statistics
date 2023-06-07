@@ -119,6 +119,8 @@ class MerchantTransactionStatisticsServiceTest extends BaseStatisticsEvaluationS
         Mockito.verify(consumerMock).commitAsync(Mockito.eq(Map.of(new TopicPartition(TOPIC_NAME, 3), new OffsetAndMetadata(EXPECTED_PARTITION3_OFFSET+1))), Mockito.isNull());
 
         Mockito.verifyNoMoreInteractions(statisticsErrorNotifierServiceMock, merchantInitiativeCountersRepositoryMock, consumerMock);
+
+        // TODO test null merchantId
     }
 
     private String buildCounterId(String initiativeId) {

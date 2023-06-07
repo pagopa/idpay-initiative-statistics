@@ -6,11 +6,13 @@ import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @EqualsAndHashCode
 @SuperBuilder(toBuilder = true, builderMethodName = "hiddenBuilder", buildMethodName = "hiddenBuild")
 @Document("merchant_initiative_counters")
@@ -18,9 +20,9 @@ import java.util.List;
 public class MerchantInitiativeCounters {
     @Id
     private String id;
-    @NonNull
+    @NotNull
     private String merchantId;
-    @NonNull
+    @NotNull
     private String initiativeId;
 
     /**
@@ -46,9 +48,10 @@ public class MerchantInitiativeCounters {
         this.id = buildId(merchantId, initiativeId);
         this.merchantId = merchantId;
         this.initiativeId = initiativeId;
+        this.lastUpdatedDateTime = LocalDateTime.now();
     }
 
-    public static String buildId(@NonNull String merchantId, @NonNull String initiativeId) {
+    public static String buildId(String merchantId, String initiativeId) {
         return "%s_%s".formatted(merchantId, initiativeId);
     }
 

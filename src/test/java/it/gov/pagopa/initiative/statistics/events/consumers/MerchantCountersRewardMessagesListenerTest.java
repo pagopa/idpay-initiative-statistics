@@ -1,5 +1,6 @@
 package it.gov.pagopa.initiative.statistics.events.consumers;
 
+import it.gov.pagopa.common.utils.TestUtils;
 import it.gov.pagopa.initiative.statistics.dto.events.RewardNotificationDTO;
 import it.gov.pagopa.initiative.statistics.model.CommittedOffset;
 import it.gov.pagopa.initiative.statistics.model.MerchantInitiativeCounters;
@@ -48,13 +49,18 @@ class MerchantCountersRewardMessagesListenerTest extends BaseMerchantStatisticsM
 
     @Override
     protected List<RewardNotificationDTO> buildValidEntities(int bias, int size, String initiativeId) {
-        return buildValidRewardNotificationEntities(bias, size, initiativeId, true);
+        List<RewardNotificationDTO> out = buildValidRewardNotificationEntities(bias, size, initiativeId, true);
+        out.forEach(r -> r.setBeneficiaryId(MERCHANTID));
+        return out;
     }
 
     @Override
     protected List<RewardNotificationDTO> buildSkippedEntities(int bias, int size) {
         return IntStream.range(bias, bias + size)
-                .mapToObj(i -> RewardNotificationDTOFaker.mockInstance(i, INITIATIVEID1, true))
+                .mapToObj(i -> RewardNotificationDTOFaker.mockInstanceBuilder(i, INITIATIVEID1, true)
+                        .rewardCents(0L)
+                        .beneficiaryId(MERCHANTID)
+                        .build())
                 .toList();
     }
 
@@ -84,6 +90,14 @@ class MerchantCountersRewardMessagesListenerTest extends BaseMerchantStatisticsM
     }
 
     @Override
+    protected void publishIntoEmbeddedKafka(Integer partition, String key, String payload) {
+        if(key==null){
+            key = TestUtils.readJsonStringFieldValue(payload, "beneficiaryId");
+        }
+        super.publishIntoEmbeddedKafka(partition, key, payload);
+    }
+
+    @Override
     protected long getExpectedCounterValue(int validMsgs) {
         return validMsgs * 100L;
     }
@@ -97,16 +111,16 @@ class MerchantCountersRewardMessagesListenerTest extends BaseMerchantStatisticsM
     private final List<Pair<Supplier<String>, Consumer<ConsumerRecord<String, String>>>> errorUseCases = new ArrayList<>();
 
     {
-        String jsonNotExpected = "{\"userId\":\"USERID0\",\"merchantId\":\"MERCHANTID\",unexpectedStructure:0}";
+        String jsonNotExpected = "{\"userId\":\"USERID0\",\"beneficiaryId\":\"MERCHANTID\",unexpectedStructure:0}";
         errorUseCases.add(Pair.of(
                 () -> jsonNotExpected,
-                errorMessage -> checkErrorMessageHeaders(errorMessage, "[INITIATIVE_STATISTICS_EVALUATION][MERCHANT_COUNTERS_UPDATE_FROM_REWARD_NOTIFICATION] Unexpected json: {\"userId\":\"USERID0\",\"merchantId\":\"MERCHANTID\",unexpectedStructure:0}", jsonNotExpected, MERCHANTID)
+                errorMessage -> checkErrorMessageHeaders(errorMessage, "[INITIATIVE_STATISTICS_EVALUATION][MERCHANT_COUNTERS_UPDATE_FROM_REWARD_NOTIFICATION] Unexpected json: {\"userId\":\"USERID0\",\"beneficiaryId\":\"MERCHANTID\",unexpectedStructure:0}", jsonNotExpected, MERCHANTID)
         ));
 
-        String jsonNotValid = "{\"userId\":\"USERID1\",\"merchantId\":\"MERCHANTID\",invalidJson";
+        String jsonNotValid = "{\"userId\":\"USERID1\",\"beneficiaryId\":\"MERCHANTID\",invalidJson";
         errorUseCases.add(Pair.of(
                 () -> jsonNotValid,
-                errorMessage -> checkErrorMessageHeaders(errorMessage, "[INITIATIVE_STATISTICS_EVALUATION][MERCHANT_COUNTERS_UPDATE_FROM_REWARD_NOTIFICATION] Unexpected json: {\"userId\":\"USERID1\",\"merchantId\":\"MERCHANTID\",invalidJson", jsonNotValid, MERCHANTID)
+                errorMessage -> checkErrorMessageHeaders(errorMessage, "[INITIATIVE_STATISTICS_EVALUATION][MERCHANT_COUNTERS_UPDATE_FROM_REWARD_NOTIFICATION] Unexpected json: {\"userId\":\"USERID1\",\"beneficiaryId\":\"MERCHANTID\",invalidJson", jsonNotValid, MERCHANTID)
         ));
     }
     //endregion

@@ -1,6 +1,7 @@
 package it.gov.pagopa.initiative.statistics.service.merchant.counters.notification;
 
 import it.gov.pagopa.common.utils.TestUtils;
+import it.gov.pagopa.initiative.statistics.model.MerchantInitiativeCounters;
 import it.gov.pagopa.initiative.statistics.repository.merchant.counters.MerchantInitiativeCountersRepository;
 import it.gov.pagopa.initiative.statistics.service.BaseStatisticsEvaluationServiceTest;
 import it.gov.pagopa.initiative.statistics.service.StatisticsErrorNotifierService;
@@ -112,6 +113,6 @@ class MerchantNotificationStatisticsServiceTest extends BaseStatisticsEvaluation
     }
 
     private String buildCounterId(String initiativeId) {
-        return "%s_%s".formatted(MERCHANTID, initiativeId);
+        return MerchantInitiativeCounters.buildId(MERCHANTID, initiativeId);
     }
 }

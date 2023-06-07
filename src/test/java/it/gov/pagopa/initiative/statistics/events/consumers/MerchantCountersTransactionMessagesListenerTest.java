@@ -85,7 +85,7 @@ class MerchantCountersTransactionMessagesListenerTest extends BaseMerchantStatis
         out.forEach(t -> t.setMerchantId(MERCHANTID));
         return out;
     }
-    // TODO add valid entity on different merchantId
+    // TODO add valid entity on different merchantId & null merchantId
 
     @Override
     protected List<Pair<Supplier<String>, Consumer<ConsumerRecord<String, String>>>> getErrorUseCases() {

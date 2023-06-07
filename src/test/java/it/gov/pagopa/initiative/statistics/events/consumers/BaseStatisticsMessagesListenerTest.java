@@ -163,6 +163,7 @@ abstract class BaseStatisticsMessagesListenerTest<T> extends BaseIntegrationTest
         T retrieved = getStatRepository().findById(buildCounterId(INITIATIVEID1)).orElse(null);
         Assertions.assertNotNull(retrieved);
         checkAndEmptyTimestampFields(retrieved);
+        checkAndEmptyTimestampFields(stored);
         Assertions.assertEquals(stored, retrieved);
         Mockito.verifyNoInteractions(statisticsErrorNotifierServiceSpy);
     }
