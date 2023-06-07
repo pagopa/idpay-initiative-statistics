@@ -87,6 +87,10 @@ class MerchantTransactionStatisticsServiceTest extends BaseStatisticsEvaluationS
                         TransactionEvaluationDTOFaker.mockInstanceBuilder(9)
                                 .merchantId(MERCHANTID)
                                 .rewards(Map.of("INITIATIVEID2", new Reward("INITIATIVEID2", "ORGANIZATIONID2", BigDecimal.ZERO, false, false)))
+                                .build(),
+                        TransactionEvaluationDTOFaker.mockInstanceBuilder(10)
+                                .merchantId(null)
+                                .rewards(Map.of("INITIATIVEID1", new Reward("INITIATIVEID1", "ORGANIZATIONID1", BigDecimal.valueOf(3), false, false)))
                                 .build()
                 )
                 .map(TestUtils::jsonSerializer)
@@ -119,8 +123,6 @@ class MerchantTransactionStatisticsServiceTest extends BaseStatisticsEvaluationS
         Mockito.verify(consumerMock).commitAsync(Mockito.eq(Map.of(new TopicPartition(TOPIC_NAME, 3), new OffsetAndMetadata(EXPECTED_PARTITION3_OFFSET+1))), Mockito.isNull());
 
         Mockito.verifyNoMoreInteractions(statisticsErrorNotifierServiceMock, merchantInitiativeCountersRepositoryMock, consumerMock);
-
-        // TODO test null merchantId
     }
 
     private String buildCounterId(String initiativeId) {

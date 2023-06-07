@@ -71,11 +71,21 @@ class MerchantCountersTransactionMessagesListenerTest extends BaseMerchantStatis
 
     @Override
     protected List<TransactionEvaluationDTO> buildValidEntities(int bias, int size, String initiativeId) {
-        List<TransactionEvaluationDTO> out = buildValidTransactionEvaluationEntities(bias, size, initiativeId);
+        List<TransactionEvaluationDTO> out = new ArrayList<>(buildValidTransactionEvaluationEntities(bias, size, initiativeId));
         out.forEach(t -> {
             t.setRewards(new HashMap<>(t.getRewards()));
             t.getRewards().put(initiativeId+"_2", new Reward(initiativeId+"_2", "ORGANIZATIONID_"+initiativeId, BigDecimal.valueOf(2)));
         });
+
+        out.add(buildValidTransactionEvaluationEntity(bias, initiativeId, "MERCHANTID2"));
+        out.add(buildValidTransactionEvaluationEntity(bias, initiativeId, null));
+
+        return out;
+    }
+
+    private TransactionEvaluationDTO buildValidTransactionEvaluationEntity(int bias, String initiativeId, String merchantId) {
+        TransactionEvaluationDTO out = super.buildValidTransactionEvaluationEntity(bias, initiativeId);
+        out.setMerchantId(merchantId);
         return out;
     }
 
@@ -85,7 +95,6 @@ class MerchantCountersTransactionMessagesListenerTest extends BaseMerchantStatis
         out.forEach(t -> t.setMerchantId(MERCHANTID));
         return out;
     }
-    // TODO add valid entity on different merchantId & null merchantId
 
     @Override
     protected List<Pair<Supplier<String>, Consumer<ConsumerRecord<String, String>>>> getErrorUseCases() {
