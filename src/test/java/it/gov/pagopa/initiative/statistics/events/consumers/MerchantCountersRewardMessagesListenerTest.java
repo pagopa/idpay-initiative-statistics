@@ -57,7 +57,7 @@ class MerchantCountersRewardMessagesListenerTest extends BaseMerchantStatisticsM
     @Override
     protected List<RewardNotificationDTO> buildSkippedEntities(int bias, int size) {
         List<RewardNotificationDTO> out = new ArrayList<>(
-                IntStream.range(bias, bias + size -1)
+                IntStream.range(bias, bias + size -2)
                 .mapToObj(i -> RewardNotificationDTOFaker.mockInstanceBuilder(i, INITIATIVEID1, true)
                         .rewardCents(0L)
                         .beneficiaryId(MERCHANTID)
@@ -65,7 +65,11 @@ class MerchantCountersRewardMessagesListenerTest extends BaseMerchantStatisticsM
                 .toList()
         );
 
-        out.add(RewardNotificationDTOFaker.mockInstance(bias + size, INITIATIVEID1, false));
+        out.add(RewardNotificationDTOFaker.mockInstance(bias + size -1, INITIATIVEID1, false));
+        out.add(RewardNotificationDTOFaker.mockInstanceBuilder(bias + size, INITIATIVEID1)
+                .beneficiaryType(RewardNotificationDTO.BeneficiaryType.CITIZEN)
+                .beneficiaryId(MERCHANTID)
+                .build());
         return out;
     }
 
