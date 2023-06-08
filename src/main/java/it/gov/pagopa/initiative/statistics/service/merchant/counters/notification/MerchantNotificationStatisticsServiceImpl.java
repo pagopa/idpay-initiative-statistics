@@ -18,8 +18,6 @@ import java.util.stream.Stream;
 @Slf4j
 public class MerchantNotificationStatisticsServiceImpl extends BaseStatisticsEvaluationService<RewardNotificationDTO, RewardNotificationDTO> implements MerchantNotificationStatisticsService {
 
-    private static final RewardNotificationDTO.BeneficiaryType BENEFICIARY_TYPE_MERCHANT = RewardNotificationDTO.BeneficiaryType.MERCHANT;
-
     private final StatisticsErrorNotifierService statisticsErrorNotifierService;
     private final MerchantInitiativeCountersRepository merchantCountersRepository;
 
@@ -57,7 +55,7 @@ public class MerchantNotificationStatisticsServiceImpl extends BaseStatisticsEva
 
     @Override
     protected Stream<RewardNotificationDTO> toInitiativeBasedEntityStream(RewardNotificationDTO rewardNotificationDTO) {
-        return BENEFICIARY_TYPE_MERCHANT.equals(rewardNotificationDTO.getBeneficiaryType())
+        return RewardNotificationDTO.BeneficiaryType.MERCHANT.equals(rewardNotificationDTO.getBeneficiaryType())
                 ? Stream.of(rewardNotificationDTO)
                 : Stream.empty();
     }

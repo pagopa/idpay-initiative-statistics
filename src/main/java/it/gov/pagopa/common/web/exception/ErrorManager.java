@@ -5,10 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @RestControllerAdvice
@@ -49,6 +53,25 @@ public class ErrorManager {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(errorDTO);
         }
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorDTO> handleMethodArgumentNotValidExceptions(MethodArgumentNotValidException ex) {
+        List<String> errors = new ArrayList<>();
+        ex.getBindingResult().getAllErrors().forEach(error -> {
+            if (error instanceof FieldError fieldErrorInput) {
+                String fieldName = fieldErrorInput.getField();
+                String errorMessage = error.getDefaultMessage();
+                errors.add(String.format("[%s]: %s", fieldName, errorMessage));
+            } else {
+                String objectName = error.getObjectName();
+                String errorMessage = error.getDefaultMessage();
+                errors.add(String.format("[%s]: %s", objectName, errorMessage));
+            }
+        });
+        String message = String.join(" - ", errors);
+        return new ResponseEntity<>(
+                new ErrorDTO(HttpStatus.BAD_REQUEST.name(), message), HttpStatus.BAD_REQUEST);
     }
 
     public static String getRequestDetails(HttpServletRequest request) {

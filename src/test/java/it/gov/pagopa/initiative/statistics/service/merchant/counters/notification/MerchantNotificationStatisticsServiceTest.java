@@ -81,6 +81,10 @@ class MerchantNotificationStatisticsServiceTest extends BaseStatisticsEvaluation
                                 .build(),
                         RewardNotificationDTOFaker.mockInstanceBuilder(9, "INITIATIVEID2", false)
                                 .rewardCents(2450L)
+                                .build(),
+                        RewardNotificationDTOFaker.mockInstanceBuilder(10, "INITIATIVEID2", false)
+                                .beneficiaryId(MERCHANTID)
+                                .rewardCents(5671L)
                                 .build()
                         )
                 .map(TestUtils::jsonSerializer)
