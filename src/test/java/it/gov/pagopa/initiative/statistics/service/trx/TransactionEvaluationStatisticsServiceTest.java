@@ -39,7 +39,7 @@ class TransactionEvaluationStatisticsServiceTest extends BaseStatisticsEvaluatio
 
     @Override
     protected StatisticsEvaluationService getStatisticsEvaluationServiceImpl() {
-        return new TransactionEvaluationStatisticsServiceImpl("APPNAME", TestUtils.objectMapper, statisticsErrorNotifierServiceMock, initiativeStatRepositoryMock);
+        return new TransactionEvaluationStatisticsServiceImpl("APPNAME", "TRANSACTION_EVALUATION_GROUP", TestUtils.objectMapper, statisticsErrorNotifierServiceMock, initiativeStatRepositoryMock);
     }
 
     @Override

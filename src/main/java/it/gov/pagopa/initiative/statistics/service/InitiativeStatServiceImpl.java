@@ -1,6 +1,6 @@
 package it.gov.pagopa.initiative.statistics.service;
 
-import it.gov.pagopa.initiative.statistics.exception.InitiativeStatException;
+import it.gov.pagopa.common.web.exception.ClientExceptionNoBody;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
 import it.gov.pagopa.initiative.statistics.repository.InitiativeStatRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -23,9 +23,8 @@ public class InitiativeStatServiceImpl implements InitiativeStatService {
     public InitiativeStatistics getStatistics(String organizationId, String initiativeId) {
         return initiativeStatRepository.findById(initiativeId)
                 .filter(s -> Objects.equals(s.getOrganizationId(), organizationId))
-                .orElseThrow(() -> new InitiativeStatException(HttpStatus.NOT_FOUND.name(),
-                        MessageFormat.format("No stats found for initiative with id: {0} and organization: {1}", initiativeId, organizationId),
-                        HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ClientExceptionNoBody(HttpStatus.NOT_FOUND,
+                        MessageFormat.format("No stats found for initiative with id: {0} and organization: {1}", initiativeId, organizationId)));
     }
 
 }

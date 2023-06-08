@@ -23,9 +23,11 @@ public class TransactionEvaluationStatisticsServiceImpl extends BaseStatisticsEv
 
     public TransactionEvaluationStatisticsServiceImpl(
             @Value("${spring.application.name}") String applicationName,
+            @Value("${app.kafka.consumer.transaction-evaluation.group-id}") String consumerGroup,
             ObjectMapper objectMapper,
-            StatisticsErrorNotifierService statisticsErrorNotifierService, InitiativeStatRepository initiativeStatRepository) {
-        super(applicationName, objectMapper);
+            StatisticsErrorNotifierService statisticsErrorNotifierService,
+            InitiativeStatRepository initiativeStatRepository) {
+        super(applicationName, consumerGroup, objectMapper);
 
         this.statisticsErrorNotifierService = statisticsErrorNotifierService;
         this.initiativeStatRepository = initiativeStatRepository;
@@ -42,8 +44,8 @@ public class TransactionEvaluationStatisticsServiceImpl extends BaseStatisticsEv
     }
 
     @Override
-    protected long retrieveLastProcessedOffset(String initiativeId, int partition, Reward reward) {
-        return initiativeStatRepository.retrieveTransactionEvaluationCommittedOffset(initiativeId, reward.getOrganizationId(), partition);
+    protected long retrieveLastProcessedOffset(String counterId, int partition, Reward reward) {
+        return initiativeStatRepository.retrieveTransactionEvaluationCommittedOffset(counterId, reward.getOrganizationId(), partition);
     }
 
     @Override
@@ -53,32 +55,45 @@ public class TransactionEvaluationStatisticsServiceImpl extends BaseStatisticsEv
 
     @Override
     protected Stream<Reward> toInitiativeBasedEntityStream(TransactionEvaluationDTO transactionEvaluationDTO) {
-        return transactionEvaluationDTO.getRewards()!= null && !Constants.TRX_STATUS_AUTHORIZED.equals(transactionEvaluationDTO.getStatus())
+        return trxEvaluationDto2InitiativeBasedEntityStream(transactionEvaluationDTO);
+    }
+
+    public static Stream<Reward> trxEvaluationDto2InitiativeBasedEntityStream(TransactionEvaluationDTO transactionEvaluationDTO) {
+        return transactionEvaluationDTO.getRewards() != null && !Constants.EXCLUDED_TRX_STATUSES.contains(transactionEvaluationDTO.getStatus())
                 ? transactionEvaluationDTO.getRewards().values().stream()
                 : Stream.empty();
     }
 
     @Override
-    protected String getInitiativeId(Reward reward) {
+    protected String getCounterId(Reward reward) {
         return reward.getInitiativeId();
     }
 
     @Override
-    protected void evaluateInitiative(String initiativeId, List<Reward> records, int partition, long maxOffset) {
+    protected void evaluateCounter(String counterId, List<Reward> records, int partition, long maxOffset) {
         initiativeStatRepository.updateAccruedRewards(
-                initiativeId,
-                records.stream().map(Reward::getAccruedReward).reduce(BigDecimal::add).orElse(BigDecimal.ZERO),
-                records.stream()
-                        .filter(r -> r.getAccruedReward().compareTo(BigDecimal.ZERO) != 0)
-                        .mapToLong(r -> {
-                            if (r.isCompleteRefund()) {
-                                return -1L;
-                            } else if (r.isRefund()) {
-                                return 0L;
-                            } else {
-                                return 1L;
-                            }
-                        }).sum(),
-                partition, maxOffset);
+                counterId,
+                aggregateReward(records),
+                aggregateTrxNumber(records),
+                partition,
+                maxOffset);
+    }
+
+    public static long aggregateTrxNumber(List<Reward> records) {
+        return records.stream()
+                .filter(r -> r.getAccruedReward().compareTo(BigDecimal.ZERO) != 0)
+                .mapToLong(r -> {
+                    if (r.isCompleteRefund()) {
+                        return -1L;
+                    } else if (r.isRefund()) {
+                        return 0L;
+                    } else {
+                        return 1L;
+                    }
+                }).sum();
+    }
+
+    public static BigDecimal aggregateReward(List<Reward> records) {
+        return records.stream().map(Reward::getAccruedReward).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
     }
 }
