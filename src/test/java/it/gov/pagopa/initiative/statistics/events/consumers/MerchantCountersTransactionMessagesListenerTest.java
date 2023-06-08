@@ -7,7 +7,6 @@ import it.gov.pagopa.initiative.statistics.model.CommittedOffset;
 import it.gov.pagopa.initiative.statistics.model.MerchantInitiativeCounters;
 import it.gov.pagopa.initiative.statistics.service.StatisticsEvaluationService;
 import it.gov.pagopa.initiative.statistics.service.merchant.counters.trx.MerchantTransactionStatisticsService;
-import it.gov.pagopa.initiative.statistics.test.fakers.TransactionEvaluationDTOFaker;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -92,12 +91,8 @@ class MerchantCountersTransactionMessagesListenerTest extends BaseMerchantStatis
         List<TransactionEvaluationDTO> out = new ArrayList<>(TransactionEvaluationMessagesListenerTest.buildTransactionSkippedEntities(bias, size-2));
         out.forEach(t -> t.setMerchantId(MERCHANTID));
 
-        out.add(TransactionEvaluationDTOFaker.mockInstanceBuilder(bias + size -1, INITIATIVEID1)
-                .merchantId("MERCHANTID1")
-                .build());
-        out.add(TransactionEvaluationDTOFaker.mockInstanceBuilder(bias + size, INITIATIVEID1)
-                .merchantId(null)
-                .build());
+        out.add(buildValidTransactionEvaluationEntity(bias + size -1, INITIATIVEID1, "MERCHANTID1"));
+        out.add(buildValidTransactionEvaluationEntity(bias + size -1, INITIATIVEID1, null));
         return out;
     }
 

@@ -65,10 +65,12 @@ class MerchantCountersRewardMessagesListenerTest extends BaseMerchantStatisticsM
                 .toList()
         );
 
-        out.add(RewardNotificationDTOFaker.mockInstance(bias + size -1, INITIATIVEID1, false));
-        out.add(RewardNotificationDTOFaker.mockInstanceBuilder(bias + size, INITIATIVEID1)
-                .beneficiaryType(RewardNotificationDTO.BeneficiaryType.CITIZEN)
+        out.add(buildValidRewardNotificationEntity(bias + size - 1, INITIATIVEID1, false).toBuilder()
+                .beneficiaryId("USERID")
+                .build());
+        out.add(buildValidRewardNotificationEntity(bias + size - 1, INITIATIVEID1, false).toBuilder()
                 .beneficiaryId(MERCHANTID)
+                .beneficiaryType(RewardNotificationDTO.BeneficiaryType.CITIZEN)
                 .build());
         return out;
     }
