@@ -7,10 +7,12 @@ import it.gov.pagopa.common.utils.TestIntegrationUtils;
 import it.gov.pagopa.common.utils.TestUtils;
 import it.gov.pagopa.initiative.statistics.dto.events.OnboardingOutcomeDTO;
 import it.gov.pagopa.initiative.statistics.dto.events.Reward;
+import it.gov.pagopa.initiative.statistics.dto.events.RewardNotificationDTO;
 import it.gov.pagopa.initiative.statistics.dto.events.TransactionEvaluationDTO;
+import it.gov.pagopa.initiative.statistics.model.CommittedOffset;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
-import it.gov.pagopa.initiative.statistics.repository.InitiativeStatRepository;
 import it.gov.pagopa.initiative.statistics.test.fakers.OnboardingOutcomeDTOFaker;
+import it.gov.pagopa.initiative.statistics.test.fakers.RewardNotificationDTOFaker;
 import it.gov.pagopa.initiative.statistics.test.fakers.TransactionEvaluationDTOFaker;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.Assertions;
@@ -18,7 +20,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataMongo;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.util.Pair;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.context.TestPropertySource;
@@ -42,6 +46,8 @@ import java.util.stream.IntStream;
         "${app.kafka.producer.errors.topic}",
         "${app.kafka.consumer.onboarding-outcome.topic}",
         "${app.kafka.consumer.transaction-evaluation.topic}",
+        "merchant-counters-transaction", // "${app.kafka.consumer.merchant-counters-transaction.topic}", Overridden in TestPropertySource
+        "${app.kafka.consumer.merchant-counters-reward-notification.topic}",
 }, controlledShutdown = true)
 @TestPropertySource(
         properties = {
@@ -65,8 +71,16 @@ import java.util.stream.IntStream;
                 "app.kafka.consumer.onboarding-outcome.security.protocol=PLAINTEXT",
                 "app.kafka.consumer.transaction-evaluation.bootstrap-servers=${spring.embedded.kafka.brokers}",
                 "app.kafka.consumer.transaction-evaluation.security.protocol=PLAINTEXT",
+                "app.kafka.consumer.merchant-counters-transaction.bootstrap-servers=${spring.embedded.kafka.brokers}",
+                "app.kafka.consumer.merchant-counters-transaction.security.protocol=PLAINTEXT",
+                "app.kafka.consumer.merchant-counters-reward-notification.bootstrap-servers=${spring.embedded.kafka.brokers}",
+                "app.kafka.consumer.merchant-counters-reward-notification.security.protocol=PLAINTEXT",
                 "app.kafka.producer.errors.bootstrap.servers=${spring.embedded.kafka.brokers}",
                 "spring.kafka.producer.security.protocol=PLAINTEXT",
+                //endregion
+
+                //region kafka test overrides
+                "app.kafka.consumer.merchant-counters-transaction.topic=merchant-counters-transaction",
                 //endregion
 
                 //region mongodb
@@ -76,6 +90,7 @@ import java.util.stream.IntStream;
                 //endregion
         })
 @AutoConfigureDataMongo
+@AutoConfigureMockMvc
 public abstract class BaseIntegrationTest {
 
     @Autowired
@@ -90,6 +105,10 @@ public abstract class BaseIntegrationTest {
     protected String topicOnboardingOutcome;
     @Value("${app.kafka.consumer.transaction-evaluation.topic}")
     protected String topicTransactionEvaluation;
+    @Value("${app.kafka.consumer.merchant-counters-transaction.topic}")
+    protected String topicMerchantCountersTransaction;
+    @Value("${app.kafka.consumer.merchant-counters-reward-notification.topic}")
+    protected String topicMerchantCountersNotification;
     @Value("${app.kafka.producer.errors.topic}")
     protected String topicErrors;
 
@@ -97,6 +116,10 @@ public abstract class BaseIntegrationTest {
     protected String groupIdOnboardingOutcome;
     @Value("${app.kafka.consumer.transaction-evaluation.group-id}")
     protected String groupIdTransactionEvaluation;
+    @Value("${app.kafka.consumer.merchant-counters-transaction.group-id}")
+    protected String groupIdMerchantCountersTransaction;
+    @Value("${app.kafka.consumer.merchant-counters-reward-notification.group-id}")
+    protected String groupIdMerchantCountersNotification;
 
     @BeforeAll
     public static void unregisterPreviouslyKafkaServers() throws MalformedObjectNameException, MBeanRegistrationException, InstanceNotFoundException {
@@ -156,6 +179,16 @@ public abstract class BaseIntegrationTest {
                 .rewards(Map.of(initiativeid, new Reward(initiativeid, "ORGANIZATIONID_%s".formatted(initiativeid), BigDecimal.ONE, bias%3==0, bias%6==0)))
                 .build();
     }
+    protected List<RewardNotificationDTO> buildValidRewardNotificationEntities(int bias, int size, String initiativeid, boolean merchant) {
+        return IntStream.range(bias, bias + size)
+                .mapToObj(i -> buildValidRewardNotificationEntity(i, initiativeid, merchant))
+                .toList();
+    }
+    protected RewardNotificationDTO buildValidRewardNotificationEntity(int bias, String initiativeid, boolean merchant) {
+        return RewardNotificationDTOFaker.mockInstanceBuilder(bias, initiativeid, merchant)
+                .rewardCents(100L)
+                .build();
+    }
     protected int getExpectedTrxsCount(int validMsgs) {
         int zeroBasedFix = validMsgs % 3 == 0 ? 0 : 1; // because 0 based, we have to add 1, but if using a multiple of 3, we have to remove one, compensating the 0 based bias
         return validMsgs
@@ -163,16 +196,16 @@ public abstract class BaseIntegrationTest {
                 - (validMsgs / 3 - validMsgs / 6 + zeroBasedFix); // each %3 will be a refund
     }
 
-    @Autowired
-    protected InitiativeStatRepository initiativeStatRepository;
-    protected long waitForCounterResult(String initiativeId, String organizationId, Function<InitiativeStatistics, Long> getterCounter, long expectedCounterValue, long maxWaitingMs) {
+    protected <T> long waitForCounterResult(String initiativeId, String organizationId, Function<T, Long> getterCounter, long expectedCounterValue, long maxWaitingMs, MongoRepository<T, String> statisticRepository) {
         int millisAttemptDelay = 500;
         int maxAttempts = (int) maxWaitingMs / millisAttemptDelay;
 
         long[] countSaved = {0};
-        TestUtils.waitFor(() -> (countSaved[0] = initiativeStatRepository.findById(initiativeId)
+        TestUtils.waitFor(() -> (countSaved[0] = statisticRepository.findById(buildCounterId(initiativeId))
                         .filter(r-> {
-                            Assertions.assertEquals(organizationId, r.getOrganizationId());
+                            if (r instanceof InitiativeStatistics initiativeStatistics) {
+                                Assertions.assertEquals(organizationId, initiativeStatistics.getOrganizationId());
+                            }
                             return true;
                         })
                         .map(getterCounter).orElse(-1L)) >= expectedCounterValue
@@ -181,13 +214,13 @@ public abstract class BaseIntegrationTest {
         return countSaved[0];
     }
 
-    protected long verifyPartitionOffsetStored(long expectOffsetSum, String initiativeid, Function<InitiativeStatistics, List<InitiativeStatistics.CommittedOffset>> getterStatisticsCommittedOffsets, boolean assertEquals) {
-        InitiativeStatistics result = initiativeStatRepository.findById(initiativeid).orElse(null);
+    protected <T> long verifyPartitionOffsetStored(long expectOffsetSum, String initiativeId, Function<T, List<CommittedOffset>> getterStatisticsCommittedOffsets, boolean assertEquals, MongoRepository<T, String> statisticRepository) {
+        T result = statisticRepository.findById(buildCounterId(initiativeId)).orElse(null);
         Assertions.assertNotNull(result);
 
         // -2 because offset start from 0 and we are using 2 partition for test
         long expectedOffsetSum0Based = expectOffsetSum - 2;
-        long sum = getterStatisticsCommittedOffsets.apply(result).stream().mapToLong(InitiativeStatistics.CommittedOffset::getOffset).sum();
+        long sum = getterStatisticsCommittedOffsets.apply(result).stream().mapToLong(CommittedOffset::getOffset).sum();
 
         if (assertEquals) {
             Assertions.assertEquals(expectedOffsetSum0Based, sum);
@@ -197,5 +230,7 @@ public abstract class BaseIntegrationTest {
 
         return sum + 2;
     }
+
+    protected abstract String buildCounterId(String initiativeId);
     //endregion
 }
