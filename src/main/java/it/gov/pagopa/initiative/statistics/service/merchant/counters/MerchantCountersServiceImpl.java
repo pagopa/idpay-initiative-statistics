@@ -1,8 +1,8 @@
 package it.gov.pagopa.initiative.statistics.service.merchant.counters;
 
+import it.gov.pagopa.common.web.exception.ClientExceptionNoBody;
 import it.gov.pagopa.initiative.statistics.dto.MerchantStatisticsDTO;
 import it.gov.pagopa.initiative.statistics.dto.mapper.MerchantInitiativeCounters2MerchantInitiativeStatisticsDTOMapper;
-import it.gov.pagopa.initiative.statistics.exception.MerchantStatException;
 import it.gov.pagopa.initiative.statistics.model.MerchantInitiativeCounters;
 import it.gov.pagopa.initiative.statistics.repository.merchant.counters.MerchantInitiativeCountersRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -27,8 +27,7 @@ public class MerchantCountersServiceImpl implements MerchantCountersService {
         return countersRepository.findById(MerchantInitiativeCounters.buildId(merchantId, initiativeId))
                 .map(counter2DtoMapper)
 
-                .orElseThrow(() -> new MerchantStatException(HttpStatus.NOT_FOUND.name(),
-                        MessageFormat.format("No stats found for merchant with id: {0} and initiative: {1}", merchantId, initiativeId),
-                        HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ClientExceptionNoBody(HttpStatus.NOT_FOUND,
+                        MessageFormat.format("No stats found for merchant with id: {0} and initiative: {1}", merchantId, initiativeId)));
     }
 }

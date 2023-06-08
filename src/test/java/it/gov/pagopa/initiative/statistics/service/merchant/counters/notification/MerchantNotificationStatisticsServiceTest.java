@@ -43,41 +43,44 @@ class MerchantNotificationStatisticsServiceTest extends BaseStatisticsEvaluation
     @Override
     protected List<String> getUseCases() {
         return Stream.of(
-                        RewardNotificationDTOFaker.mockInstanceBuilder(0, "INITIATIVEID1")
+                        RewardNotificationDTOFaker.mockInstanceBuilder(0, "INITIATIVEID1", true)
                                 .rewardCents(4100L)
                                 .beneficiaryId(MERCHANTID)
                                 .build(),
-                        RewardNotificationDTOFaker.mockInstanceBuilder(1, "INITIATIVEID1")
+                        RewardNotificationDTOFaker.mockInstanceBuilder(1, "INITIATIVEID1", true)
                                 .rewardCents(2250L)
                                 .beneficiaryId(MERCHANTID)
                                 .build(),
-                        RewardNotificationDTOFaker.mockInstanceBuilder(2, "INITIATIVEID1")
+                        RewardNotificationDTOFaker.mockInstanceBuilder(2, "INITIATIVEID1", true)
                                 .rewardCents(6350L)
                                 .beneficiaryId(MERCHANTID)
                                 .build(),
-                        RewardNotificationDTOFaker.mockInstanceBuilder(3, "INITIATIVEID1")
+                        RewardNotificationDTOFaker.mockInstanceBuilder(3, "INITIATIVEID1", true)
                                 .rewardCents(0L)
                                 .beneficiaryId(MERCHANTID)
                                 .build(),
-                        RewardNotificationDTOFaker.mockInstanceBuilder(4, "INITIATIVEID2")
+                        RewardNotificationDTOFaker.mockInstanceBuilder(4, "INITIATIVEID2", true)
                                 .rewardCents(6130L)
                                 .beneficiaryId(MERCHANTID)
                                 .build(),
-                        RewardNotificationDTOFaker.mockInstanceBuilder(5, "INITIATIVEID2")
+                        RewardNotificationDTOFaker.mockInstanceBuilder(5, "INITIATIVEID2", true)
                                 .rewardCents(8250L)
                                 .beneficiaryId(MERCHANTID)
                                 .build(),
-                        RewardNotificationDTOFaker.mockInstanceBuilder(6, "INITIATIVEID2")
+                        RewardNotificationDTOFaker.mockInstanceBuilder(6, "INITIATIVEID2", true)
                                 .rewardCents(14380L)
                                 .beneficiaryId(MERCHANTID)
                                 .build(),
-                        RewardNotificationDTOFaker.mockInstanceBuilder(7, "INITIATIVEID2")
+                        RewardNotificationDTOFaker.mockInstanceBuilder(7, "INITIATIVEID2", true)
                                 .rewardCents(0L)
                                 .beneficiaryId(MERCHANTID)
                                 .build(),
-                        RewardNotificationDTOFaker.mockInstanceBuilder(8, "INITIATIVEID1")
+                        RewardNotificationDTOFaker.mockInstanceBuilder(8, "INITIATIVEID1", true)
                                 .rewardCents(-100L)
                                 .beneficiaryId(MERCHANTID)
+                                .build(),
+                        RewardNotificationDTOFaker.mockInstanceBuilder(9, "INITIATIVEID2", false)
+                                .rewardCents(2450L)
                                 .build()
                         )
                 .map(TestUtils::jsonSerializer)

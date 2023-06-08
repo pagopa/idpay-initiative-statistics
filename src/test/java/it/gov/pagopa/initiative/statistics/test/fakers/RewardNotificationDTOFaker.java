@@ -75,6 +75,7 @@ public class RewardNotificationDTOFaker {
                 .rewardNotificationId(notificationId)
                 .initiativeId(initiativeId)
                 .beneficiaryId("%s%d".formatted(beneficiaryPrefix, bias))
+                .beneficiaryType(merchant ? RewardNotificationDTO.BeneficiaryType.MERCHANT : RewardNotificationDTO.BeneficiaryType.CITIZEN)
                 .organizationId("ORGANIZATIONID%d".formatted(bias))
                 .iban("IBAN%d".formatted(bias))
                 .status("STATUS")

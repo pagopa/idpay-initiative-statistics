@@ -14,20 +14,7 @@ import java.util.List;
 @ControllerAdvice
 public class RestResponseExceptionHandler {
 
-    // API
-    @ExceptionHandler({InitiativeStatException.class})
-    public ResponseEntity<ErrorDTO> handleInitiativeException(InitiativeStatException ex) {
-        return new ResponseEntity<>(new ErrorDTO(ex.getCode(), ex.getMessage()),
-                ex.getHttpStatus());
-    }
-
-    @ExceptionHandler({MerchantStatException.class})
-    public ResponseEntity<ErrorDTO> handleMerchantException(MerchantStatException ex) {
-        return new ResponseEntity<>(new ErrorDTO(ex.getCode(), ex.getMessage()),
-                ex.getHttpStatus());
-    }
-
-    @ExceptionHandler({MethodArgumentNotValidException.class})
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorDTO> handleMethodArgumentNotValidExceptions(MethodArgumentNotValidException ex) {
         List<String> errors = new ArrayList<>();
         ex.getBindingResult().getAllErrors().forEach(error -> {
@@ -45,11 +32,4 @@ public class RestResponseExceptionHandler {
         return new ResponseEntity<>(
                 new ErrorDTO(HttpStatus.BAD_REQUEST.name(), message), HttpStatus.BAD_REQUEST);
     }
-
-    @ExceptionHandler({Exception.class})
-    public ResponseEntity<ErrorDTO> handleHttpMessageNotReadableException(Exception ex) {
-        return new ResponseEntity<>(
-                new ErrorDTO(HttpStatus.INTERNAL_SERVER_ERROR.name(), ex.getLocalizedMessage()), HttpStatus.BAD_REQUEST);
-    }
-
 }

@@ -15,6 +15,6 @@ public final class CommonUtilities {
 
     /** To convert cents into euro */
     public static BigDecimal centsToEuro(Long cents) {
-        return BigDecimal.valueOf((double) cents / 100).setScale(2, RoundingMode.HALF_DOWN);
+        return BigDecimal.valueOf(cents).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_DOWN);
     }
 }

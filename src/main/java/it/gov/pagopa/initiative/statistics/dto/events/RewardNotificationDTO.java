@@ -18,6 +18,7 @@ public class RewardNotificationDTO {
   private String rewardNotificationId;
   private String initiativeId;
   private String beneficiaryId;
+  private BeneficiaryType beneficiaryType;
   private String organizationId;
   private String iban;
   private String status;
@@ -35,4 +36,9 @@ public class RewardNotificationDTO {
   private LocalDate transferDate;
   private LocalDate userNotificationDate;
   private String cro;
+
+  public enum BeneficiaryType {
+    CITIZEN,
+    MERCHANT
+  }
 }
