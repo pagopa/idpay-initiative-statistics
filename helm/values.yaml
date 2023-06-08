@@ -52,7 +52,7 @@ microservice-chart:
     APPLICATIONINSIGHTS_INSTRUMENTATION_MICROMETER_ENABLED: "false"
     APPLICATIONINSIGHTS_PREVIEW_PROFILER_ENABLED: "false"
     KAFKA_ONBOARDING_OUTCOME_CONSUMER_GROUP: "idpay-initiative-onboarding-statistics-group"
-    KAFKA_REWARD_RESPONSE_CONSUMER_GROUP: "idpay-initiative-rewards-statistics-group"
+    KAFKA_MERCHANT_COUNTERS_REWARD_NOTIFICATION_GROUP_ID: "idpay-merchant-counters-notification-group"
 
   envConfigMapExternals:
     idpay-common:
@@ -65,6 +65,7 @@ microservice-chart:
 
     idpay-eventhub-01:
       KAFKA_TRANSACTION_EVALUATION_SERVERS: kafka_broker
+      KAFKA_REWARD_NOTIFICATION_SERVERS: kafka_broker
       KAFKA_TRANSACTION_EVALUATION_TOPIC: idpay_transaction_topic
       KAFKA_REWARD_NOTIFICATION_TOPIC: idpay_reward_notification_response_topic
       KAFKA_ERROR_MESSAGE_SERVERS: kafka_broker

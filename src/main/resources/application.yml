@@ -76,7 +76,7 @@ app:
           concurrency: ${KAFKA_REWARD_NOTIFICATION_CONCURRENCY:2}
         properties:
           sasl.mechanism: ${KAFKA_REWARD_NOTIFICATION_SASL_MECHANISM:${KAFKA_SASL_MECHANISM:PLAIN}}
-          sasl.jaas.config: ${KAFKA_REWARD_NOTIFICATION_SASL_JAAS_CONFIG:${KAFKA_SASL_JAAS_CONFIG:org.apache.kafka.common.security.plain.PlainLoginModule required username="$ConnectionString" password="${KAFKA_TRANSACTION_EVALUATION_CONNECTION_STRING:}";}}
+          sasl.jaas.config: ${KAFKA_REWARD_NOTIFICATION_SASL_JAAS_CONFIG:${KAFKA_SASL_JAAS_CONFIG:org.apache.kafka.common.security.plain.PlainLoginModule required username="$ConnectionString" password="${KAFKA_REWARD_NOTIFICATION_CONNECTION_STRING:}";}}
           max.poll:
             records: ${KAFKA_REWARD_NOTIFICATION_MAX_POLL_SIZE:500}
             interval.ms: ${KAFKA_REWARD_NOTIFICATION_POLL_INTERVAL:300000}
