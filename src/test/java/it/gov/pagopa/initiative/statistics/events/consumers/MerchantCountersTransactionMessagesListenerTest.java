@@ -7,6 +7,7 @@ import it.gov.pagopa.initiative.statistics.model.CommittedOffset;
 import it.gov.pagopa.initiative.statistics.model.MerchantInitiativeCounters;
 import it.gov.pagopa.initiative.statistics.service.StatisticsEvaluationService;
 import it.gov.pagopa.initiative.statistics.service.merchant.counters.trx.MerchantTransactionStatisticsService;
+import it.gov.pagopa.initiative.statistics.test.fakers.TransactionEvaluationDTOFaker;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -71,14 +72,11 @@ class MerchantCountersTransactionMessagesListenerTest extends BaseMerchantStatis
 
     @Override
     protected List<TransactionEvaluationDTO> buildValidEntities(int bias, int size, String initiativeId) {
-        List<TransactionEvaluationDTO> out = new ArrayList<>(buildValidTransactionEvaluationEntities(bias, size, initiativeId));
+        List<TransactionEvaluationDTO> out = buildValidTransactionEvaluationEntities(bias, size, initiativeId);
         out.forEach(t -> {
             t.setRewards(new HashMap<>(t.getRewards()));
             t.getRewards().put(initiativeId+"_2", new Reward(initiativeId+"_2", "ORGANIZATIONID_"+initiativeId, BigDecimal.valueOf(2)));
         });
-
-        out.add(buildValidTransactionEvaluationEntity(bias, initiativeId, "MERCHANTID2"));
-        out.add(buildValidTransactionEvaluationEntity(bias, initiativeId, null));
 
         return out;
     }
@@ -91,8 +89,15 @@ class MerchantCountersTransactionMessagesListenerTest extends BaseMerchantStatis
 
     @Override
     protected List<TransactionEvaluationDTO> buildSkippedEntities(int bias, int size) {
-        List<TransactionEvaluationDTO> out = TransactionEvaluationMessagesListenerTest.buildTransactionSkippedEntities(bias, size);
+        List<TransactionEvaluationDTO> out = new ArrayList<>(TransactionEvaluationMessagesListenerTest.buildTransactionSkippedEntities(bias, size-2));
         out.forEach(t -> t.setMerchantId(MERCHANTID));
+
+        out.add(TransactionEvaluationDTOFaker.mockInstanceBuilder(bias + size -1, INITIATIVEID1)
+                .merchantId("MERCHANTID1")
+                .build());
+        out.add(TransactionEvaluationDTOFaker.mockInstanceBuilder(bias + size, INITIATIVEID1)
+                .merchantId(null)
+                .build());
         return out;
     }
 
