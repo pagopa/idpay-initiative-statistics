@@ -4,7 +4,7 @@ import com.github.javafaker.service.FakeValuesService;
 import com.github.javafaker.service.RandomService;
 import it.gov.pagopa.initiative.statistics.dto.events.Reward;
 import it.gov.pagopa.initiative.statistics.dto.events.TransactionEvaluationDTO;
-import it.gov.pagopa.initiative.statistics.test.utils.TestUtils;
+import it.gov.pagopa.common.utils.TestUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -60,6 +60,7 @@ public class TransactionEvaluationDTOFaker {
         return TransactionEvaluationDTO.builder()
                 .id("TRXID%s".formatted(bias))
                 .userId("USERID%s".formatted(bias))
+                .merchantId("MERCHANTID%s".formatted(bias))
                 .operationTypeTranscoded("CHARGE")
                 .status("REWARDED")
                 .rewards(Map.of(

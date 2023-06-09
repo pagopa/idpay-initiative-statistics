@@ -5,7 +5,8 @@ import it.gov.pagopa.initiative.statistics.dto.events.Reward;
 import it.gov.pagopa.initiative.statistics.dto.events.TransactionEvaluationDTO;
 import it.gov.pagopa.initiative.statistics.repository.InitiativeStatRepository;
 import it.gov.pagopa.initiative.statistics.service.BaseStatisticsEvaluationService;
-import it.gov.pagopa.initiative.statistics.service.ErrorNotifierService;
+import it.gov.pagopa.initiative.statistics.service.StatisticsErrorNotifierService;
+import it.gov.pagopa.initiative.statistics.utils.Constants;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -17,16 +18,18 @@ import java.util.stream.Stream;
 @Service
 public class TransactionEvaluationStatisticsServiceImpl extends BaseStatisticsEvaluationService<TransactionEvaluationDTO, Reward> implements TransactionEvaluationStatisticsService {
 
-    private final ErrorNotifierService errorNotifierService;
+    private final StatisticsErrorNotifierService statisticsErrorNotifierService;
     private final InitiativeStatRepository initiativeStatRepository;
 
     public TransactionEvaluationStatisticsServiceImpl(
             @Value("${spring.application.name}") String applicationName,
+            @Value("${app.kafka.consumer.transaction-evaluation.group-id}") String consumerGroup,
             ObjectMapper objectMapper,
-            ErrorNotifierService errorNotifierService, InitiativeStatRepository initiativeStatRepository) {
-        super(applicationName, objectMapper);
+            StatisticsErrorNotifierService statisticsErrorNotifierService,
+            InitiativeStatRepository initiativeStatRepository) {
+        super(applicationName, consumerGroup, objectMapper);
 
-        this.errorNotifierService = errorNotifierService;
+        this.statisticsErrorNotifierService = statisticsErrorNotifierService;
         this.initiativeStatRepository = initiativeStatRepository;
     }
 
@@ -41,43 +44,56 @@ public class TransactionEvaluationStatisticsServiceImpl extends BaseStatisticsEv
     }
 
     @Override
-    protected long retrieveLastProcessedOffset(String initiativeId, int partition, Reward reward) {
-        return initiativeStatRepository.retrieveTransactionEvaluationCommittedOffset(initiativeId, reward.getOrganizationId(), partition);
+    protected long retrieveLastProcessedOffset(String counterId, int partition, Reward reward) {
+        return initiativeStatRepository.retrieveTransactionEvaluationCommittedOffset(counterId, reward.getOrganizationId(), partition);
     }
 
     @Override
     protected void onRecordError2notify(ConsumerRecord<String, String> message, String description, Throwable exception) {
-        errorNotifierService.notifyTransactionEvaluation(message, description, false, exception);
+        statisticsErrorNotifierService.notifyTransactionEvaluation(message, description, false, exception);
     }
 
     @Override
     protected Stream<Reward> toInitiativeBasedEntityStream(TransactionEvaluationDTO transactionEvaluationDTO) {
-        return transactionEvaluationDTO.getRewards()!= null
+        return trxEvaluationDto2InitiativeBasedEntityStream(transactionEvaluationDTO);
+    }
+
+    public static Stream<Reward> trxEvaluationDto2InitiativeBasedEntityStream(TransactionEvaluationDTO transactionEvaluationDTO) {
+        return transactionEvaluationDTO.getRewards() != null && !Constants.EXCLUDED_TRX_STATUSES.contains(transactionEvaluationDTO.getStatus())
                 ? transactionEvaluationDTO.getRewards().values().stream()
                 : Stream.empty();
     }
 
     @Override
-    protected String getInitiativeId(Reward reward) {
+    protected String getCounterId(Reward reward) {
         return reward.getInitiativeId();
     }
 
     @Override
-    protected void evaluateInitiative(String initiativeId, List<Reward> records, int partition, long maxOffset) {
+    protected void evaluateCounter(String counterId, List<Reward> records, int partition, long maxOffset) {
         initiativeStatRepository.updateAccruedRewards(
-                initiativeId,
-                records.stream().map(Reward::getAccruedReward).reduce(BigDecimal::add).orElse(BigDecimal.ZERO),
-                records.stream()
-                        .filter(r -> r.getAccruedReward().compareTo(BigDecimal.ZERO) != 0)
-                        .mapToLong(r -> {
-                            if (r.isCompleteRefund()) {
-                                return -1L;
-                            } else if (r.isRefund()) {
-                                return 0L;
-                            } else {
-                                return 1L;
-                            }
-                        }).sum(),
-                partition, maxOffset);
+                counterId,
+                aggregateReward(records),
+                aggregateTrxNumber(records),
+                partition,
+                maxOffset);
+    }
+
+    public static long aggregateTrxNumber(List<Reward> records) {
+        return records.stream()
+                .filter(r -> r.getAccruedReward().compareTo(BigDecimal.ZERO) != 0)
+                .mapToLong(r -> {
+                    if (r.isCompleteRefund()) {
+                        return -1L;
+                    } else if (r.isRefund()) {
+                        return 0L;
+                    } else {
+                        return 1L;
+                    }
+                }).sum();
+    }
+
+    public static BigDecimal aggregateReward(List<Reward> records) {
+        return records.stream().map(Reward::getAccruedReward).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
     }
 }

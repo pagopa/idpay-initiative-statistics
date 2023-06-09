@@ -1,6 +1,7 @@
 package it.gov.pagopa.initiative.statistics.repository;
 
 import it.gov.pagopa.initiative.statistics.BaseIntegrationTest;
+import it.gov.pagopa.initiative.statistics.model.CommittedOffset;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -24,8 +25,8 @@ class InitiativeStatAtomicOpsRepositoryTest extends BaseIntegrationTest {
 
     @Test
     void testRetrieveOnboardingOutcomeCommittedOffset(){
-        InitiativeStatistics.CommittedOffset expectedPartition0 = new InitiativeStatistics.CommittedOffset(0, -1);
-        InitiativeStatistics.CommittedOffset expectedPartition1 = new InitiativeStatistics.CommittedOffset(1, -1);
+        CommittedOffset expectedPartition0 = new CommittedOffset(0, -1);
+        CommittedOffset expectedPartition1 = new CommittedOffset(1, -1);
 
         // test when not exists not providing organizationId
         long result = repository.retrieveOnboardingOutcomeCommittedOffset(initiativeid, null, 0);
@@ -46,7 +47,7 @@ class InitiativeStatAtomicOpsRepositoryTest extends BaseIntegrationTest {
         Assertions.assertEquals("ORGANIZATIONID", entity2.getOrganizationId());
 
         // test when initiative and partition already exist, trying to change organization (it cannot be modified)
-        InitiativeStatistics.CommittedOffset expectedPartition3 = new InitiativeStatistics.CommittedOffset(3, 50);
+        CommittedOffset expectedPartition3 = new CommittedOffset(3, 50);
         entity2.setOnboardingOutcomeCommittedOffsets(List.of(expectedPartition3));
         repository.save(entity2);
 
@@ -61,8 +62,8 @@ class InitiativeStatAtomicOpsRepositoryTest extends BaseIntegrationTest {
 
     @Test
     void testRetrieveTransactionEvaluationCommittedOffset(){
-        InitiativeStatistics.CommittedOffset expectedPartition0 = new InitiativeStatistics.CommittedOffset(0, -1);
-        InitiativeStatistics.CommittedOffset expectedPartition1 = new InitiativeStatistics.CommittedOffset(1, -1);
+        CommittedOffset expectedPartition0 = new CommittedOffset(0, -1);
+        CommittedOffset expectedPartition1 = new CommittedOffset(1, -1);
 
         // test when not exists not providing organizationId
         long result = repository.retrieveTransactionEvaluationCommittedOffset(initiativeid, null, 0);
@@ -82,7 +83,7 @@ class InitiativeStatAtomicOpsRepositoryTest extends BaseIntegrationTest {
         Assertions.assertEquals("ORGANIZATIONID", entity2.getOrganizationId());
 
         // test when initiative and partition already exist, trying to change organization (it cannot be modified)
-        InitiativeStatistics.CommittedOffset expectedPartition3 = new InitiativeStatistics.CommittedOffset(3, 50);
+        CommittedOffset expectedPartition3 = new CommittedOffset(3, 50);
         entity2.setTransactionEvaluationCommittedOffsets(List.of(expectedPartition3));
         repository.save(entity2);
 
@@ -120,7 +121,7 @@ class InitiativeStatAtomicOpsRepositoryTest extends BaseIntegrationTest {
 
         // successfulUseCase
         entity.setOnboardedCitizenCount(10L);
-        entity.setOnboardingOutcomeCommittedOffsets(List.of(new InitiativeStatistics.CommittedOffset(0, -1)));
+        entity.setOnboardingOutcomeCommittedOffsets(List.of(new CommittedOffset(0, -1)));
         repository.save(entity);
 
         repository.updateOnboardingCount(initiativeid, 5, 0, 5);
@@ -129,7 +130,7 @@ class InitiativeStatAtomicOpsRepositoryTest extends BaseIntegrationTest {
         Assertions.assertNotNull(result);
         Assertions.assertEquals(initiativeid, result.getInitiativeId());
         Assertions.assertEquals(15, result.getOnboardedCitizenCount());
-        Assertions.assertEquals(List.of(new InitiativeStatistics.CommittedOffset(0, 5)),
+        Assertions.assertEquals(List.of(new CommittedOffset(0, 5)),
                 result.getOnboardingOutcomeCommittedOffsets());
     }
 
@@ -159,17 +160,22 @@ class InitiativeStatAtomicOpsRepositoryTest extends BaseIntegrationTest {
         // successfulUseCase
         entity.setAccruedRewardsCents(100L);
         entity.setRewardedTrxs(10L);
-        entity.setTransactionEvaluationCommittedOffsets(List.of(new InitiativeStatistics.CommittedOffset(1, -1)));
+        entity.setTransactionEvaluationCommittedOffsets(List.of(new CommittedOffset(1, -1)));
         repository.save(entity);
 
         repository.updateAccruedRewards(initiativeid, BigDecimal.valueOf(5), 1L, 1, 10);
 
-        InitiativeStatistics result = repository.findById(initiativeid).orElse(null);
+        InitiativeStatistics result = repository.findById(buildCounterId(initiativeid)).orElse(null);
         Assertions.assertNotNull(result);
         Assertions.assertEquals(initiativeid, result.getInitiativeId());
         Assertions.assertEquals(600L, result.getAccruedRewardsCents());
         Assertions.assertEquals(11L, result.getRewardedTrxs());
-        Assertions.assertEquals(List.of(new InitiativeStatistics.CommittedOffset(1, 10)),
+        Assertions.assertEquals(List.of(new CommittedOffset(1, 10)),
                 result.getTransactionEvaluationCommittedOffsets());
+    }
+
+    @Override
+    protected String buildCounterId(String initiativeId) {
+        return initiativeId;
     }
 }

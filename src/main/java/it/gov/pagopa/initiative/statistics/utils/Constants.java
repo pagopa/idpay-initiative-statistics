@@ -1,9 +1,14 @@
 package it.gov.pagopa.initiative.statistics.utils;
 
-import java.time.ZoneId;
+import java.util.List;
 
 public final class Constants {
     private Constants(){}
 
-    public static final ZoneId ZONEID = ZoneId.of("Europe/Rome");
+    //region trx constants
+    public static final String TRX_STATUS_AUTHORIZED = "AUTHORIZED";
+    public static final String TRX_STATUS_CANCELLED = "CANCELLED";
+
+    public static final List<String> EXCLUDED_TRX_STATUSES = List.of(TRX_STATUS_AUTHORIZED, TRX_STATUS_CANCELLED);
+    //endregion
 }

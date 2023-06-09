@@ -23,7 +23,9 @@ public class InitiativeStatistics {
   @Id
   private String initiativeId;
   private String organizationId;
-  private LocalDateTime lastUpdatedDateTime;
+
+  @Builder.Default
+  private LocalDateTime lastUpdatedDateTime = LocalDateTime.now();
 
   private long onboardedCitizenCount;
   private List<CommittedOffset> onboardingOutcomeCommittedOffsets;
@@ -31,11 +33,5 @@ public class InitiativeStatistics {
   private long accruedRewardsCents;
   private long rewardedTrxs;
   private List<CommittedOffset> transactionEvaluationCommittedOffsets;
-
-  @Data @AllArgsConstructor @FieldNameConstants
-  public static class CommittedOffset{
-    private int partition;
-    private long offset;
-  }
 
 }

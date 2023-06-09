@@ -1,6 +1,7 @@
 package it.gov.pagopa.initiative.statistics.events.consumers;
 
 import it.gov.pagopa.initiative.statistics.dto.events.OnboardingOutcomeDTO;
+import it.gov.pagopa.initiative.statistics.model.CommittedOffset;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
 import it.gov.pagopa.initiative.statistics.service.StatisticsEvaluationService;
 import it.gov.pagopa.initiative.statistics.service.onboarding.OnboardingStatisticsService;
@@ -19,7 +20,7 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
-class OnboardingOutcomeMessagesListenerTest extends BaseStatisticsMessagesListenerTest {
+class OnboardingOutcomeMessagesListenerTest extends BaseInitiativeStatisticsMessageListenerTest {
 
     @SpyBean
     private OnboardingStatisticsService onboardingStatisticsServiceSpy;
@@ -77,12 +78,12 @@ class OnboardingOutcomeMessagesListenerTest extends BaseStatisticsMessagesListen
     }
 
     @Override
-    protected Function<InitiativeStatistics, List<InitiativeStatistics.CommittedOffset>> getGetterStatisticsCommittedOffsets() {
+    protected Function<InitiativeStatistics, List<CommittedOffset>> getGetterStatisticsCommittedOffsets() {
         return InitiativeStatistics::getOnboardingOutcomeCommittedOffsets;
     }
 
     @Override
-    protected BiConsumer<InitiativeStatistics, List<InitiativeStatistics.CommittedOffset>> getSetterStatisticsCommittedOffsets() {
+    protected BiConsumer<InitiativeStatistics, List<CommittedOffset>> getSetterStatisticsCommittedOffsets() {
         return InitiativeStatistics::setOnboardingOutcomeCommittedOffsets;
     }
 
