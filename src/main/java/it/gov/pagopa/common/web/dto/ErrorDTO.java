@@ -15,8 +15,9 @@ import javax.validation.constraints.NotBlank;
 @EqualsAndHashCode
 public class ErrorDTO {
 
-  @NotBlank
-  private String code;
-  @NotBlank
-  private String message;
+    @NotBlank
+    private String code;
+    @NotBlank
+    private String message;
+
 }

@@ -3,6 +3,7 @@ package it.gov.pagopa.initiative.statistics.events.consumers;
 import it.gov.pagopa.common.utils.TestUtils;
 import it.gov.pagopa.initiative.statistics.dto.events.Reward;
 import it.gov.pagopa.initiative.statistics.dto.events.TransactionEvaluationDTO;
+import it.gov.pagopa.initiative.statistics.model.CommittedOffset;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
 import it.gov.pagopa.initiative.statistics.service.StatisticsEvaluationService;
 import it.gov.pagopa.initiative.statistics.service.trx.TransactionEvaluationStatisticsService;
@@ -23,7 +24,7 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
-class TransactionEvaluationMessagesListenerTest extends BaseStatisticsMessagesListenerTest {
+class TransactionEvaluationMessagesListenerTest extends BaseInitiativeStatisticsMessageListenerTest {
 
     @SpyBean
     private TransactionEvaluationStatisticsService transactionEvaluationStatisticsService;
@@ -61,17 +62,23 @@ class TransactionEvaluationMessagesListenerTest extends BaseStatisticsMessagesLi
 
     @Override
     protected List<TransactionEvaluationDTO> buildSkippedEntities(int bias, int size) {
+        return buildTransactionSkippedEntities(bias, size);
+    }
+
+    public static List<TransactionEvaluationDTO> buildTransactionSkippedEntities(int bias, int size) {
         return IntStream.range(bias, bias + size)
                 .mapToObj(i -> {
                     TransactionEvaluationDTO out = TransactionEvaluationDTOFaker.mockInstance(i, INITIATIVEID1);
-                    if(i%4==0) {
+                    if (i % 5 == 0) {
                         out.setRewards(null);
-                    } else if(i%4==1) {
+                    } else if (i % 5 == 1) {
                         out.setRewards(Collections.emptyMap());
-                    } else  if(i%4==2) {
-                        out.setRewards(Map.of(BaseStatisticsMessagesListenerTest.INITIATIVEID1, new Reward(BaseStatisticsMessagesListenerTest.INITIATIVEID1, "ORGANIZATIONID", BigDecimal.ZERO)));
-                    } else {
+                    } else if (i % 5 == 2) {
+                        out.setRewards(Map.of(INITIATIVEID1, new Reward(INITIATIVEID1, "ORGANIZATIONID", BigDecimal.ZERO)));
+                    } else if (i % 5 == 3) {
                         out.setStatus(Constants.TRX_STATUS_AUTHORIZED);
+                    } else {
+                        out.setStatus(Constants.TRX_STATUS_CANCELLED);
                     }
                     return out;
                 })
@@ -94,12 +101,12 @@ class TransactionEvaluationMessagesListenerTest extends BaseStatisticsMessagesLi
     }
 
     @Override
-    protected Function<InitiativeStatistics, List<InitiativeStatistics.CommittedOffset>> getGetterStatisticsCommittedOffsets() {
+    protected Function<InitiativeStatistics, List<CommittedOffset>> getGetterStatisticsCommittedOffsets() {
         return InitiativeStatistics::getTransactionEvaluationCommittedOffsets;
     }
 
     @Override
-    protected BiConsumer<InitiativeStatistics, List<InitiativeStatistics.CommittedOffset>> getSetterStatisticsCommittedOffsets() {
+    protected BiConsumer<InitiativeStatistics, List<CommittedOffset>> getSetterStatisticsCommittedOffsets() {
         return InitiativeStatistics::setTransactionEvaluationCommittedOffsets;
     }
 

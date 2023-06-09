@@ -60,6 +60,7 @@ public class TransactionEvaluationDTOFaker {
         return TransactionEvaluationDTO.builder()
                 .id("TRXID%s".formatted(bias))
                 .userId("USERID%s".formatted(bias))
+                .merchantId("MERCHANTID%s".formatted(bias))
                 .operationTypeTranscoded("CHARGE")
                 .status("REWARDED")
                 .rewards(Map.of(
