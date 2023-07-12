@@ -14,6 +14,18 @@ import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
 import it.gov.pagopa.initiative.statistics.test.fakers.OnboardingOutcomeDTOFaker;
 import it.gov.pagopa.initiative.statistics.test.fakers.RewardNotificationDTOFaker;
 import it.gov.pagopa.initiative.statistics.test.fakers.TransactionEvaluationDTOFaker;
+import jakarta.annotation.PostConstruct;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.regex.Pattern;
+import java.util.stream.IntStream;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanRegistrationException;
+import javax.management.MalformedObjectNameException;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -26,20 +38,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.util.Pair;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.context.TestPropertySource;
-
-import javax.annotation.PostConstruct;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanRegistrationException;
-import javax.management.MalformedObjectNameException;
-import java.math.BigDecimal;
-import java.net.UnknownHostException;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.regex.Pattern;
-import java.util.stream.IntStream;
 
 @SpringBootTest
 @EmbeddedKafka(topics = {
@@ -85,8 +83,8 @@ import java.util.stream.IntStream;
 
                 //region mongodb
                 "logging.level.org.mongodb.driver=WARN",
-                "logging.level.org.springframework.boot.autoconfigure.mongo.embedded=WARN",
-                "spring.mongodb.embedded.version=4.0.21",
+                "logging.level.de.flapdoodle.embed.mongo.spring.autoconfigure=WARN",
+                "de.flapdoodle.mongodb.embedded.version=4.0.21",
                 //endregion
         })
 @AutoConfigureDataMongo
@@ -127,16 +125,15 @@ public abstract class BaseIntegrationTest {
     }
 
     @PostConstruct
-    public void logEmbeddedServerConfig() throws NoSuchFieldException, UnknownHostException {
+    public void logEmbeddedServerConfig() {
         System.out.printf("""
                         ************************
                         Embedded mongo: %s
                         Embedded kafka: %s
                         ************************
                         """,
-                mongoTestUtilitiesService.getMongoUrl(),
-                kafkaTestUtilitiesService.getKafkaUrls()
-                );
+            mongoTestUtilitiesService.getMongoUrl(),
+            kafkaTestUtilitiesService.getKafkaUrls());
     }
 
     protected final Pattern errorUseCaseIdPatternMatch = getErrorUseCaseIdPatternMatch();
