@@ -70,7 +70,7 @@ class ErrorNotifierServiceTest {
         String keyValue = "KEYVALUE";
 
         test(
-                MessageBuilder.fromMessage(MESSAGE).setHeader(KafkaHeaders.RECEIVED_MESSAGE_KEY, keyValue.getBytes(StandardCharsets.UTF_8)).build(),
+                MessageBuilder.fromMessage(MESSAGE).setHeader(KafkaHeaders.RECEIVED_KEY, keyValue.getBytes(StandardCharsets.UTF_8)).build(),
                 false,
                 false,
                 false,
@@ -109,7 +109,7 @@ class ErrorNotifierServiceTest {
         Assertions.assertEquals(expectedException == EXCEPTION ? EXCEPTION.getCause().getClass().getName() : null, m.getHeaders().get("causeClass"));
         Assertions.assertEquals(expectedException == EXCEPTION ? EXCEPTION.getCause().getMessage() : null, m.getHeaders().get("causeMessage"));
 
-        Assertions.assertEquals(expectedKeyValue, m.getHeaders().get(KafkaHeaders.MESSAGE_KEY));
+        Assertions.assertEquals(expectedKeyValue, m.getHeaders().get(KafkaHeaders.KEY));
 
         Assertions.assertEquals(expectedResend ? APPLICATION_NAME : null, m.getHeaders().get(KafkaConstants.ERROR_MSG_HEADER_APPLICATION_NAME));
         Assertions.assertEquals(expectedResend ? GROUP : null, m.getHeaders().get(KafkaConstants.ERROR_MSG_HEADER_GROUP));
