@@ -11,9 +11,9 @@ RUN mvn clean package -DskipTests
 #
 # Docker RUNTIME
 #
-FROM amazoncorretto:17.0.7-al2023-headless@sha256:18154896dc03cab39734594c592b73ba506e105e66c81753083cf06235f5c714 AS runtime
+FROM amazoncorretto:17.0.7-alpine3.17@sha256:a1d3de7e050b7b6d9adee4d844afc2d1c5bde7e3c81641caffd3038b910997c9 as runtime
 
-RUN yum install -y /usr/sbin/adduser
+RUN apk add shadow
 RUN useradd --uid 10000 runner
 
 VOLUME /tmp
