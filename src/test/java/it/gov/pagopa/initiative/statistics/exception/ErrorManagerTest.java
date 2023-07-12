@@ -43,7 +43,7 @@ class ErrorManagerTest extends BaseIntegrationTest {
                 .thenThrow(new ClientExceptionWithBody(HttpStatus.BAD_REQUEST, "Error","Error ClientExceptionWithBody"));
         ErrorDTO errorClientExceptionWithBody= new ErrorDTO("Error","Error ClientExceptionWithBody");
 
-        mvc.perform(MockMvcRequestBuilders.get("http://localhost:8080/idpay/merchant/portal/initiatives/{initiativeId}/statistics", "INITIATIVE_ID")
+        mvc.perform(MockMvcRequestBuilders.get("/idpay/merchant/portal/initiatives/{initiativeId}/statistics", "INITIATIVE_ID")
                         .header("x-merchant-id", "ClientExceptionWithBody"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(r ->
