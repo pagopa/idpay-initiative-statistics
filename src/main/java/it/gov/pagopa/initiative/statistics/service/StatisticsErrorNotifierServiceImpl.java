@@ -121,7 +121,7 @@ public class StatisticsErrorNotifierServiceImpl implements StatisticsErrorNotifi
         return new MessageHeaders(
                 Stream.concat(
                                 StreamSupport.stream(message.headers().spliterator(), false),
-                                message.key() != null ? Stream.of(new RecordHeader(KafkaHeaders.RECEIVED_MESSAGE_KEY, message.key().getBytes(StandardCharsets.UTF_8))) : Stream.empty()
+                                message.key() != null ? Stream.of(new RecordHeader(KafkaHeaders.RECEIVED_KEY, message.key().getBytes(StandardCharsets.UTF_8))) : Stream.empty()
                         )
                         .collect(Collectors.toMap(
                                 Header::key,

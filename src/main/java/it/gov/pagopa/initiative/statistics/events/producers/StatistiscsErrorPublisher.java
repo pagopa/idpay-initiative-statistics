@@ -16,11 +16,17 @@ public class StatistiscsErrorPublisher implements it.gov.pagopa.common.kafka.ser
         this.publisher = errorPublisher;
     }
 
-    public boolean send(Message<?> message){
-        publisher.send(message).addCallback(
-                r -> log.debug("[ERROR_MESSAGE_HANDLER] message successfully sent to {}", publisher.getDefaultTopic()),
-                e -> log.error("[ERROR_MESSAGE_HANDLER] something gone wrong while sending message towards topic {}", publisher.getDefaultTopic(), e)
-        );
+    public boolean send(Message<?> message) {
+        publisher.send(message)
+            .thenAccept(r -> log.debug("[ERROR_MESSAGE_HANDLER] message successfully sent to {}",
+                publisher.getDefaultTopic()))
+            .exceptionally(e -> {
+                    log.error(
+                        "[ERROR_MESSAGE_HANDLER] something gone wrong while sending message towards topic {}",
+                        publisher.getDefaultTopic(), e);
+                  return null;
+                }
+            );
         return true;
     }
-}
+  }

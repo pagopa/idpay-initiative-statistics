@@ -6,15 +6,6 @@ import it.gov.pagopa.initiative.statistics.model.CommittedOffset;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
 import it.gov.pagopa.initiative.statistics.service.StatisticsErrorNotifierService;
 import it.gov.pagopa.initiative.statistics.service.StatisticsEvaluationService;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.mockito.Mockito;
-import org.opentest4j.AssertionFailedError;
-import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.util.Pair;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +16,14 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.mockito.Mockito;
+import org.opentest4j.AssertionFailedError;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.util.Pair;
 
 abstract class BaseStatisticsMessagesListenerTest<T> extends BaseIntegrationTest {
 
@@ -73,7 +72,7 @@ abstract class BaseStatisticsMessagesListenerTest<T> extends BaseIntegrationTest
         msgs.addAll(buildSkippedPayloads(validMsgs, skippedMsgs));
 
         long timePublishStart = System.currentTimeMillis();
-        msgs.forEach(p -> publishIntoEmbeddedKafka(null, null, p));
+        msgs.forEach(p -> publishIntoEmbeddedKafka(1, null, p));
         long timePublishingEnd = System.currentTimeMillis();
 
         long timeCounterUpdated = checkResults(validMsgs, maxWaitingMs);
