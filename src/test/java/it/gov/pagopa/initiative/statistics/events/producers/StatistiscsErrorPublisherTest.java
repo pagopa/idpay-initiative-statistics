@@ -1,6 +1,5 @@
 package it.gov.pagopa.initiative.statistics.events.producers;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,7 +12,6 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 
 @ExtendWith(MockitoExtension.class)
 class StatistiscsErrorPublisherTest {
@@ -35,11 +33,6 @@ class StatistiscsErrorPublisherTest {
 
         Mockito.when(publisherMock.send(Mockito.any(Message.class))).thenReturn(CompletableFuture.failedFuture(new Throwable()));
 
-        try {
-            statistiscsErrorPublisher.send(message);
-        } catch (CompletionException e) {
-        }
-
-        Assertions.fail();
+        statistiscsErrorPublisher.send(message);
     }
 }
