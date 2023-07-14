@@ -52,6 +52,7 @@ class ErrorManagerTest extends BaseIntegrationTest {
                                 r.getResponse().getContentAsString()
                         ));
 
+
         Mockito.when(controller.getMerchantInitiativeStatistics("ClientExceptionWithBodyWithStatusAndTitleAndMessageAndThrowable", "INITIATIVE_ID"))
                 .thenThrow(new ClientExceptionWithBody(HttpStatus.BAD_REQUEST, "Error","Error ClientExceptionWithBody", new Throwable()));
         ErrorDTO errorClientExceptionWithBodyWithStatusAndTitleAndMessageAndThrowable = new ErrorDTO("Error","Error ClientExceptionWithBody");
