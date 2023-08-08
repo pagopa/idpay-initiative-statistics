@@ -43,6 +43,11 @@ public class StatisticsErrorNotifierServiceImpl implements StatisticsErrorNotifi
     private final String merchantCountersNotificationTopic;
     private final String merchantCountersNotificationGroup;
 
+    private final String commandsServiceType;
+    private final String commandsServer;
+    private final String commandsTopic;
+    private final String commandsGroup;
+
     @SuppressWarnings("squid:S00107") // suppressing too many parameters constructor alert
     public StatisticsErrorNotifierServiceImpl(ErrorNotifierService errorNotifierService,
 
@@ -64,7 +69,12 @@ public class StatisticsErrorNotifierServiceImpl implements StatisticsErrorNotifi
                                               @Value("kafka") String merchantCountersNotificationMessagingServiceType,
                                               @Value("${app.kafka.consumer.merchant-counters-reward-notification.bootstrap-servers}") String merchantCountersNotificationServer,
                                               @Value("${app.kafka.consumer.merchant-counters-reward-notification.topic}") String merchantCountersNotificationTopic,
-                                              @Value("${app.kafka.consumer.merchant-counters-reward-notification.group-id}") String merchantCountersNotificationGroup) {
+                                              @Value("${app.kafka.consumer.merchant-counters-reward-notification.group-id}") String merchantCountersNotificationGroup,
+
+                                              @Value("kafka") String commandsServiceType,
+                                              @Value("${app.kafka.consumer.commands.bootstrap-servers}") String commandsServer,
+                                              @Value("${app.kafka.consumer.commands.topic}") String commandsTopic,
+                                              @Value("${app.kafka.consumer.commands.group-id}") String commandsGroup) {
         this.errorNotifierService = errorNotifierService;
 
         this.onboardingOutcomeMessagingServiceType = onboardingOutcomeMessagingServiceType;
@@ -86,6 +96,11 @@ public class StatisticsErrorNotifierServiceImpl implements StatisticsErrorNotifi
         this.merchantCountersNotificationServer = merchantCountersNotificationServer;
         this.merchantCountersNotificationTopic = merchantCountersNotificationTopic;
         this.merchantCountersNotificationGroup = merchantCountersNotificationGroup;
+
+        this.commandsServiceType = commandsServiceType;
+        this.commandsServer = commandsServer;
+        this.commandsTopic = commandsTopic;
+        this.commandsGroup = commandsGroup;
     }
 
     @Override
@@ -106,6 +121,11 @@ public class StatisticsErrorNotifierServiceImpl implements StatisticsErrorNotifi
     @Override
     public void notifyMerchantCountersRewardNotification(ConsumerRecord<String, String> message, String description, boolean retryable, Throwable exception) {
         notify(merchantCountersNotificationMessagingServiceType, merchantCountersNotificationServer, merchantCountersNotificationTopic, merchantCountersNotificationGroup, message, description, retryable, true, exception);
+    }
+
+    @Override
+    public void notifyCommandsOperation(ConsumerRecord<String, String> message, String description, boolean retryable, Throwable exception) {
+        notify(commandsServiceType, commandsServer, commandsTopic, commandsGroup, message, description, retryable, true, exception);
     }
 
     @Override
