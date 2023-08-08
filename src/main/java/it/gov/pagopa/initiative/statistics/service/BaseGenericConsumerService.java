@@ -18,8 +18,6 @@ public abstract class BaseGenericConsumerService<E> extends BaseKafkaConsumer<E>
         super(applicationName, consumerGroup, objectMapper);
     }
 
-    protected abstract Class<E> getRecordClass();
-
     public void evaluate(List<ConsumerRecord<String, String>> records, Acknowledgment acknowledgment, Consumer<?, ?> consumer){
         log.debug("[{}] Evaluating {} records", getFlowName(), records.size());
 
