@@ -39,7 +39,6 @@ public abstract class GenericConsumerUtilitiesService<E> extends KafkaConsumerUt
     private void evaluateRecords(ConsumerRecord<String, String> consumerRecord, Consumer<?, ?> consumer){
         log.debug("[{}] Evaluating record", getFlowName());
 
-
         try {
             E payload = deserialize(consumerRecord.value());
 
@@ -53,11 +52,7 @@ public abstract class GenericConsumerUtilitiesService<E> extends KafkaConsumerUt
                     e);
         }
 
-
     }
-
-    /** The name of the business logic flow to print when logging */
-    protected abstract String getFlowName();
 
     /** In case of errors deserialize a message */
     protected abstract void onDeserializeError(ConsumerRecord<String, String> message, String description, Throwable exception);

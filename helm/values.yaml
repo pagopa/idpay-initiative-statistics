@@ -56,7 +56,7 @@ microservice-chart:
     APPLICATIONINSIGHTS_PREVIEW_PROFILER_ENABLED: "false"
     KAFKA_ONBOARDING_OUTCOME_CONSUMER_GROUP: "idpay-initiative-onboarding-statistics-group"
     KAFKA_MERCHANT_COUNTERS_REWARD_NOTIFICATION_GROUP_ID: "idpay-merchant-counters-notification-group"
-    KAFKA_COMMANDS_GROUP_ID: "idpay-commands-initiative-statistics-consumer-group"
+    KAFKA_COMMANDS_GROUP_ID: "idpay-commands-statistics-consumer-group"
 
   envConfigMapExternals:
     idpay-common:
@@ -75,7 +75,7 @@ microservice-chart:
       KAFKA_ERROR_MESSAGE_SERVERS: kafka_broker
       KAFKA_ERROR_MESSAGE_TOPIC: idpay_error_topic
       KAFKA_COMMANDS_SERVERS: kafka_broker
-#      KAFKA_COMMANDS_TOPIC:
+      KAFKA_COMMANDS_TOPIC: idpay_commands_topic
 
   envSecret:
     MONGODB_URI: mongodb-connection-string
