@@ -1,20 +1,22 @@
 package it.gov.pagopa.initiative.statistics.events.consumers;
 
-import it.gov.pagopa.initiative.statistics.BaseIntegrationTest;
+import it.gov.pagopa.common.utils.TestUtils;
+import it.gov.pagopa.initiative.statistics.BaseStatisticsIntegrationTest;
 import it.gov.pagopa.initiative.statistics.dto.events.TransactionEvaluationDTO;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
-import it.gov.pagopa.common.utils.TestUtils;
 import it.gov.pagopa.initiative.statistics.repository.InitiativeStatRepository;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.List;
 import java.util.stream.IntStream;
 
-class StatisticsMessagesListenerConcurrentTest extends BaseIntegrationTest {
+@DirtiesContext
+class StatisticsMessagesListenerConcurrentTest extends BaseStatisticsIntegrationTest {
 
     public static final String INITIATIVEID = "INITIATIVEID";
 

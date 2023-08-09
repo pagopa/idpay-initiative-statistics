@@ -1,7 +1,7 @@
 package it.gov.pagopa.initiative.statistics.events.consumers;
 
 import it.gov.pagopa.common.utils.TestUtils;
-import it.gov.pagopa.initiative.statistics.BaseIntegrationTest;
+import it.gov.pagopa.initiative.statistics.BaseStatisticsIntegrationTest;
 import it.gov.pagopa.initiative.statistics.model.CommittedOffset;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
 import it.gov.pagopa.initiative.statistics.service.StatisticsErrorNotifierService;
@@ -25,7 +25,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.util.Pair;
 
-abstract class BaseStatisticsMessagesListenerTest<T> extends BaseIntegrationTest {
+abstract class BaseStatisticsMessagesListenerTest<T> extends BaseStatisticsIntegrationTest {
 
     protected static final String INITIATIVEID1 = "INITIATIVEID1";
     protected static final String INITIATIVEID2 = "INITIATIVEID2";
