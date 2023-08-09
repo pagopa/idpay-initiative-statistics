@@ -5,19 +5,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import it.gov.pagopa.common.kafka.utils.KafkaConstants;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
 
 import java.nio.charset.StandardCharsets;
 
 @Slf4j
-public abstract class BaseKafkaConsumer<E> {
+public abstract class KafkaConsumerUtilities<E> {
     protected final String applicationName;
     protected final String consumerGroup;
     protected final ObjectReader objectReader;
 
-    protected BaseKafkaConsumer(String applicationName, String consumerGroup, ObjectMapper objectMapper) {
+    protected KafkaConsumerUtilities(String applicationName, String consumerGroup, ObjectMapper objectMapper) {
         this.applicationName = applicationName;
         this.consumerGroup = consumerGroup;
         this.objectReader = objectMapper.readerFor(getRecordClass());
@@ -27,12 +26,11 @@ public abstract class BaseKafkaConsumer<E> {
 
 
     /** It will check if the current record is not a RETRY of another application */
-    protected boolean isNotRetry(Pair<ConsumerRecord<String, String>, E> r2e) {
-        ConsumerRecord<String, String> r = r2e.getKey();
+    protected boolean isNotRetry(ConsumerRecord<String, String> consumerRecord) {
 
-        Header appNameRecord = r.headers().lastHeader(KafkaConstants.ERROR_MSG_HEADER_APPLICATION_NAME);
-        Header retry = r.headers().lastHeader(KafkaConstants.ERROR_MSG_HEADER_RETRY);
-        Header group = r.headers().lastHeader(KafkaConstants.ERROR_MSG_HEADER_GROUP);
+        Header appNameRecord = consumerRecord.headers().lastHeader(KafkaConstants.ERROR_MSG_HEADER_APPLICATION_NAME);
+        Header retry = consumerRecord.headers().lastHeader(KafkaConstants.ERROR_MSG_HEADER_RETRY);
+        Header group = consumerRecord.headers().lastHeader(KafkaConstants.ERROR_MSG_HEADER_GROUP);
         boolean isSameGroup = group == null || new String(group.value(), StandardCharsets.UTF_8).equals(consumerGroup);
         boolean out = retry == null || (appNameRecord != null && applicationName.equals(new String(appNameRecord.value(), StandardCharsets.UTF_8)) && isSameGroup);
         if(!out){

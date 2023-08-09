@@ -2,7 +2,6 @@ package it.gov.pagopa.initiative.statistics.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.support.Acknowledgment;
@@ -11,10 +10,10 @@ import java.io.IOException;
 import java.util.List;
 
 @Slf4j
-public abstract class BaseGenericConsumerService<E> extends BaseKafkaConsumer<E>{
-    protected BaseGenericConsumerService(String applicationName,
-                                         String consumerGroup,
-                                         ObjectMapper objectMapper) {
+public abstract class GenericConsumerUtilitiesService<E> extends KafkaConsumerUtilities<E> {
+    protected GenericConsumerUtilitiesService(String applicationName,
+                                              String consumerGroup,
+                                              ObjectMapper objectMapper) {
         super(applicationName, consumerGroup, objectMapper);
     }
 
@@ -40,19 +39,20 @@ public abstract class BaseGenericConsumerService<E> extends BaseKafkaConsumer<E>
     private void evaluateRecords(ConsumerRecord<String, String> consumerRecord, Consumer<?, ?> consumer){
         log.debug("[{}] Evaluating record", getFlowName());
 
-        Pair<ConsumerRecord<String, String>, E> record2Payload = null;
 
         try {
-            record2Payload = Pair.of(consumerRecord, deserialize(consumerRecord.value()));
+            E payload = deserialize(consumerRecord.value());
+
+            if(this.isNotRetry(consumerRecord)) {
+                evaluate(payload);
+            }
+
         } catch (IOException e) {
             onDeserializeError(consumerRecord,
                     "[%s] Unexpected json: %s".formatted(getFlowName(), consumerRecord.value()),
                     e);
         }
 
-        if(record2Payload != null && this.isNotRetry(record2Payload)) {
-            evaluate(record2Payload.getRight());
-        }
 
     }
 

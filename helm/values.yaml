@@ -74,6 +74,8 @@ microservice-chart:
       KAFKA_REWARD_NOTIFICATION_TOPIC: idpay_reward_notification_response_topic
       KAFKA_ERROR_MESSAGE_SERVERS: kafka_broker
       KAFKA_ERROR_MESSAGE_TOPIC: idpay_error_topic
+      KAFKA_COMMANDS_SERVERS: kafka_broker
+#      KAFKA_COMMANDS_TOPIC:
 
   envSecret:
     MONGODB_URI: mongodb-connection-string

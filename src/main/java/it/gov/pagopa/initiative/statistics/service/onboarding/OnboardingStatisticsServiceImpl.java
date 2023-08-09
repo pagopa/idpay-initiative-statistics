@@ -3,7 +3,7 @@ package it.gov.pagopa.initiative.statistics.service.onboarding;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.initiative.statistics.dto.events.OnboardingOutcomeDTO;
 import it.gov.pagopa.initiative.statistics.repository.InitiativeStatRepository;
-import it.gov.pagopa.initiative.statistics.service.BaseStatisticsEvaluationService;
+import it.gov.pagopa.initiative.statistics.service.StatisticsEvaluationServiceUtilities;
 import it.gov.pagopa.initiative.statistics.service.StatisticsErrorNotifierService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 @Service
-public class OnboardingStatisticsServiceImpl extends BaseStatisticsEvaluationService<OnboardingOutcomeDTO, OnboardingOutcomeDTO> implements OnboardingStatisticsService {
+public class OnboardingStatisticsServiceImpl extends StatisticsEvaluationServiceUtilities<OnboardingOutcomeDTO, OnboardingOutcomeDTO> implements OnboardingStatisticsService {
 
     private final StatisticsErrorNotifierService statisticsErrorNotifierService;
     private final InitiativeStatRepository initiativeStatRepository;

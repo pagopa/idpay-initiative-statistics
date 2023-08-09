@@ -6,7 +6,7 @@ import it.gov.pagopa.initiative.statistics.dto.events.Reward;
 import it.gov.pagopa.initiative.statistics.dto.events.TransactionEvaluationDTO;
 import it.gov.pagopa.initiative.statistics.model.MerchantInitiativeCounters;
 import it.gov.pagopa.initiative.statistics.repository.merchant.counters.MerchantInitiativeCountersRepository;
-import it.gov.pagopa.initiative.statistics.service.BaseStatisticsEvaluationService;
+import it.gov.pagopa.initiative.statistics.service.StatisticsEvaluationServiceUtilities;
 import it.gov.pagopa.initiative.statistics.service.StatisticsErrorNotifierService;
 import it.gov.pagopa.initiative.statistics.service.trx.TransactionEvaluationStatisticsServiceImpl;
 import it.gov.pagopa.initiative.statistics.utils.Constants;
@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 
 @Service
 @Slf4j
-public class MerchantTransactionStatisticsServiceImpl extends BaseStatisticsEvaluationService<TransactionEvaluationDTO, MerchantReward> implements MerchantTransactionStatisticsService {
+public class MerchantTransactionStatisticsServiceImpl extends StatisticsEvaluationServiceUtilities<TransactionEvaluationDTO, MerchantReward> implements MerchantTransactionStatisticsService {
 
     private final StatisticsErrorNotifierService statisticsErrorNotifierService;
     private final MerchantInitiativeCountersRepository merchantCountersRepository;

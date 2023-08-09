@@ -1,6 +1,7 @@
 package it.gov.pagopa.initiative.statistics.events.consumers;
 
 import com.mongodb.MongoException;
+import it.gov.pagopa.common.kafka.utils.KafkaConstants;
 import it.gov.pagopa.common.utils.TestUtils;
 import it.gov.pagopa.initiative.statistics.BaseIntegrationTest;
 import it.gov.pagopa.initiative.statistics.dto.events.CommandOperationDTO;
@@ -10,6 +11,7 @@ import it.gov.pagopa.initiative.statistics.repository.InitiativeStatRepository;
 import it.gov.pagopa.initiative.statistics.repository.merchant.counters.MerchantInitiativeCountersRepository;
 import it.gov.pagopa.initiative.statistics.utils.CommandsConstants;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.header.internals.RecordHeader;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -18,6 +20,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.util.Pair;
 import org.springframework.test.context.TestPropertySource;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -48,10 +51,11 @@ class CommandsMessagesListenerTest extends BaseIntegrationTest {
 
         List<String> commandsPayloads = new ArrayList<>(notValidMessages+validMessages);
         commandsPayloads.addAll(IntStream.range(0,notValidMessages).mapToObj(i -> errorUseCasesNotify.get(i).getFirst().get()).toList());
-        commandsPayloads.addAll(buildValidPayloads(notValidMessages, notValidMessages+validMessages));
+        commandsPayloads.addAll(buildValidPayloads(notValidMessages, validMessages));
 
         long timeStart=System.currentTimeMillis();
         commandsPayloads.forEach(cp -> kafkaTestUtilitiesService.publishIntoEmbeddedKafka(topicCommands, null, null, cp));
+        kafkaTestUtilitiesService.publishIntoEmbeddedKafka(topicCommands, List.of(new RecordHeader(KafkaConstants.ERROR_MSG_HEADER_APPLICATION_NAME, "OTHERAPPNAME".getBytes(StandardCharsets.UTF_8))), null, "OTHERAPPMESSAGE");
         long timePublishingEnd = System.currentTimeMillis();
 
         waitForLastStorageChange(validMessages/2);
@@ -101,7 +105,7 @@ class CommandsMessagesListenerTest extends BaseIntegrationTest {
     }
 
     private List<String> buildValidPayloads(int startValue, int messagesNumber) {
-        return IntStream.range(startValue, messagesNumber)
+        return IntStream.range(startValue, startValue+messagesNumber)
                 .mapToObj(i -> {
                     initializeDB(i);
                     CommandOperationDTO command = CommandOperationDTO.builder()
