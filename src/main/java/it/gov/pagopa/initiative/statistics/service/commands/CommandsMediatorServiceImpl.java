@@ -3,7 +3,7 @@ package it.gov.pagopa.initiative.statistics.service.commands;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.initiative.statistics.dto.events.CommandOperationDTO;
-import it.gov.pagopa.initiative.statistics.service.GenericConsumerUtilitiesService;
+import it.gov.pagopa.initiative.statistics.service.BaseGenericConsumerService;
 import it.gov.pagopa.initiative.statistics.service.StatisticsErrorNotifierService;
 import it.gov.pagopa.initiative.statistics.service.commands.ops.DeleteInitiativeService;
 import it.gov.pagopa.initiative.statistics.utils.CommandsConstants;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class CommandsMediatorServiceImpl extends GenericConsumerUtilitiesService<CommandOperationDTO> implements CommandsMediatorService {
+public class CommandsMediatorServiceImpl extends BaseGenericConsumerService<CommandOperationDTO> implements CommandsMediatorService {
     private final DeleteInitiativeService deleteInitiativeService;
     private final StatisticsErrorNotifierService statisticsErrorNotifierService;
 

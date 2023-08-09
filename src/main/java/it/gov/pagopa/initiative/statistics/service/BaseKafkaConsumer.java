@@ -11,12 +11,12 @@ import org.apache.kafka.common.header.Header;
 import java.nio.charset.StandardCharsets;
 
 @Slf4j
-public abstract class KafkaConsumerUtilities<E> {
+public abstract class BaseKafkaConsumer<E> {
     protected final String applicationName;
     protected final String consumerGroup;
     protected final ObjectReader objectReader;
 
-    protected KafkaConsumerUtilities(String applicationName, String consumerGroup, ObjectMapper objectMapper) {
+    protected BaseKafkaConsumer(String applicationName, String consumerGroup, ObjectMapper objectMapper) {
         this.applicationName = applicationName;
         this.consumerGroup = consumerGroup;
         this.objectReader = objectMapper.readerFor(getRecordClass());

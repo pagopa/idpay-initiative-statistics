@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.initiative.statistics.dto.events.Reward;
 import it.gov.pagopa.initiative.statistics.dto.events.TransactionEvaluationDTO;
 import it.gov.pagopa.initiative.statistics.repository.InitiativeStatRepository;
-import it.gov.pagopa.initiative.statistics.service.StatisticsEvaluationServiceUtilities;
+import it.gov.pagopa.initiative.statistics.service.BaseStatisticsEvaluationService;
 import it.gov.pagopa.initiative.statistics.service.StatisticsErrorNotifierService;
 import it.gov.pagopa.initiative.statistics.utils.Constants;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 @Service
-public class TransactionEvaluationStatisticsServiceImpl extends StatisticsEvaluationServiceUtilities<TransactionEvaluationDTO, Reward> implements TransactionEvaluationStatisticsService {
+public class TransactionEvaluationStatisticsServiceImpl extends BaseStatisticsEvaluationService<TransactionEvaluationDTO, Reward> implements TransactionEvaluationStatisticsService {
 
     private final StatisticsErrorNotifierService statisticsErrorNotifierService;
     private final InitiativeStatRepository initiativeStatRepository;

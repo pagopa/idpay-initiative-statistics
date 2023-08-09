@@ -10,10 +10,10 @@ import java.io.IOException;
 import java.util.List;
 
 @Slf4j
-public abstract class GenericConsumerUtilitiesService<E> extends KafkaConsumerUtilities<E> {
-    protected GenericConsumerUtilitiesService(String applicationName,
-                                              String consumerGroup,
-                                              ObjectMapper objectMapper) {
+public abstract class BaseGenericConsumerService<E> extends BaseKafkaConsumer<E> {
+    protected BaseGenericConsumerService(String applicationName,
+                                         String consumerGroup,
+                                         ObjectMapper objectMapper) {
         super(applicationName, consumerGroup, objectMapper);
     }
 

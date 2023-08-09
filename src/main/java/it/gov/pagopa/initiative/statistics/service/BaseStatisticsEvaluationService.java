@@ -23,10 +23,10 @@ import java.util.stream.Stream;
  * @param <I> the type of the entity related 1-to-1 with the initiative, extracted from {@link E}
  */
 @Slf4j
-public abstract class StatisticsEvaluationServiceUtilities<E, I> extends KafkaConsumerUtilities<E> implements StatisticsEvaluationService {
-    protected StatisticsEvaluationServiceUtilities(String applicationName,
-                                                   String consumerGroup,
-                                                   ObjectMapper objectMapper) {
+public abstract class BaseStatisticsEvaluationService<E, I> extends BaseKafkaConsumer<E> implements StatisticsEvaluationService {
+    protected BaseStatisticsEvaluationService(String applicationName,
+                                              String consumerGroup,
+                                              ObjectMapper objectMapper) {
         super(applicationName, consumerGroup, objectMapper);
     }
 
@@ -74,7 +74,7 @@ public abstract class StatisticsEvaluationServiceUtilities<E, I> extends KafkaCo
                     return r2e;
                 })
                 // skipping retry messages scheduled by other application
-                .filter(this::checkIsNotRetry)
+                .filter(this::isNotRetry)
                 // transforming the record2entity stream into a pair record2initiativeBased stream
                 .flatMap(r2e -> {
                     try {
@@ -141,8 +141,8 @@ public abstract class StatisticsEvaluationServiceUtilities<E, I> extends KafkaCo
         }
     }
 
-    private boolean checkIsNotRetry(Pair<ConsumerRecord<String, String>, E> record2Payload) {
-        return this.isNotRetry(record2Payload.getKey());
+    private boolean isNotRetry(Pair<ConsumerRecord<String, String>, E> record2Payload) {
+        return super.isNotRetry(record2Payload.getKey());
     }
 
     /** It will retrieve the last processed offset */

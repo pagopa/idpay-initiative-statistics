@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.initiative.statistics.dto.events.RewardNotificationDTO;
 import it.gov.pagopa.initiative.statistics.model.MerchantInitiativeCounters;
 import it.gov.pagopa.initiative.statistics.repository.merchant.counters.MerchantInitiativeCountersRepository;
-import it.gov.pagopa.initiative.statistics.service.StatisticsEvaluationServiceUtilities;
+import it.gov.pagopa.initiative.statistics.service.BaseStatisticsEvaluationService;
 import it.gov.pagopa.initiative.statistics.service.StatisticsErrorNotifierService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 
 @Service
 @Slf4j
-public class MerchantNotificationStatisticsServiceImpl extends StatisticsEvaluationServiceUtilities<RewardNotificationDTO, RewardNotificationDTO> implements MerchantNotificationStatisticsService {
+public class MerchantNotificationStatisticsServiceImpl extends BaseStatisticsEvaluationService<RewardNotificationDTO, RewardNotificationDTO> implements MerchantNotificationStatisticsService {
 
     private final StatisticsErrorNotifierService statisticsErrorNotifierService;
     private final MerchantInitiativeCountersRepository merchantCountersRepository;
