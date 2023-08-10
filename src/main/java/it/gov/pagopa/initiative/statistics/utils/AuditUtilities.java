@@ -25,7 +25,7 @@ public class AuditUtilities {
         SRCIP = srcIp;
     }
 
-    private static final String CEF = String.format("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=NotificationManager dstip=%s", SRCIP);
+    private static final String CEF = String.format("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Statistics dstip=%s", SRCIP);
     private static final String CEF_BASE_PATTERN = CEF + " msg={}";
     private static final String CEF_PATTERN = CEF_BASE_PATTERN + " suser={} cs1Label=initiativeId cs1={}";
 
