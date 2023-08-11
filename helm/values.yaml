@@ -56,6 +56,7 @@ microservice-chart:
     APPLICATIONINSIGHTS_PREVIEW_PROFILER_ENABLED: "false"
     KAFKA_ONBOARDING_OUTCOME_CONSUMER_GROUP: "idpay-initiative-onboarding-statistics-group"
     KAFKA_MERCHANT_COUNTERS_REWARD_NOTIFICATION_GROUP_ID: "idpay-merchant-counters-notification-group"
+    KAFKA_COMMANDS_GROUP_ID: "idpay-commands-statistics-consumer-group"
 
   envConfigMapExternals:
     idpay-common:
@@ -73,6 +74,8 @@ microservice-chart:
       KAFKA_REWARD_NOTIFICATION_TOPIC: idpay_reward_notification_response_topic
       KAFKA_ERROR_MESSAGE_SERVERS: kafka_broker
       KAFKA_ERROR_MESSAGE_TOPIC: idpay_error_topic
+      KAFKA_COMMANDS_SERVERS: kafka_broker
+      KAFKA_COMMANDS_TOPIC: idpay_commands_topic
 
   envSecret:
     MONGODB_URI: mongodb-connection-string
@@ -80,3 +83,4 @@ microservice-chart:
     KAFKA_TRANSACTION_EVALUATION_SASL_JAAS_CONFIG: evh-idpay-transaction-idpay-transaction-consumer-jaas-config-idpay-01
     KAFKA_REWARD_NOTIFICATION_SASL_JAAS_CONFIG: evh-idpay-reward-notification-response-idpay-reward-notification-response-consumer-jaas-config-idpay-01
     KAFKA_ERROR_MESSAGE_SASL_JAAS_CONFIG: evh-idpay-errors-idpay-errors-consumer-jaas-config-idpay-01
+    KAFKA_COMMANDS_SASL_JAAS_CONFIG: evh-idpay-commands-idpay-commands-consumer-jaas-config-idpay-01

@@ -1,6 +1,6 @@
 package it.gov.pagopa.initiative.statistics.repository;
 
-import it.gov.pagopa.initiative.statistics.BaseIntegrationTest;
+import it.gov.pagopa.initiative.statistics.BaseStatisticsIntegrationTest;
 import it.gov.pagopa.initiative.statistics.model.CommittedOffset;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
 import org.junit.jupiter.api.AfterEach;
@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.math.BigDecimal;
 import java.util.List;
 
-class InitiativeStatAtomicOpsRepositoryTest extends BaseIntegrationTest {
+class InitiativeStatAtomicOpsRepositoryTest extends BaseStatisticsIntegrationTest {
 
     private final String initiativeid = "INITIATIVEID";
 
