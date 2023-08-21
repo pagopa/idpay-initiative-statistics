@@ -22,8 +22,7 @@ public class DeleteInitiativeServiceImpl implements DeleteInitiativeService{
     @Override
     public void execute(String initiativeId) {
         initiativeStatRepository.deleteById(initiativeId);
-        log.info("Deleted statistics on initiative {}", initiativeId);
-        auditUtilities.logDeletedInitiativeStatistics(initiativeId);
+        log.info("Deleted rule on initiative {}", initiativeId);
         merchantInitiativeCountersRepository.deleteByInitiativeId(initiativeId)
                 .forEach(merchantCounter -> {
                     log.info("Delete counter for merchant {} on initiative {}", merchantCounter.getMerchantId(), initiativeId);
