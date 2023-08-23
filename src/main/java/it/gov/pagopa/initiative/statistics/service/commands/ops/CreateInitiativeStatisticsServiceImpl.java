@@ -22,6 +22,7 @@ public class CreateInitiativeStatisticsServiceImpl implements CreateInitiativeSt
         Optional<InitiativeStatistics> result = initiativeStatRepository.findById(initiativeId);
 
         if(result.isEmpty()){
+            log.info("Initializing statistics for initiative {}", initiativeId);
             InitiativeStatistics initiativeStatistics = new InitiativeStatistics();
             initiativeStatistics.setInitiativeId(initiativeId);
             initiativeStatistics.setOrganizationId(organizationId);
