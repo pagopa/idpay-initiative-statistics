@@ -25,9 +25,7 @@ public class CreateInitiativeStatisticsServiceImpl implements CreateInitiativeSt
             InitiativeStatistics initiativeStatistics = InitiativeStatistics.builder()
                     .initiativeId(initiativeId)
                     .organizationId(organizationId)
-                    .onboardedCitizenCount(0L)
-                    .accruedRewardsCents(0L)
-                    .rewardedTrxs(0L).build();
+                    .build();
             initiativeStatRepository.save(initiativeStatistics);
             log.info("Initialized statistics for initiative {}", initiativeId);
         }
