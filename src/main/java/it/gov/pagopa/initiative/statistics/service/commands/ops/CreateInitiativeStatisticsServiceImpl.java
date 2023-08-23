@@ -22,10 +22,9 @@ public class CreateInitiativeStatisticsServiceImpl implements CreateInitiativeSt
         Optional<InitiativeStatistics> result = initiativeStatRepository.findById(initiativeId);
 
         if(result.isEmpty()){
-            InitiativeStatistics initiativeStatistics = InitiativeStatistics.builder()
-                    .initiativeId(initiativeId)
-                    .organizationId(organizationId)
-                    .build();
+            InitiativeStatistics initiativeStatistics = new InitiativeStatistics();
+            initiativeStatistics.setInitiativeId(initiativeId);
+            initiativeStatistics.setOrganizationId(organizationId);
             initiativeStatRepository.save(initiativeStatistics);
             log.info("Initialized statistics for initiative {}", initiativeId);
         }
