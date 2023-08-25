@@ -21,7 +21,7 @@ public class CreateMerchantCountersServiceImpl implements CreateMerchantCounters
         if(StringUtils.isEmpty(entityId)){
             return;
         }
-        String[] entity = StringUtils.split(entityId, "-");
+        String[] entity = StringUtils.split(entityId, "_");
         String initiativeId = entity[0];
         String merchantId = entity[1];
         String counterId = MerchantInitiativeCounters.buildId(merchantId, initiativeId);

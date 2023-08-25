@@ -21,7 +21,7 @@ public class CreateInitiativeStatisticsServiceImpl implements CreateInitiativeSt
         if(StringUtils.isEmpty(entityId)){
             return;
         }
-        String[] entity = StringUtils.split(entityId, "-");
+        String[] entity = StringUtils.split(entityId, "_");
         String initiativeId = entity[0];
         String organizationId = entity[1];
         Optional<InitiativeStatistics> result = initiativeStatRepository.findById(initiativeId);
