@@ -13,5 +13,4 @@ public class CommandOperationDTO {
     private String entityId;
     private String operationType;
     private LocalDateTime operationTime;
-    private String organizationId;
 }
