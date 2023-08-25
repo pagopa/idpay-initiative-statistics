@@ -33,11 +33,15 @@ import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 @TestPropertySource(properties = {
         "logging.level.it.gov.pagopa.initiative.statistics.service.commands.ops.DeleteInitiativeServiceImpl=WARN",
+        "logging.level.it.gov.pagopa.initiative.statistics.service.commands.ops.CreateInitiativeStatisticsServiceImpl=WARN",
+        "logging.level.it.gov.pagopa.initiative.statistics.service.commands.ops.CreateMerchantCountersServiceImpl=WARN",
         "logging.level.it.gov.pagopa.initiative.statistics.service.commands.CommandsMediatorServiceImpl=WARN",
 })
 class CommandsMessagesListenerTest extends BaseIntegrationTest {
     private final String INITIATIVEID = "INITIATIVEID_%d";
     private final Set<String> INITIATIVES_DELETED = new HashSet<>();
+    private final Set<String> INITIATIVE_STATISTICS_CREATED = new HashSet<>();
+    private final Set<String> MERCHANT_STATISTICS_CREATED = new HashSet<>();
     @SpyBean
     private InitiativeStatRepository initiativeStatRepository;
     @Autowired
@@ -58,7 +62,7 @@ class CommandsMessagesListenerTest extends BaseIntegrationTest {
         kafkaTestUtilitiesService.publishIntoEmbeddedKafka(topicCommands, List.of(new RecordHeader(KafkaConstants.ERROR_MSG_HEADER_APPLICATION_NAME, "OTHERAPPNAME".getBytes(StandardCharsets.UTF_8))), null, "OTHERAPPMESSAGE");
         long timePublishingEnd = System.currentTimeMillis();
 
-        waitForLastStorageChange(validMessages/2);
+        waitForLastStorageChange(validMessages);
         long timeEnd=System.currentTimeMillis();
 
         System.out.printf("""
@@ -113,9 +117,15 @@ class CommandsMessagesListenerTest extends BaseIntegrationTest {
                             .operationTime(LocalDateTime.now())
                             .build();
 
-                    if(i%2 == 0){
+                    if(i%4 == 0){
                         INITIATIVES_DELETED.add(command.getEntityId());
                         command.setOperationType(CommandsConstants.COMMANDS_OPERATION_TYPE_DELETE_INITIATIVE);
+                    } else if (i%4 == 1){
+                        MERCHANT_STATISTICS_CREATED.add(command.getEntityId());
+                        command.setOperationType(CommandsConstants.COMMANDS_OPERATION_TYPE_CREATE_MERCHANT_STATISTICS);
+                    } else if (i%4 == 2){
+                        INITIATIVE_STATISTICS_CREATED.add(command.getEntityId());
+                        command.setOperationType(CommandsConstants.COMMANDS_OPERATION_TYPE_CREATE_INITIATIVE_STATISTICS);
                     } else {
                         command.setOperationType("ANOTHER_TYPE");
                     }
@@ -187,6 +197,8 @@ class CommandsMessagesListenerTest extends BaseIntegrationTest {
     private void checkRepositories() {
         Assertions.assertTrue(initiativeStatRepository.findAll().stream().noneMatch(ri -> INITIATIVES_DELETED.contains(ri.getInitiativeId())));
         Assertions.assertTrue(merchantInitiativeCountersRepository.findAll().stream().noneMatch(ri -> INITIATIVES_DELETED.contains(ri.getInitiativeId())));
+        Assertions.assertTrue(initiativeStatRepository.findAll().stream().anyMatch(ri-> INITIATIVE_STATISTICS_CREATED.contains(ri.getInitiativeId())));
+        Assertions.assertTrue(merchantInitiativeCountersRepository.findAll().stream().anyMatch(ri-> MERCHANT_STATISTICS_CREATED.contains(ri.getInitiativeId())));
     }
     private void checkErrorMessageHeaders(ConsumerRecord<String, String> errorMessage, String errorDescription, String expectedPayload) {
         checkErrorMessageHeaders(topicCommands, groupIdCommands, errorMessage, errorDescription, expectedPayload, null);
