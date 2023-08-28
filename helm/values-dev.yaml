@@ -10,10 +10,10 @@ microservice-chart:
   resources:
     requests:
       memory: "256Mi"
-      cpu: "300m"
+      cpu: "100m"
     limits:
       memory: "4Gi"
-      cpu: "500m"
+      cpu: "300m"
 
   autoscaling:
     enable: true
@@ -25,7 +25,7 @@ microservice-chart:
       - type: cpu
         metadata:
           type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
-          value: "100"
+          value: "70"
 
   envSecret:
     aks-api-url: cstar-d-weu-dev01-aks-apiserver-url
