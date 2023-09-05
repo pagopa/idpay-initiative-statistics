@@ -4,7 +4,7 @@ import it.gov.pagopa.common.web.dto.ErrorDTO;
 import it.gov.pagopa.common.web.exception.ClientException;
 import it.gov.pagopa.common.web.exception.ClientExceptionNoBody;
 import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
-import it.gov.pagopa.initiative.statistics.BaseIntegrationTest;
+import it.gov.pagopa.initiative.statistics.BaseStatisticsIntegrationTest;
 import it.gov.pagopa.initiative.statistics.controller.MerchantPortalController;
 import it.gov.pagopa.initiative.statistics.model.MerchantInitiativeCounters;
 import org.junit.jupiter.api.Assertions;
@@ -17,7 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-class ErrorManagerTest extends BaseIntegrationTest {
+class ErrorManagerTest extends BaseStatisticsIntegrationTest {
 
     @MockBean
     private MerchantPortalController controller;

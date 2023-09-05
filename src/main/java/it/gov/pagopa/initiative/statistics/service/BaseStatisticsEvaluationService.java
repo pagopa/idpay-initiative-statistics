@@ -1,9 +1,6 @@
 package it.gov.pagopa.initiative.statistics.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import it.gov.pagopa.common.kafka.utils.KafkaConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -13,10 +10,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.consumer.OffsetCommitCallback;
 import org.apache.kafka.common.TopicPartition;
-import org.apache.kafka.common.header.Header;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -28,17 +23,13 @@ import java.util.stream.Stream;
  * @param <I> the type of the entity related 1-to-1 with the initiative, extracted from {@link E}
  */
 @Slf4j
-public abstract class BaseStatisticsEvaluationService<E, I> implements StatisticsEvaluationService {
-
-    private final String applicationName;
-    private final String consumerGroup;
-    private final ObjectReader objectReader;
-
-    protected BaseStatisticsEvaluationService(String applicationName, String consumerGroup, ObjectMapper objectMapper) {
-        this.applicationName = applicationName;
-        this.consumerGroup = consumerGroup;
-        this.objectReader = objectMapper.readerFor(getRecordClass());
+public abstract class BaseStatisticsEvaluationService<E, I> extends BaseKafkaConsumer<E> implements StatisticsEvaluationService {
+    protected BaseStatisticsEvaluationService(String applicationName,
+                                              String consumerGroup,
+                                              ObjectMapper objectMapper) {
+        super(applicationName, consumerGroup, objectMapper);
     }
+
 
     protected abstract Class<E> getRecordClass();
 
@@ -51,25 +42,6 @@ public abstract class BaseStatisticsEvaluationService<E, I> implements Statistic
                 .collect(Collectors.groupingBy(ConsumerRecord::partition))
                 // evaluating partition records
                 .forEach((p, rs) -> evaluatePartitionRecords(p, rs, consumer));
-    }
-
-    /** It will check if the current record is not a RETRY of another application */
-    private boolean isNotRetry(Pair<ConsumerRecord<String, String>, E> r2e) {
-        ConsumerRecord<String, String> r = r2e.getKey();
-
-        Header appNameRecord = r.headers().lastHeader(KafkaConstants.ERROR_MSG_HEADER_APPLICATION_NAME);
-        Header retry = r.headers().lastHeader(KafkaConstants.ERROR_MSG_HEADER_RETRY);
-        Header group = r.headers().lastHeader(KafkaConstants.ERROR_MSG_HEADER_GROUP);
-        boolean isSameGroup = group == null || new String(group.value(), StandardCharsets.UTF_8).equals(consumerGroup);
-        boolean out = retry == null || (appNameRecord != null && applicationName.equals(new String(appNameRecord.value(), StandardCharsets.UTF_8)) && isSameGroup);
-        if(!out){
-            log.info("[INITIATIVE_STATISTICS_EVALUATION][{}] Skipping record because other application retry: appName: {}, retry: {}"
-                    , getFlowName(),
-                    appNameRecord!=null? new String(appNameRecord.value(), StandardCharsets.UTF_8) : "",
-                    new String(retry.value(), StandardCharsets.UTF_8)
-                    );
-        }
-        return out;
     }
 
     /** It will evaluate partition records, committing its offsets at the end */
@@ -169,18 +141,12 @@ public abstract class BaseStatisticsEvaluationService<E, I> implements Statistic
         }
     }
 
-    /** The name of the business logic flow to print when logging */
-    protected abstract String getFlowName();
+    private boolean isNotRetry(Pair<ConsumerRecord<String, String>, E> record2Payload) {
+        return super.isNotRetry(record2Payload.getKey());
+    }
 
     /** It will retrieve the last processed offset */
     protected abstract long retrieveLastProcessedOffset(String counterId, int partition, I right);
-
-    /** In case of errors reading a message */
-    protected abstract void onRecordError2notify(ConsumerRecord<String, String> message, String description, Throwable exception);
-
-    private E deserialize(String payload) throws JsonProcessingException {
-        return objectReader.readValue(payload);
-    }
 
     /** Given the input entity ({@link E}), it will build a {@link Stream} of entities associated 1-to-1 to the initiatives ({@link I}) */
     protected abstract Stream<I> toInitiativeBasedEntityStream(E e);
