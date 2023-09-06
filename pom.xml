@@ -43,6 +43,10 @@
             <artifactId>spring-kafka</artifactId>
             <version>3.0.11</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
 
 
         <!--3rd party library-->
@@ -55,11 +59,6 @@
             <groupId>org.codehaus.janino</groupId>
             <artifactId>janino</artifactId>
             <version>3.1.10</version>
-        </dependency>
-        <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjweaver</artifactId>
-            <version>1.9.20.1</version>
         </dependency>
 
         <!--OpenAPI SpringDOC-->
