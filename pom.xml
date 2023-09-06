@@ -56,6 +56,11 @@
             <artifactId>janino</artifactId>
             <version>3.1.10</version>
         </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>1.9.20.1</version>
+        </dependency>
 
         <!--OpenAPI SpringDOC-->
         <dependency>
