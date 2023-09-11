@@ -1,7 +1,7 @@
 #
 # Build
 #
-FROM maven:3.9.3-amazoncorretto-17@sha256:1d4c323f286a39da2c0930ab42115b04b4d7efd40710273e38f6e80f28069753 AS buildtime
+FROM maven:3.9.4-amazoncorretto-17-al2023@sha256:c7719f952f62e301c6c24b86ef9a2ea1cd0a314a862ed12e51f0ffbc3fbb96b5 AS buildtime
 
 WORKDIR /build
 COPY . .
@@ -11,7 +11,7 @@ RUN mvn clean package -DskipTests
 #
 # Docker RUNTIME
 #
-FROM amazoncorretto:17.0.8-alpine3.18@sha256:f59b4f511346db4e473fb98c65b86254926061ce2b398295e975d0632fa4e2fd AS runtime
+FROM amazoncorretto:17.0.8-alpine3.18@sha256:34650d7c653af234dad21cd2d89d2f0dbdb1bad54041014932e51b3492e0dec5 AS runtime
 
 RUN apk add shadow
 RUN useradd --uid 10000 runner
