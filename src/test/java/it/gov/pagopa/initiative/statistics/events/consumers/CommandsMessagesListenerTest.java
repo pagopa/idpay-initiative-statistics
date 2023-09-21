@@ -23,10 +23,7 @@ import org.springframework.test.context.TestPropertySource;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
@@ -42,6 +39,11 @@ class CommandsMessagesListenerTest extends BaseIntegrationTest {
     private final Set<String> INITIATIVES_DELETED = new HashSet<>();
     private final Set<String> INITIATIVE_STATISTICS_CREATED = new HashSet<>();
     private final Set<String> MERCHANT_STATISTICS_CREATED = new HashSet<>();
+    private static final String PAGINATION_KEY = "pagination";
+    private static final String PAGINATION_VALUE = "100";
+    private static final String DELAY_KEY = "delay";
+    private static final String DELAY_VALUE = "1500";
+
     @SpyBean
     private InitiativeStatRepository initiativeStatRepository;
     @Autowired
@@ -120,6 +122,10 @@ class CommandsMessagesListenerTest extends BaseIntegrationTest {
                     if(i%4 == 0){
                         INITIATIVES_DELETED.add(command.getEntityId());
                         command.setOperationType(CommandsConstants.COMMANDS_OPERATION_TYPE_DELETE_INITIATIVE);
+                        Map<String, String> additionalParams = new HashMap<>();
+                        additionalParams.put(PAGINATION_KEY, PAGINATION_VALUE);
+                        additionalParams.put(DELAY_KEY, DELAY_VALUE);
+                        command.setAdditionalParams(additionalParams);
                     } else if (i%4 == 1){
                         MERCHANT_STATISTICS_CREATED.add(command.getEntityId());
                         command.setOperationType(CommandsConstants.COMMANDS_OPERATION_TYPE_CREATE_MERCHANT_STATISTICS);
