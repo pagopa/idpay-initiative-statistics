@@ -59,7 +59,7 @@ public class CommandsMediatorServiceImpl extends BaseGenericConsumerService<Comm
     @Override
     protected void evaluate(CommandOperationDTO payload) {
         if (CommandsConstants.COMMANDS_OPERATION_TYPE_DELETE_INITIATIVE.equals(payload.getOperationType())){
-            deleteInitiativeService.execute(payload);
+            deleteInitiativeService.execute(payload.getEntityId());
         } else if(CommandsConstants.COMMANDS_OPERATION_TYPE_CREATE_INITIATIVE_STATISTICS.equals(payload.getOperationType())) {
             createInitiativeStatisticsService.execute(payload.getEntityId());
         } else if(CommandsConstants.COMMANDS_OPERATION_TYPE_CREATE_MERCHANT_STATISTICS.equals(payload.getOperationType())) {

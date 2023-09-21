@@ -4,11 +4,8 @@ import com.mongodb.client.result.UpdateResult;
 import it.gov.pagopa.common.utils.CommonUtilities;
 import it.gov.pagopa.initiative.statistics.model.CommittedOffset;
 import it.gov.pagopa.initiative.statistics.model.MerchantInitiativeCounters;
-import it.gov.pagopa.initiative.statistics.model.MerchantInitiativeCounters.Fields;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -104,16 +101,6 @@ public class MerchantInitiativeCountersOpsRepositoryImpl implements MerchantInit
                 MerchantInitiativeCounters.Fields.refundedNumber, trxs
         );
         incrementCounterAndPartitionCommittedOffsets(counterId, incrementsMap, MerchantInitiativeCounters.Fields.rewardNotificationCommittedOffsets, partition, offset);
-    }
-
-    @Override
-    public List<MerchantInitiativeCounters> deletePaged(String initiativeId, int pageSize) {
-        log.trace("[DELETE_PAGED] Deleting merchant initiative counters in pages");
-        Pageable pageable = PageRequest.of(0, pageSize);
-        return client.findAllAndRemove(
-                Query.query(Criteria.where(Fields.initiativeId).is(initiativeId)).with(pageable),
-                MerchantInitiativeCounters.class
-        );
     }
 
     private void incrementCounterAndPartitionCommittedOffsets(String counterId, Map<String, Long> fieldCounter2Inc, String fieldPartitionCommitted, int partition, long offset) {
