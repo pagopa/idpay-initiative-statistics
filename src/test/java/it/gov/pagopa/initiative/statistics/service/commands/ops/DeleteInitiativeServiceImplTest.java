@@ -21,7 +21,7 @@ import java.util.Map;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class DeleteInitiativeServiceImplTest {
+class DeleteInitiativeServiceImplTest {
     private DeleteInitiativeService deleteInitiativeService;
     @Mock
     private InitiativeStatRepository initiativeStatRepository;
