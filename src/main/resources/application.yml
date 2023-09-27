@@ -123,7 +123,8 @@ app:
           client.id: ${KAFKA_ERROR_MESSAGE_CLIENT_ID:idpay-errors-initiative-statistics}
           sasl.jaas.config: ${KAFKA_ERROR_MESSAGE_SASL_JAAS_CONFIG:${KAFKA_SASL_JAAS_CONFIG:org.apache.kafka.common.security.plain.PlainLoginModule required username="$ConnectionString" password="${KAFKA_ERROR_MESSAGE_CONNECTION_STRING:}";}}
   delete:
-
+    paginationSize: ${DELETE_PAGINATION_SIZE}
+    delayTime: ${DELETE_DELAY_TIME}
 spring:
   application:
     name: "@project.artifactId@"
