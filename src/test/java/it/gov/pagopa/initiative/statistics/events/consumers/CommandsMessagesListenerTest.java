@@ -125,7 +125,6 @@ class CommandsMessagesListenerTest extends BaseIntegrationTest {
                         Map<String, String> additionalParams = new HashMap<>();
                         additionalParams.put(PAGINATION_KEY, PAGINATION_VALUE);
                         additionalParams.put(DELAY_KEY, DELAY_VALUE);
-                        command.setAdditionalParams(additionalParams);
                     } else if (i%4 == 1){
                         MERCHANT_STATISTICS_CREATED.add(command.getEntityId());
                         command.setOperationType(CommandsConstants.COMMANDS_OPERATION_TYPE_CREATE_MERCHANT_STATISTICS);
