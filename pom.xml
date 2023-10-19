@@ -12,7 +12,7 @@
 
     <groupId>it.gov.pagopa</groupId>
     <artifactId>idpay-initiative-statistics</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.2</version>
     <name>idpay-initiative-statistics</name>
     <description>Project which expose initiative statistics</description>
     <properties>
