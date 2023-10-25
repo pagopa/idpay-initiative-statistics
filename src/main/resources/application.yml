@@ -125,6 +125,7 @@ app:
   delete:
     paginationSize: ${DELETE_PAGINATION_SIZE:100}
     delayTime: ${DELETE_DELAY_TIME:1000}
+
 spring:
   application:
     name: "@project.artifactId@"
@@ -164,9 +165,21 @@ spring:
           maxConnectionIdleTimeMS: ${MONGODB_CONNECTIONPOOL_MAX_CONNECTION_IDLE_MS:120000}
           maxConnecting: ${MONGODB_CONNECTIONPOOL_MAX_CONNECTING:2}
 
-management.endpoints:
-  web:
-    exposure.include: info, health
+management:
+  health:
+    mongo.enabled: ${HEALTH_MONGO_ENABLED:true}
+  endpoint:
+    health:
+      probes.enabled: true
+      group:
+        readiness.include: "*"
+        liveness.include: livenessState,diskSpace,ping
+      logging.slow-indicator-threshold: ${HEALTH_ACTUATOR_LOGGER_TIMEOUT_DURATION:PT1S}
+  endpoints:
+    jmx:
+      exposure.include: "*"
+    web:
+      exposure.include: info, health
 
 logging:
   level:
@@ -180,10 +193,10 @@ logging:
     org.springframework.data: ${LOG_LEVEL_SPRING_DATA:INFO}
     org.springframework.hateoas: ${LOG_LEVEL_SPRING_HATEOAS:INFO}
     org.springframework.boot: ${LOG_LEVEL_SPRING_BOOT:INFO}
+    org.springframework.boot.availability: ${LOG_LEVEL_SPRING_BOOT_AVAILABILITY:DEBUG}
     org.springframework.kafka: ${LOG_LEVEL_SPRING_KAFKA:INFO}
     org.springframework.batch: ${LOG_LEVEL_SPRING_BATCH:INFO}
     io.swagger: ${LOG_LEVEL_IO_SWAGGER:WARN}
     javax.persistence: ${LOG_LEVEL_JAVAX_PERSISTENCE:INFO}
     org.hibernate: ${LOG_LEVEL_ORG_HIBERNATE:INFO}
     org.mongodb.driver: ${LOG_LEVEL_MONGODB_DRIVER:WARN}
-
