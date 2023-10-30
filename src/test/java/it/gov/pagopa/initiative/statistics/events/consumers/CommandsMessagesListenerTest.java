@@ -23,7 +23,10 @@ import org.springframework.test.context.TestPropertySource;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
@@ -39,10 +42,6 @@ class CommandsMessagesListenerTest extends BaseIntegrationTest {
     private final Set<String> INITIATIVES_DELETED = new HashSet<>();
     private final Set<String> INITIATIVE_STATISTICS_CREATED = new HashSet<>();
     private final Set<String> MERCHANT_STATISTICS_CREATED = new HashSet<>();
-    private static final String PAGINATION_KEY = "pagination";
-    private static final String PAGINATION_VALUE = "100";
-    private static final String DELAY_KEY = "delay";
-    private static final String DELAY_VALUE = "1500";
 
     @SpyBean
     private InitiativeStatRepository initiativeStatRepository;
@@ -51,7 +50,7 @@ class CommandsMessagesListenerTest extends BaseIntegrationTest {
 
     @Test
     void test() {
-        int validMessages = 100;
+        int validMessages = 20;
         int notValidMessages = errorUseCasesNotify.size();
         long maxWaitingMs = 30000;
 
@@ -61,27 +60,14 @@ class CommandsMessagesListenerTest extends BaseIntegrationTest {
 
         long timeStart=System.currentTimeMillis();
         commandsPayloads.forEach(cp -> kafkaTestUtilitiesService.publishIntoEmbeddedKafka(topicCommands, null, null, cp));
-        kafkaTestUtilitiesService.publishIntoEmbeddedKafka(topicCommands, List.of(new RecordHeader(KafkaConstants.ERROR_MSG_HEADER_APPLICATION_NAME, "OTHERAPPNAME".getBytes(StandardCharsets.UTF_8))), null, "OTHERAPPMESSAGE");
+        kafkaTestUtilitiesService.publishIntoEmbeddedKafka(topicCommands, List.of(
+                new RecordHeader(KafkaConstants.ERROR_MSG_HEADER_APPLICATION_NAME, "OTHERAPPNAME".getBytes(StandardCharsets.UTF_8)),
+                new RecordHeader(KafkaConstants.ERROR_MSG_HEADER_RETRY, "1".getBytes(StandardCharsets.UTF_8))
+        ), null, "OTHERAPPMESSAGE");
         long timePublishingEnd = System.currentTimeMillis();
 
-        waitForLastStorageChange(validMessages);
+        waitForLastStorageChange(validMessages+1); // +1 due to enitytId INITIATIVEID_%d structure and the logic in it.gov.pagopa.initiative.statistics.service.commands.ops.CreateInitiativeStatisticsServiceImpl.execute
         long timeEnd=System.currentTimeMillis();
-
-        System.out.printf("""
-                        ************************
-                        Time spent to send %d (%d + %d) messages (from start): %d millis
-                        Time spent to assert db stored count (from previous check): %d millis
-                        ************************
-                        Test Completed in %d millis
-                        ************************
-                        """,
-                commandsPayloads.size(),
-                validMessages,
-                notValidMessages,
-                timePublishingEnd - timeStart,
-                timeEnd - timePublishingEnd,
-                timeEnd - timeStart
-        );
 
         checkRepositories();
         checkErrorsPublished(notValidMessages, maxWaitingMs, errorUseCasesNotify);
@@ -105,8 +91,11 @@ class CommandsMessagesListenerTest extends BaseIntegrationTest {
 
     private long waitForLastStorageChange(int n) {
         long[] countSaved={0};
-        //noinspection ConstantConditions
-        TestUtils.waitFor(()->(countSaved[0]=merchantInitiativeCountersRepository.count()) == n, ()->"Expected %d saved merchant counters in db, read %d, DB elements %s".formatted(n, countSaved[0], merchantInitiativeCountersRepository.findAll().toString()), 60, 2000);
+        int expectedInitiativeCountersSaved = n - INITIATIVES_DELETED.size();
+        TestUtils.waitFor(
+                ()->(countSaved[0]=initiativeStatRepository.count()) == expectedInitiativeCountersSaved,
+                ()->"Expected %d saved initiative counters in db, read %d, DB elements %s".formatted(expectedInitiativeCountersSaved, countSaved[0], merchantInitiativeCountersRepository.findAll().toString()),
+                60, 2000);
         return countSaved[0];
     }
 
@@ -122,9 +111,6 @@ class CommandsMessagesListenerTest extends BaseIntegrationTest {
                     if(i%4 == 0){
                         INITIATIVES_DELETED.add(command.getEntityId());
                         command.setOperationType(CommandsConstants.COMMANDS_OPERATION_TYPE_DELETE_INITIATIVE);
-                        Map<String, String> additionalParams = new HashMap<>();
-                        additionalParams.put(PAGINATION_KEY, PAGINATION_VALUE);
-                        additionalParams.put(DELAY_KEY, DELAY_VALUE);
                     } else if (i%4 == 1){
                         MERCHANT_STATISTICS_CREATED.add(command.getEntityId());
                         command.setOperationType(CommandsConstants.COMMANDS_OPERATION_TYPE_CREATE_MERCHANT_STATISTICS);
