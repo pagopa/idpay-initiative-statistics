@@ -40,9 +40,9 @@ public abstract class BaseGenericConsumerService<E> extends BaseKafkaConsumer<E>
         log.debug("[{}] Evaluating record", getFlowName());
 
         try {
-            E payload = deserialize(consumerRecord.value());
 
             if(this.isNotRetry(consumerRecord)) {
+                E payload = deserialize(consumerRecord.value());
                 evaluate(payload);
             }
 
