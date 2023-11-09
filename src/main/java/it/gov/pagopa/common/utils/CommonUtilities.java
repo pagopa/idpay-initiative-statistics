@@ -17,4 +17,9 @@ public final class CommonUtilities {
     public static BigDecimal centsToEuro(Long cents) {
         return BigDecimal.valueOf(cents).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_DOWN);
     }
+
+    /** To convert double into BigDecimal */
+    public static BigDecimal doubleToBigDecimal(double inputValue) {
+        return BigDecimal.valueOf(inputValue).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_DOWN);
+    }
 }
