@@ -1,5 +1,6 @@
 package it.gov.pagopa.initiative.statistics.controller;
 
+import it.gov.pagopa.common.utils.CommonUtilities;
 import it.gov.pagopa.initiative.statistics.dto.InitiativeStatisticsDTO;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
 import it.gov.pagopa.initiative.statistics.service.InitiativeStatService;
@@ -19,7 +20,6 @@ public class InitiativeApiControllerImpl implements InitiativeApiController {
     static{
         decimalFormatterSymbols.setDecimalSeparator(',');
     }
-    private static final DecimalFormat decimalFormatter = new DecimalFormat("0.00", decimalFormatterSymbols);
 
     @Autowired
     private InitiativeStatService initiativeStatService;
@@ -36,7 +36,7 @@ public class InitiativeApiControllerImpl implements InitiativeApiController {
         return ResponseEntity.ok(InitiativeStatisticsDTO.builder()
                         .onboardedCitizenCount(stat.getOnboardedCitizenCount())
                         .rewardedTrxs(stat.getRewardedTrxs())
-                        .accruedRewards(decimalFormatter.format((double)stat.getAccruedRewardsCents()/100))
+                        .accruedRewards(CommonUtilities.doubleToBigDecimal(stat.getAccruedRewardsCents()))
                         .lastUpdatedDateTime(stat.getLastUpdatedDateTime())
                 .build());
     }
