@@ -16,8 +16,12 @@ import java.util.Objects;
 @Slf4j
 public class InitiativeStatServiceImpl implements InitiativeStatService {
 
+    private final InitiativeStatRepository initiativeStatRepository;
+
     @Autowired
-    private InitiativeStatRepository initiativeStatRepository;
+    public InitiativeStatServiceImpl(InitiativeStatRepository initiativeStatRepository) {
+        this.initiativeStatRepository = initiativeStatRepository;
+    }
 
     @Override
     public InitiativeStatistics getStatistics(String organizationId, String initiativeId) {
