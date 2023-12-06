@@ -5,11 +5,9 @@ import it.gov.pagopa.initiative.statistics.dto.InitiativeStatisticsDTO;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
 import it.gov.pagopa.initiative.statistics.service.InitiativeStatService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 
 @RestController
@@ -21,8 +19,7 @@ public class InitiativeApiControllerImpl implements InitiativeApiController {
         decimalFormatterSymbols.setDecimalSeparator(',');
     }
 
-    @Autowired
-    private InitiativeStatService initiativeStatService;
+    private final InitiativeStatService initiativeStatService;
 
     public InitiativeApiControllerImpl(InitiativeStatService initiativeStatService) {
         this.initiativeStatService = initiativeStatService;

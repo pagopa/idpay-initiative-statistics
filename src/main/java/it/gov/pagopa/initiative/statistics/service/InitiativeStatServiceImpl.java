@@ -4,7 +4,6 @@ import it.gov.pagopa.common.web.exception.ClientExceptionNoBody;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
 import it.gov.pagopa.initiative.statistics.repository.InitiativeStatRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -16,8 +15,11 @@ import java.util.Objects;
 @Slf4j
 public class InitiativeStatServiceImpl implements InitiativeStatService {
 
-    @Autowired
-    private InitiativeStatRepository initiativeStatRepository;
+    private final InitiativeStatRepository initiativeStatRepository;
+
+    public InitiativeStatServiceImpl(InitiativeStatRepository initiativeStatRepository) {
+        this.initiativeStatRepository = initiativeStatRepository;
+    }
 
     @Override
     public InitiativeStatistics getStatistics(String organizationId, String initiativeId) {
