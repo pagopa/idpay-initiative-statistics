@@ -36,7 +36,7 @@ abstract class BaseKafkaConsumerConfig extends KafkaProperties.Consumer {
 
     private ConsumerFactory<String, String> buildConsumerFactory(ConsumerFactory<String, String> consumerFactory){
         Map<String, Object> props = new HashMap<>(consumerFactory.getConfigurationProperties());
-        props.putAll(this.buildProperties());
+        props.putAll(this.buildProperties(null));
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
