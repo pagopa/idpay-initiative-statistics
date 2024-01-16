@@ -1,5 +1,6 @@
 package it.gov.pagopa.initiative.statistics.controller;
 
+import it.gov.pagopa.initiative.statistics.config.ServiceExceptionConfig;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
 import it.gov.pagopa.initiative.statistics.repository.InitiativeStatRepository;
 import it.gov.pagopa.initiative.statistics.service.InitiativeStatServiceImpl;
@@ -7,6 +8,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -21,7 +23,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Optional;
 
-@WebMvcTest(InitiativeApiControllerImpl.class)
+@WebMvcTest(value = {
+        InitiativeApiController.class, ServiceExceptionConfig.class}, excludeAutoConfiguration = SecurityAutoConfiguration.class)
 @Import(InitiativeStatServiceImpl.class)
 class InitiativeApiControllerTest {
 

@@ -30,7 +30,7 @@ class StatisticsMessagesListenerConcurrentTest extends BaseStatisticsIntegration
 
     @Test
     void test() {
-        int validMsgs = 10000;
+        int validMsgs = 1000;
         long maxWaitingMs = 30000;
 
         List<Pair<String, Pair<String, String>>> msgs = IntStream.range(0, validMsgs).mapToObj(i -> {

@@ -1,5 +1,6 @@
 package it.gov.pagopa.initiative.statistics.controller;
 
+import it.gov.pagopa.initiative.statistics.config.ServiceExceptionConfig;
 import it.gov.pagopa.initiative.statistics.dto.mapper.MerchantInitiativeCounters2MerchantInitiativeStatisticsDTOMapper;
 import it.gov.pagopa.initiative.statistics.model.CommittedOffset;
 import it.gov.pagopa.initiative.statistics.model.MerchantInitiativeCounters;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -22,7 +24,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.util.List;
 import java.util.Optional;
 
-@WebMvcTest(MerchantPortalControllerImpl.class)
+@WebMvcTest(value = {
+        MerchantPortalController.class, ServiceExceptionConfig.class}, excludeAutoConfiguration = SecurityAutoConfiguration.class)
 @Import({MerchantCountersServiceImpl.class, MerchantInitiativeCounters2MerchantInitiativeStatisticsDTOMapper.class})
 class MerchantPortalControllerImplTest {
 
