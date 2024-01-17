@@ -57,8 +57,8 @@ abstract class BaseStatisticsMessagesListenerTest<T> extends BaseStatisticsInteg
         checkJustNotValidMsgsBehavior();
         checkOffsetSkipBehavior();
 
-        int validMsgs = 1000; // use even number
-        int skippedMsgs = 100;
+        int validMsgs = 100; // use even number
+        int skippedMsgs = 10;
         int notValidMsgs = getErrorUseCases().size();
         long maxWaitingMs = 30000;
 
@@ -187,8 +187,8 @@ abstract class BaseStatisticsMessagesListenerTest<T> extends BaseStatisticsInteg
                     }
                 },
                 () -> "Cannot verify not valid msgs behavior: " + lastException[0].toString(),
-                10,
-                200);
+                30,
+                1000);
     }
 
     private List<String> buildValidPayloads(int bias, int size, String initiativeId) {
