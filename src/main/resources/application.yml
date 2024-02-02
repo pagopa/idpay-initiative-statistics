@@ -17,7 +17,7 @@ app:
     consumer:
       onboarding-outcome:
         topic: ${KAFKA_ONBOARDING_OUTCOME_TOPIC:idpay-onboarding-outcome}
-        bootstrap-servers: ${KAFKA_ONBOARDING_OUTCOME_SERVERS:${KAFKA_SERVERS:localhost:9092}}
+        bootstrap-servers: ${KAFKA_OUTCOME_SERVERS_00:${KAFKA_SERVERS:localhost:9092}}
         group-id: ${KAFKA_ONBOARDING_OUTCOME_GROUP_ID:idpay-onboarding-outcome-group}
         client-id: ${KAFKA_ONBOARDING_OUTCOME_CLIENT_ID:idpay-onboarding-outcome-initiative-statistics}
         auto-offset-reset: ${KAFKA_ONBOARDING_OUTCOME_OFFSET_RESET:earliest}
@@ -37,7 +37,7 @@ app:
           metadata.max.age.ms: ${KAFKA_ONBOARDING_OUTCOME_METADATA_MAX_AGE_INTERVAL:179000}
       transaction-evaluation:
         topic: ${KAFKA_TRANSACTION_EVALUATION_TOPIC:idpay-transactions}
-        bootstrap-servers: ${KAFKA_TRANSACTION_EVALUATION_SERVERS:${KAFKA_SERVERS:localhost:9092}}
+        bootstrap-servers: ${KAFKA_OUTCOME_SERVERS_00:${KAFKA_SERVERS:localhost:9092}}
         group-id: ${KAFKA_TRANSACTION_EVALUATION_GROUP_ID:idpay-transaction-evaluation-group}
         client-id: ${KAFKA_TRANSACTION_EVALUATION_CLIENT_ID:idpay-transaction-evaluation-initiative-statistics}
         auto-offset-reset: ${KAFKA_TRANSACTION_EVALUATION_OFFSET_RESET:earliest}
@@ -57,7 +57,7 @@ app:
           metadata.max.age.ms: ${KAFKA_TRANSACTION_EVALUATION_METADATA_MAX_AGE_INTERVAL:179000}
       merchant-counters-transaction:
         topic: ${KAFKA_TRANSACTION_EVALUATION_TOPIC:idpay-transactions}
-        bootstrap-servers: ${KAFKA_TRANSACTION_EVALUATION_SERVERS:${KAFKA_SERVERS:localhost:9092}}
+        bootstrap-servers: ${KAFKA_OUTCOME_SERVERS_00:${KAFKA_SERVERS:localhost:9092}}
         group-id: ${KAFKA_MERCHANT_COUNTERS_TRANSACTION_GROUP_ID:idpay-merchant-counters-transaction-group}
         client-id: ${KAFKA_MERCHANT_COUNTERS_TRANSACTION_CLIENT_ID:idpay-merchant-counters-transaction-initiative-statistics}
         auto-offset-reset: ${KAFKA_TRANSACTION_EVALUATION_OFFSET_RESET:earliest}
