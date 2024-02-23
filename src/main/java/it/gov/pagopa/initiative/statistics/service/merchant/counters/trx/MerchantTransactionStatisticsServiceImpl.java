@@ -65,7 +65,7 @@ public class MerchantTransactionStatisticsServiceImpl extends BaseStatisticsEval
 
     public static Stream<Reward> trxEvaluationDto2InitiativeBasedEntityStream(TransactionEvaluationDTO transactionEvaluationDTO) {
         return transactionEvaluationDTO.getRewards() != null
-                && !Constants.EXCLUDED_TRX_STATUSES.contains(transactionEvaluationDTO.getStatus())
+                && Constants.TRX_STATUS_REWARDED.equals(transactionEvaluationDTO.getStatus())
                 && transactionEvaluationDTO.getMerchantId() != null
                 ? transactionEvaluationDTO.getRewards().values().stream()
                 : Stream.empty();

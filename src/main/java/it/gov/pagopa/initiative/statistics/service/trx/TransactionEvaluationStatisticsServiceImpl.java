@@ -59,7 +59,7 @@ public class TransactionEvaluationStatisticsServiceImpl extends BaseStatisticsEv
     }
 
     public static Stream<Reward> trxEvaluationDto2InitiativeBasedEntityStream(TransactionEvaluationDTO transactionEvaluationDTO) {
-        return transactionEvaluationDTO.getRewards() != null && !Constants.EXCLUDED_TRX_STATUSES.contains(transactionEvaluationDTO.getStatus())
+        return transactionEvaluationDTO.getRewards() != null && Constants.TRX_STATUS_REWARDED.equals(transactionEvaluationDTO.getStatus())
                 ? transactionEvaluationDTO.getRewards().values().stream()
                 : Stream.empty();
     }
