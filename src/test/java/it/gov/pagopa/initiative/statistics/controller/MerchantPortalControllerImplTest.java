@@ -58,7 +58,7 @@ class MerchantPortalControllerImplTest {
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
                 .andReturn();
 
-        Assertions.assertEquals("{\"amount\":100.00,\"accrued\":99.00,\"refunded\":1.00}", result.getResponse().getContentAsString());
+        Assertions.assertEquals("{\"amountCents\":10000,\"accruedCents\":9900,\"refundedCents\":100}", result.getResponse().getContentAsString());
     }
 
     @Test

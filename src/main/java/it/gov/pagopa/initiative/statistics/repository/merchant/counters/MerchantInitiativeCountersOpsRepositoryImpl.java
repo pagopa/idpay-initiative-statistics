@@ -1,7 +1,6 @@
 package it.gov.pagopa.initiative.statistics.repository.merchant.counters;
 
 import com.mongodb.client.result.UpdateResult;
-import it.gov.pagopa.common.utils.CommonUtilities;
 import it.gov.pagopa.initiative.statistics.model.CommittedOffset;
 import it.gov.pagopa.initiative.statistics.model.MerchantInitiativeCounters;
 import it.gov.pagopa.initiative.statistics.model.MerchantInitiativeCounters.Fields;
@@ -14,7 +13,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -99,9 +97,9 @@ public class MerchantInitiativeCountersOpsRepositoryImpl implements MerchantInit
     }
 
     @Override
-    public void updateCountersFromTransaction(String counterId, BigDecimal amount, Long trxs, int partition, long offset) {
+    public void updateCountersFromTransaction(String counterId, Long amountCents, Long trxs, int partition, long offset) {
         Map<String, Long> incrementsMap = Map.of(
-                MerchantInitiativeCounters.Fields.totalProvidedCents, CommonUtilities.euroToCents(amount),
+                MerchantInitiativeCounters.Fields.totalProvidedCents, amountCents,
                 MerchantInitiativeCounters.Fields.trxNumber, trxs
         );
         incrementCounterAndPartitionCommittedOffsets(counterId, incrementsMap, MerchantInitiativeCounters.Fields.trxCommittedOffsets, partition, offset);

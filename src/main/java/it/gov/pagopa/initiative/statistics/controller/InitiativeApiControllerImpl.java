@@ -1,6 +1,5 @@
 package it.gov.pagopa.initiative.statistics.controller;
 
-import it.gov.pagopa.common.utils.CommonUtilities;
 import it.gov.pagopa.initiative.statistics.dto.InitiativeStatisticsDTO;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
 import it.gov.pagopa.initiative.statistics.service.InitiativeStatService;
@@ -33,7 +32,7 @@ public class InitiativeApiControllerImpl implements InitiativeApiController {
         return ResponseEntity.ok(InitiativeStatisticsDTO.builder()
                         .onboardedCitizenCount(stat.getOnboardedCitizenCount())
                         .rewardedTrxs(stat.getRewardedTrxs())
-                        .accruedRewards(CommonUtilities.doubleToBigDecimal(stat.getAccruedRewardsCents()))
+                        .accruedRewardsCents(stat.getAccruedRewardsCents())
                         .lastUpdatedDateTime(stat.getLastUpdatedDateTime())
                 .build());
     }
