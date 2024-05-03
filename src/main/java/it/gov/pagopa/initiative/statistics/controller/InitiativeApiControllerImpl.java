@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormatSymbols;
 
 @RestController
@@ -14,9 +16,12 @@ import java.text.DecimalFormatSymbols;
 public class InitiativeApiControllerImpl implements InitiativeApiController {
 
     public static final DecimalFormatSymbols decimalFormatterSymbols = new DecimalFormatSymbols();
+
     static{
         decimalFormatterSymbols.setDecimalSeparator(',');
     }
+
+
 
     private final InitiativeStatService initiativeStatService;
 
@@ -32,8 +37,12 @@ public class InitiativeApiControllerImpl implements InitiativeApiController {
         return ResponseEntity.ok(InitiativeStatisticsDTO.builder()
                         .onboardedCitizenCount(stat.getOnboardedCitizenCount())
                         .rewardedTrxs(stat.getRewardedTrxs())
-                        .accruedRewardsCents(stat.getAccruedRewardsCents())
+                        .accruedRewards(centsToEuro(stat.getAccruedRewardsCents()))
                         .lastUpdatedDateTime(stat.getLastUpdatedDateTime())
                 .build());
+    }
+
+    private static BigDecimal centsToEuro(Long cents) {
+        return BigDecimal.valueOf(cents).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_DOWN);
     }
 }
