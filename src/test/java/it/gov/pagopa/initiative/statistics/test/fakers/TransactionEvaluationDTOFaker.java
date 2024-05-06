@@ -4,10 +4,7 @@ import com.github.javafaker.service.FakeValuesService;
 import com.github.javafaker.service.RandomService;
 import it.gov.pagopa.initiative.statistics.dto.events.Reward;
 import it.gov.pagopa.initiative.statistics.dto.events.TransactionEvaluationDTO;
-import it.gov.pagopa.common.utils.TestUtils;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
@@ -55,7 +52,7 @@ public class TransactionEvaluationDTOFaker {
         return mockInstanceBuilder(bias, "INITIATIVEID");
     }
     public static TransactionEvaluationDTO.TransactionEvaluationDTOBuilder mockInstanceBuilder(Integer bias, String initiativeId) {
-        BigDecimal amount = TestUtils.bigDecimalValue(getRandomPositiveNumber(bias, 200));
+        Long amountCents = (long) getRandomPositiveNumber(bias, 200);
 
         return TransactionEvaluationDTO.builder()
                 .id("TRXID%s".formatted(bias))
@@ -64,7 +61,7 @@ public class TransactionEvaluationDTOFaker {
                 .operationTypeTranscoded("CHARGE")
                 .status("REWARDED")
                 .rewards(Map.of(
-                        initiativeId, new Reward(initiativeId, "ORGANIZATIONID_%s".formatted(initiativeId), amount.multiply(BigDecimal.valueOf(0.1)).setScale(2, RoundingMode.HALF_DOWN))
+                        initiativeId, new Reward(initiativeId, "ORGANIZATIONID_%s".formatted(initiativeId), amountCents)
                 ));
     }
 

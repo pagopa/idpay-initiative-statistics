@@ -17,7 +17,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -50,15 +49,15 @@ class MerchantTransactionStatisticsServiceTest extends BaseStatisticsEvaluationS
         return Stream.of(
                         TransactionEvaluationDTOFaker.mockInstanceBuilder(0)
                                 .merchantId(MERCHANTID)
-                                .rewards(Map.of("INITIATIVEID1", new Reward("INITIATIVEID1", "ORGANIZATIONID1", BigDecimal.valueOf(1.1))))
+                                .rewards(Map.of("INITIATIVEID1", new Reward("INITIATIVEID1", "ORGANIZATIONID1", 110L)))
                                 .build(),
                         TransactionEvaluationDTOFaker.mockInstanceBuilder(1)
                                 .merchantId(MERCHANTID)
-                                .rewards(Map.of("INITIATIVEID1", new Reward("INITIATIVEID1", "ORGANIZATIONID1", BigDecimal.valueOf(2.25), true, false)))
+                                .rewards(Map.of("INITIATIVEID1", new Reward("INITIATIVEID1", "ORGANIZATIONID1", 225L, true, false)))
                                 .build(),
                         TransactionEvaluationDTOFaker.mockInstanceBuilder(2)
                                 .merchantId(MERCHANTID)
-                                .rewards(Map.of("INITIATIVEID1", new Reward("INITIATIVEID1", "ORGANIZATIONID1", BigDecimal.valueOf(3), true, true)))
+                                .rewards(Map.of("INITIATIVEID1", new Reward("INITIATIVEID1", "ORGANIZATIONID1", 300L, true, true)))
                                 .build(),
                         TransactionEvaluationDTOFaker.mockInstanceBuilder(3, "INITIATIVEID1")
                                 .merchantId(MERCHANTID)
@@ -66,7 +65,7 @@ class MerchantTransactionStatisticsServiceTest extends BaseStatisticsEvaluationS
                                 .build(),
                         TransactionEvaluationDTOFaker.mockInstanceBuilder(4)
                                 .merchantId(MERCHANTID)
-                                .rewards(Map.of("INITIATIVEID2", new Reward("INITIATIVEID2", "ORGANIZATIONID2", BigDecimal.valueOf(1))))
+                                .rewards(Map.of("INITIATIVEID2", new Reward("INITIATIVEID2", "ORGANIZATIONID2", 100L)))
                                 .build(),
                         TransactionEvaluationDTOFaker.mockInstanceBuilder(5, "INITIATIVEID2")
                                 .merchantId(MERCHANTID)
@@ -74,23 +73,23 @@ class MerchantTransactionStatisticsServiceTest extends BaseStatisticsEvaluationS
                                 .build(),
                         TransactionEvaluationDTOFaker.mockInstanceBuilder(6)
                                 .merchantId(MERCHANTID)
-                                .rewards(Map.of("INITIATIVEID2", new Reward("INITIATIVEID2", "ORGANIZATIONID2", BigDecimal.valueOf(5.13), true, false)))
+                                .rewards(Map.of("INITIATIVEID2", new Reward("INITIATIVEID2", "ORGANIZATIONID2", 513L, true, false)))
                                 .build(),
                         TransactionEvaluationDTOFaker.mockInstanceBuilder(7)
                                 .merchantId(MERCHANTID)
-                                .rewards(Map.of("INITIATIVEID2", new Reward("INITIATIVEID2", "ORGANIZATIONID2", BigDecimal.valueOf(8.25), true, true)))
+                                .rewards(Map.of("INITIATIVEID2", new Reward("INITIATIVEID2", "ORGANIZATIONID2", 825L, true, true)))
                                 .build(),
                         TransactionEvaluationDTOFaker.mockInstanceBuilder(8)
                                 .merchantId(MERCHANTID)
-                                .rewards(Map.of("INITIATIVEID1", new Reward("INITIATIVEID1", "ORGANIZATIONID1", BigDecimal.ZERO, false, false)))
+                                .rewards(Map.of("INITIATIVEID1", new Reward("INITIATIVEID1", "ORGANIZATIONID1", 0L, false, false)))
                                 .build(),
                         TransactionEvaluationDTOFaker.mockInstanceBuilder(9)
                                 .merchantId(MERCHANTID)
-                                .rewards(Map.of("INITIATIVEID2", new Reward("INITIATIVEID2", "ORGANIZATIONID2", BigDecimal.ZERO, false, false)))
+                                .rewards(Map.of("INITIATIVEID2", new Reward("INITIATIVEID2", "ORGANIZATIONID2", 0L, false, false)))
                                 .build(),
                         TransactionEvaluationDTOFaker.mockInstanceBuilder(10)
                                 .merchantId(null)
-                                .rewards(Map.of("INITIATIVEID1", new Reward("INITIATIVEID1", "ORGANIZATIONID1", BigDecimal.valueOf(3), false, false)))
+                                .rewards(Map.of("INITIATIVEID1", new Reward("INITIATIVEID1", "ORGANIZATIONID1", 300L, false, false)))
                                 .build()
                 )
                 .map(TestUtils::jsonSerializer)
@@ -110,13 +109,13 @@ class MerchantTransactionStatisticsServiceTest extends BaseStatisticsEvaluationS
         Mockito.verify(merchantInitiativeCountersRepositoryMock).retrieveMerchantCountersTransactionCommittedOffset(buildCounterId("INITIATIVEID2"), MERCHANTID, "INITIATIVEID2", 1);
         Mockito.verify(merchantInitiativeCountersRepositoryMock).retrieveMerchantCountersTransactionCommittedOffset(buildCounterId("INITIATIVEID2"), MERCHANTID, "INITIATIVEID2", 3);
 
-        Mockito.verify(merchantInitiativeCountersRepositoryMock).updateCountersFromTransaction(buildCounterId("INITIATIVEID1"), BigDecimal.valueOf(4.1), 0L, 0, partition0LastCommittedOffset);
-        Mockito.verify(merchantInitiativeCountersRepositoryMock).updateCountersFromTransaction(buildCounterId("INITIATIVEID1"), BigDecimal.valueOf(2.25), 0L, 1, partition1LastCommittedOffset);
-        Mockito.verify(merchantInitiativeCountersRepositoryMock).updateCountersFromTransaction(buildCounterId("INITIATIVEID1"), BigDecimal.valueOf(6.35), 0L, 3, EXPECTED_PARTITION3_OFFSET);
+        Mockito.verify(merchantInitiativeCountersRepositoryMock).updateCountersFromTransaction(buildCounterId("INITIATIVEID1"), 410L, 0L, 0, partition0LastCommittedOffset);
+        Mockito.verify(merchantInitiativeCountersRepositoryMock).updateCountersFromTransaction(buildCounterId("INITIATIVEID1"), 225L, 0L, 1, partition1LastCommittedOffset);
+        Mockito.verify(merchantInitiativeCountersRepositoryMock).updateCountersFromTransaction(buildCounterId("INITIATIVEID1"), 635L, 0L, 3, EXPECTED_PARTITION3_OFFSET);
 
-        Mockito.verify(merchantInitiativeCountersRepositoryMock).updateCountersFromTransaction(buildCounterId("INITIATIVEID2"), BigDecimal.valueOf(6.13), 1L,0, partition0LastCommittedOffset);
-        Mockito.verify(merchantInitiativeCountersRepositoryMock).updateCountersFromTransaction(buildCounterId("INITIATIVEID2"), BigDecimal.valueOf(8.25),  -1L,1, partition1LastCommittedOffset);
-        Mockito.verify(merchantInitiativeCountersRepositoryMock).updateCountersFromTransaction(buildCounterId("INITIATIVEID2"), BigDecimal.valueOf(14.38),  0L, 3, EXPECTED_PARTITION3_OFFSET);
+        Mockito.verify(merchantInitiativeCountersRepositoryMock).updateCountersFromTransaction(buildCounterId("INITIATIVEID2"), 613L, 1L,0, partition0LastCommittedOffset);
+        Mockito.verify(merchantInitiativeCountersRepositoryMock).updateCountersFromTransaction(buildCounterId("INITIATIVEID2"), 825L,  -1L,1, partition1LastCommittedOffset);
+        Mockito.verify(merchantInitiativeCountersRepositoryMock).updateCountersFromTransaction(buildCounterId("INITIATIVEID2"), 1438L,  0L, 3, EXPECTED_PARTITION3_OFFSET);
 
         Mockito.verify(consumerMock).commitAsync(Mockito.eq(Map.of(new TopicPartition(TOPIC_NAME, 0), new OffsetAndMetadata(partition0LastCommittedOffset+1))), Mockito.notNull());
         Mockito.verify(consumerMock).commitAsync(Mockito.eq(Map.of(new TopicPartition(TOPIC_NAME, 1), new OffsetAndMetadata(partition1LastCommittedOffset+1))), Mockito.isNull()); // no error messages in this partition, so no commit callback

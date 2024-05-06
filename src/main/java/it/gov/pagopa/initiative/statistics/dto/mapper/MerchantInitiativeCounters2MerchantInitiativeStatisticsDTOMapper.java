@@ -1,6 +1,5 @@
 package it.gov.pagopa.initiative.statistics.dto.mapper;
 
-import it.gov.pagopa.common.utils.CommonUtilities;
 import it.gov.pagopa.initiative.statistics.dto.MerchantStatisticsDTO;
 import it.gov.pagopa.initiative.statistics.model.MerchantInitiativeCounters;
 import org.springframework.stereotype.Service;
@@ -13,9 +12,9 @@ public class MerchantInitiativeCounters2MerchantInitiativeStatisticsDTOMapper im
     @Override
     public MerchantStatisticsDTO apply(MerchantInitiativeCounters merchantInitiativeCounters) {
         return MerchantStatisticsDTO.builder()
-                .amount(CommonUtilities.centsToEuro(merchantInitiativeCounters.getTotalProvidedCents()))
-                .accrued(CommonUtilities.centsToEuro(merchantInitiativeCounters.getTotalProvidedCents() - merchantInitiativeCounters.getTotalRefundedCents()))
-                .refunded(CommonUtilities.centsToEuro(merchantInitiativeCounters.getTotalRefundedCents()))
+                .amountCents(merchantInitiativeCounters.getTotalProvidedCents())
+                .accruedCents(merchantInitiativeCounters.getTotalProvidedCents() - merchantInitiativeCounters.getTotalRefundedCents())
+                .refundedCents(merchantInitiativeCounters.getTotalRefundedCents())
                 .build();
     }
 }

@@ -1,7 +1,6 @@
 package it.gov.pagopa.initiative.statistics.repository;
 
 import com.mongodb.client.result.UpdateResult;
-import it.gov.pagopa.common.utils.CommonUtilities;
 import it.gov.pagopa.initiative.statistics.model.CommittedOffset;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +11,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -108,9 +106,9 @@ public class InitiativeStatAtomicOpsRepositoryImpl implements InitiativeStatAtom
     }
 
     @Override
-    public void updateAccruedRewards(String initiativeId, BigDecimal rewardEuro, Long trxs, int partition, long offset) {
+    public void updateAccruedRewards(String initiativeId, Long rewardCents, Long trxs, int partition, long offset) {
         Map<String, Long> incrementsMap = Map.of(
-                FIELD_ACCRUED_REWARD_CENTS, CommonUtilities.euroToCents(rewardEuro),
+                FIELD_ACCRUED_REWARD_CENTS, rewardCents,
                 FIELD_REWARDED_TRXS, trxs
         );
         incrementCounterAndPartitionCommittedOffsets(initiativeId, incrementsMap, FIELD_TRANSACTION_EVALUATION_COMMITTED_OFFSETS, partition, offset);
