@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.util.Pair;
 
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -55,7 +54,7 @@ class TransactionEvaluationMessagesListenerTest extends BaseInitiativeStatistics
         List<TransactionEvaluationDTO> out = buildValidTransactionEvaluationEntities(bias, size, initiativeId);
         out.forEach(t -> {
             t.setRewards(new HashMap<>(t.getRewards()));
-            t.getRewards().put(initiativeId+"_2", new Reward(initiativeId+"_2", "ORGANIZATIONID_"+initiativeId, BigDecimal.valueOf(2)));
+            t.getRewards().put(initiativeId+"_2", new Reward(initiativeId+"_2", "ORGANIZATIONID_"+initiativeId, 200L));
         });
         return out;
     }
@@ -74,7 +73,7 @@ class TransactionEvaluationMessagesListenerTest extends BaseInitiativeStatistics
                     } else if (i % 5 == 1) {
                         out.setRewards(Collections.emptyMap());
                     } else if (i % 5 == 2) {
-                        out.setRewards(Map.of(INITIATIVEID1, new Reward(INITIATIVEID1, "ORGANIZATIONID", BigDecimal.ZERO)));
+                        out.setRewards(Map.of(INITIATIVEID1, new Reward(INITIATIVEID1, "ORGANIZATIONID", 0L)));
                     } else if (i % 5 == 3) {
                         out.setStatus(Constants.TRX_STATUS_AUTHORIZED);
                     } else {

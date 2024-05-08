@@ -13,7 +13,6 @@ import it.gov.pagopa.initiative.statistics.test.fakers.TransactionEvaluationDTOF
 import org.junit.jupiter.api.Assertions;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -37,7 +36,7 @@ public abstract class BaseStatisticsIntegrationTest extends BaseIntegrationTest{
     }
     protected TransactionEvaluationDTO buildValidTransactionEvaluationEntity(int bias, String initiativeid) {
         return TransactionEvaluationDTOFaker.mockInstanceBuilder(bias)
-                .rewards(Map.of(initiativeid, new Reward(initiativeid, "ORGANIZATIONID_%s".formatted(initiativeid), BigDecimal.ONE, bias%3==0, bias%6==0)))
+                .rewards(Map.of(initiativeid, new Reward(initiativeid, "ORGANIZATIONID_%s".formatted(initiativeid), 100L, bias%3==0, bias%6==0)))
                 .build();
     }
     protected List<RewardNotificationDTO> buildValidRewardNotificationEntities(int bias, int size, String initiativeid, boolean merchant) {

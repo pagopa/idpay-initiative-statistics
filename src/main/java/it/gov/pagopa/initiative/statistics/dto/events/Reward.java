@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,14 +12,14 @@ public class Reward {
     private String organizationId;
 
     /** The effective reward after CAP and REFUND evaluation */
-    private BigDecimal accruedReward;
+    private Long accruedRewardCents;
 
     /** True if it's a refunding reward */
     private boolean refund;
     /** True if it's a complete refunding reward */
     private boolean completeRefund;
 
-    public Reward(String initiativeId, String organizationId, BigDecimal accruedReward){
-        this(initiativeId, organizationId, accruedReward, false, false);
+    public Reward(String initiativeId, String organizationId, Long accruedRewardCents){
+        this(initiativeId, organizationId, accruedRewardCents, false, false);
     }
 }
