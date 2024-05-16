@@ -1,0 +1,518 @@
+asyncapi: 2.0.0
+info:
+  title: Initiative Statistics Service
+  version: 1.0.0
+  description: >-
+    Its purpose is to manage the user initiatives budget info
+tags:
+  - name: "deleteInitiative"
+    description: "Delete initiative"
+  - name: "createInitiativeStatistics"
+    description: "Create initiative statistics"
+  - name: "createMerchantCounters"
+    description: "Create merchant counters"
+  - name: "merchantCountersNotification"
+    description: "Process merchant counter notification event"
+  - name: "merchantCountersTransaction"
+    description: "Process merchant counter transaction event"
+  - name: "onboaringOutcome"
+    description: "Processing onboarding outcome event"
+  - name: "transactionEvalutation"
+    description: "Processing transaction evaluation event"
+  - name: "deleteInitiativeError"
+    description: "Send delete initiative error event"
+  - name: "createInitiativeStatisticsError"
+    description: "Send create initiative statistics error event"
+  - name: "createMerchantCountersError"
+    description: "Send create merchant counters error event"
+  - name: "merchantCountersNotificationError"
+    description: "Send merchant counter notification error event"
+  - name: "merchantCountersTransactionError"
+    description: "Send merchant counter transaction error event"
+  - name: "onboaringOutcomeError"
+    description: "Send onboarding outcome error event"
+  - name: "transactionEvalutationError"
+    description: "Send transaction evaluation error event"
+channels:
+  statistic-delete-initiative:
+    subscribe:
+      message:
+        $ref: '#/components/messages/DeleteInitiative'
+      bindings:
+        kafka:
+          topic: idpay-commands
+      tags:
+        - name: "deleteInitiative"
+  statistic-create-initiative-statistic:
+    subscribe:
+      message:
+        $ref: '#/components/messages/CreateInitiativeStatistics'
+      bindings:
+        kafka:
+          topic: idpay-commands
+      tags:
+        - name: "createInitiativeStatistics"
+  statistic-create-merchant-counters:
+    subscribe:
+      message:
+        $ref: '#/components/messages/CreateMerchantCounters'
+      bindings:
+        kafka:
+          topic: idpay-commands
+      tags:
+        - name: "createMerchantCounters"
+  statistic-merchant-counters-notification:
+    subscribe:
+      message:
+        $ref: '#/components/messages/MerchantCountersNotification'
+      bindings:
+        kafka:
+          topic: idpay-reward-notification-response
+      tags:
+        - name: "merchantCountersNotification"
+  statistic-merchant-counters-transaction:
+    subscribe:
+      message:
+        $ref: '#/components/messages/MerchantCountersTransaction'
+      bindings:
+        kafka:
+          topic: idpay-transactions
+      tags:
+        - name: "merchantCountersTransaction"
+  statistic-onboarding-outcome:
+    subscribe:
+      message:
+        $ref: '#/components/messages/OnboaringOutcome'
+      bindings:
+        kafka:
+          topic: idpay-onboarding-outcome
+      tags:
+        - name: "onboaringOutcome"
+  statistic-transaction-evaluation:
+    subscribe:
+      message:
+        $ref: '#/components/messages/TransactionEvalutation'
+      bindings:
+        kafka:
+          topic: idpay-transactions
+      tags:
+        - name: "transactionEvalutation"
+  statistic-delete-initiative-error:
+    publish:
+      message:
+        $ref: '#/components/messages/DeleteInitiativeError'
+      bindings:
+        kafka:
+          topic: idpay-errors
+      tags:
+        - name: "deleteInitiativeError"
+  statistic-create-initiative-statistic-error:
+    publish:
+      message:
+        $ref: '#/components/messages/CreateInitiativeStatisticsError'
+      bindings:
+        kafka:
+          topic: idpay-errors
+      tags:
+        - name: "createInitiativeStatisticsError"
+  statistic-create-merchant-counters-error:
+    publish:
+      message:
+        $ref: '#/components/messages/CreateMerchantCountersError'
+      bindings:
+        kafka:
+          topic: idpay-errors
+      tags:
+        - name: "createMerchantCountersError"
+  statistic-merchant-counters-notification-error:
+    publish:
+      message:
+        $ref: '#/components/messages/MerchantCountersNotificationError'
+      bindings:
+        kafka:
+          topic: idpay-errors
+      tags:
+        - name: "merchantCountersNotificationError"
+  statistic-merchant-counters-transaction-error:
+    publish:
+      message:
+        $ref: '#/components/messages/MerchantCountersTransactionError'
+      bindings:
+        kafka:
+          topic: idpay-errors
+      tags:
+        - name: "merchantCountersTransactionError"
+  statistic-onboarding-outcome-error:
+    publish:
+      message:
+        $ref: '#/components/messages/OnboaringOutcomeError'
+      bindings:
+        kafka:
+          topic: idpay-onboarding-outcome
+      tags:
+        - name: "onboaringOutcomeError"
+  statistic-transaction-evaluation-error:
+    publish:
+      message:
+        $ref: '#/components/messages/TransactionEvalutationError'
+      bindings:
+        kafka:
+          topic: idpay-errors
+      tags:
+        - name: "transactionEvalutationError"
+components:
+  messages:
+    DeleteInitiative:
+      contentType: application/json
+      description: >-
+        Event sent to the application when a delete initiative command has published
+      summary: Delete documents of the initiative
+      payload:
+        $ref: "#/components/schemas/CommandOperationDTO"
+    CreateInitiativeStatistics:
+      contentType: application/json
+      description: >-
+        Event sent to the application for initializing statistic for an initiative
+      summary: Informs the application that it needs to initialize statistic of an initiative
+      payload:
+        $ref: "#/components/schemas/CommandOperationDTO"
+    CreateMerchantCounters:
+      contentType: application/json
+      description: >-
+        Event sent to the application for initializing counters for merchant of an initiative
+      summary: Informs the application that it needs to initialize the counter of a merchant associated to an initiative
+      payload:
+        $ref: "#/components/schemas/CommandOperationDTO"
+    MerchantCountersNotification:
+      contentType: application/json
+      description: >-
+        Event consumed by the application when updating the refound counters
+      summary: Informs the application to update the  counters of the merchant associated with the number of refounds and the total amount of them
+      payload:
+        $ref: "#/components/schemas/RewardNotificationDTO"
+    MerchantCountersTransaction:
+      contentType: application/json
+      description: >-
+        Event consumed by the application when updating the transaction counters of the merchant
+      summary: Informs the application to update the counters of the merchant associated with the number of transactions and the total amount of them
+      payload:
+        $ref: "#/components/schemas/TransactionEvaluationDTO"
+    OnboaringOutcome:
+      contentType: application/json
+      description: >-
+        Event consumed by the application when updating the onboarding counters of the initiative
+      summary: Informs the application to update the counters of the initiative associated with the number of onboaring
+      payload:
+        $ref: "#/components/schemas/OnboardingOutcomeDTO"
+    TransactionEvalutation:
+      contentType: application/json
+      description: >-
+        Event consumed by the application when updating the accrued reward counters of the initiative
+      summary: Informs the application to update counters of the initiative associated with the number of rewarded transaction and the total amount of them
+      payload:
+        $ref: "#/components/schemas/TransactionEvaluationDTO"
+    DeleteInitiativeError:
+      contentType: application/json
+      description: >-
+        Event produced when error occurred during the evaluation of the payload in the initiative deletion flow
+      summary: Informs that and error occured during the evaluation of the payload in the initiative deletion
+      headers:
+        $ref: "#/components/schemas/ErrorQueueHeader"
+      payload:
+        $ref: "#/components/schemas/CommandOperationDTO"
+    CreateInitiativeStatisticsError:
+      contentType: application/json
+      description: >-
+        Event produced when error occurred during the evaluation of the payload in the initiative statistics creation flow
+      summary: Informs that and error occured during the evaluation of the payload in the initiative statistics creation flow
+      headers:
+        $ref: "#/components/schemas/ErrorQueueHeader"
+      payload:
+        $ref: "#/components/schemas/CommandOperationDTO"
+    CreateMerchantCountersError:
+      contentType: application/json
+      description: >-
+        Event produced when error occurred during the evaluation of the payload in the  merchant counters creation flow
+      summary: Informs that and error occured during the evaluation of the payload in the  merchant counters creation flows
+      headers:
+        $ref: "#/components/schemas/ErrorQueueHeader"
+      payload:
+        $ref: "#/components/schemas/CommandOperationDTO"
+    MerchantCountersNotificationError:
+      contentType: application/json
+      description: >-
+        Event produced when error occurred during the evaluation of the payload in the  merchant counters update flow
+      summary: Informs that and error occured during the evaluation of the payload in the  merchant counters update flow
+      headers:
+        $ref: "#/components/schemas/ErrorQueueHeader"
+      payload:
+        $ref: "#/components/schemas/RewardNotificationDTO"
+    MerchantCountersTransactionError:
+      contentType: application/json
+      description: >-
+        Event produced when error occurred during the evaluation of the payload in the  merchant counters update flow
+      summary: Informs that and error occured during the evaluation of the payload in the  merchant counters update flow
+      headers:
+        $ref: "#/components/schemas/ErrorQueueHeader"
+      payload:
+        $ref: "#/components/schemas/TransactionEvaluationDTO"
+    OnboaringOutcomeError:
+      contentType: application/json
+      description: >-
+        Event produced when error occurred during the evaluation of the payload in the  initiative statistics update flow
+      summary: Informs that and error occured during the evaluation of the payload in the  merchant counters update flow
+      headers:
+        $ref: "#/components/schemas/ErrorQueueHeader"
+      payload:
+        $ref: "#/components/schemas/OnboardingOutcomeDTO"
+    TransactionEvalutationError:
+      contentType: application/json
+      description: >-
+        Event produced when error occurred during the evaluation  of the payload in the  initiative statistics update flow
+      summary: Informs that and error occured during the evaluation of the payload in the  initiative statistics update flow
+      headers:
+        $ref: "#/components/schemas/ErrorQueueHeader"
+      payload:
+        $ref: "#/components/schemas/TransactionEvaluationDTO"
+  schemas:
+    CommandOperationDTO:
+      type: object
+      properties:
+        entityId:
+          type: string
+          description: ID of the entity
+          example: "ENT663dd1c4335f626497e098dd"
+        operationType:
+          type: string
+          description: Type of operation
+          example: "DELETE_INITIATIVE"
+        operationTime:
+          type: string
+          format: date-time
+          description: Time of the operation
+          example: "2024-05-14T12:30:45"
+    RewardNotificationDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          description:  Id of the message
+          example: 661626073785876cb5aa7601
+        externalId:
+          type: string
+          description: External ID
+          example: EXT661626073785876cb5aa7601
+        rewardNotificationId:
+          type: string
+          description: Id of the reward notification
+          example: RN661626073785876cb5aa7601
+        initiativeId:
+          type: string
+          description: Id of the initiative
+          example: INT661626073785876cb5aa7601
+        beneficiaryId:
+          type: string
+          description:  Id of the Beneficiary
+          example: BEN661626073785876cb5aa7601
+        beneficiaryType:
+          type: string
+          description: Beneficiary type
+          enum:
+            - CITIZEN
+            - MERCHANT
+          example: CITIZEN
+        organizationId:
+          type: string
+          description:  Id of the Organization
+          example: ORG661626073785876cb5aa7601
+        iban:
+          type: string
+          description: IBAN (International Bank Account Number)
+          example: IT60X0542811101000000123456
+        status:
+          type: string
+          description: Status
+          example: STATUS
+        rewardStatus:
+          type: string
+          description: Reward status
+          example: REWARDSTATUS
+        refundType:
+          type: string
+          description: Refund type
+          example: ORDINARY
+        rewardCents:
+          type: integer
+          format: int64
+          description: Reward in cents
+          example: 30000
+        effectiveRewardCents:
+          type: integer
+          format: int64
+          description: Effective reward in cents
+          example: 30000
+        startDate:
+          type: string
+          format: date
+          description: Start date
+          example: "2024-04-10"
+        endDate:
+          type: string
+          format: date
+          description: End date
+          example: "2024-04-15"
+        feedbackDate:
+          type: string
+          format: date-time
+          description: Feedback date
+          example: "2024-04-10T07:41:38.644+02:00"
+        rejectionCode:
+          type: string
+          description: Rejection code
+          example: ERR001
+        rejectionReason:
+          type: string
+          description: Rejection reason
+          example: Insufficient funds
+        feedbackProgressive:
+          type: integer
+          format: int64
+          description: Feedback progressive
+          example: 12345
+        executionDate:
+          type: string
+          format: date
+          description: Execution date
+          example: "2024-04-15"
+        transferDate:
+          type: string
+          format: date
+          description: Transfer date
+          example: "2024-04-15"
+        userNotificationDate:
+          type: string
+          format: date
+          description: User notification date
+          example: "2024-04-16"
+        cro:
+          type: string
+          description: Operation Reference Code
+          example: "CRO1234567890"
+    TransactionEvaluationDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID of the message
+          example: 661626073785876cb5aa7601
+        userId:
+          type: string
+          description: ID of the User
+          example: USER661626073785876cb5aa7601
+        merchantId:
+          type: string
+          description: ID of the Merchant
+          example: MERCHANT661626073785876cb5aa7601
+        operationTypeTranscoded:
+          type: string
+          description: Transcoded operation type
+          example: "CHARGE"
+        status:
+          type: string
+          description: Status
+          example: "REWARDED"
+        rewards:
+          type: object
+          description: Map of rewards associated with the transaction
+          additionalProperties:
+            $ref: "#/components/schemas/Reward"
+    Reward:
+      type: object
+      properties:
+        initiativeId:
+          type: string
+          description: ID the Initiative
+          example: INI661626073785876cb5aa7601
+        organizationId:
+          type: string
+          description: ID the Organization ID
+          example: ORG661626073785876cb5aa7601
+        accruedRewardCents:
+          type: integer
+          format: int64
+          description: Effective reward in cents
+          example: 30000
+        refund:
+          type: boolean
+          description: Flag indicating if it's a refunding reward
+          example: false
+        completeRefund:
+          type: boolean
+          description: Flag indicating if it's a complete refunding reward
+          example: false
+    OnboardingOutcomeDTO:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: User ID
+          example: USER661626073785876cb5aa7601
+        initiativeId:
+          type: string
+          description: Initiative ID
+          example: INI661626073785876cb5aa7601
+        organizationId:
+          type: string
+          description: Organization ID
+          example: ORG661626073785876cb5aa7601
+        status:
+          type: string
+          description: Status
+          example: ONBOARDING_OK
+    ErrorQueueHeader:
+      type: object
+      properties:
+        srcType:
+          type: string
+          description: The type of the source of the error message.
+          example: "kafka"
+        srcServer:
+          type: string
+          description: The source server of the error message.
+          example: cstar-u-idpay-evh-ns-00.servicebus.windows.net:9093
+        srcTopic:
+          type: string
+          description: The Kafka topic of the source of the error message.
+          example: idpay-transaction
+        description:
+          type: string
+          description: Description of the error.
+          example: "[TRANSACTION_EVALUATION] An error occurred while updateing the merchant counters"
+        retryable:
+          type: boolean
+          description: Indicates whether the error is retryable or not.
+          example: false
+        stacktrace:
+          type: string
+          description: The stack trace of the error.
+          example: "SocketTimeoutException -> Connection timed out"
+        rootCauseClass:
+          type: string
+          description: "Class name of the root cause exception."
+          example: "java.net.SocketTimeoutException"
+        routeCauseMessage:
+          type: string
+          description: "Message of the root cause exception."
+          example: "Connection timed out"
+        kafka_messageKey:
+          type: string
+          description: "Key of the Kafka message if available."
+          example: "661626073785876cb5aa7601"
+        applicationName:
+          type: string
+          description: The name of the application that generated the error.
+          example: "idpay-payment"
+          group:
+            type: string
+            description: The Kafka group to which the error message belongs.
+            example: "group"
