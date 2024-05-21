@@ -3,8 +3,9 @@ info:
   title: Initiative Statistics Service
   version: 1.0.0
   description: >-
-    Its purpose is to manage the user initiatives budget info
+    Its purpose is to manage the initiatives statistics info
 tags:
+
   - name: "deleteInitiative"
     description: "Delete initiative"
   - name: "createInitiativeStatistics"
@@ -15,24 +16,38 @@ tags:
     description: "Process merchant counter notification event"
   - name: "merchantCountersTransaction"
     description: "Process merchant counter transaction event"
-  - name: "onboaringOutcome"
+  - name: "onboardingOutcome"
     description: "Processing onboarding outcome event"
-  - name: "transactionEvalutation"
+  - name: "transactionEvaluation"
     description: "Processing transaction evaluation event"
-  - name: "deleteInitiativeError"
-    description: "Send delete initiative error event"
-  - name: "createInitiativeStatisticsError"
-    description: "Send create initiative statistics error event"
-  - name: "createMerchantCountersError"
-    description: "Send create merchant counters error event"
-  - name: "merchantCountersNotificationError"
-    description: "Send merchant counter notification error event"
-  - name: "merchantCountersTransactionError"
-    description: "Send merchant counter transaction error event"
-  - name: "onboaringOutcomeError"
-    description: "Send onboarding outcome error event"
-  - name: "transactionEvalutationError"
-    description: "Send transaction evaluation error event"
+
+  - name: "commandOperationPayloadEvaluationError"
+    description: "Send command operation payload evaluation event"
+  - name: "commandOperationNotRetryableError"
+    description: "Send command operation not retryable message event"
+  - name: "commandOperationPayloadDeserializeError"
+    description: "Send command operation payload deserialization error event"
+
+  - name: "merchantCountersNotificationPayloadEvaluationError"
+    description: "Send merchant counter notification payload evaluation error event"
+  - name: "merchantCountersNotificationNotRetryableError"
+    description: "Send merchant counter notification not retryable message"
+
+  - name: "merchantCountersTransactionPayloadEvaluationError"
+    description: "Send merchant counter transaction payload evaluation event"
+  - name: "merchantCountersTransactionNotRetryableError"
+    description: "Send merchant counter transaction not retryable message"
+
+  - name: "onboardingOutcomePayloadEvaluationError"
+    description: "Send onboarding outcome payload evaluation error event"
+  - name: "onboardingOutcomeNotRetryableError"
+    description: "Send onboarding outcome not retryable message"
+
+  - name: "transactionEvaluationPayloadEvaluationError"
+    description: "Send transaction payload evaluation error event"
+  - name: "transactionEvaluationNotRetryableError"
+    description: "Send transaction evaluation not retryable message"
+
 channels:
   statistic-delete-initiative:
     subscribe:
@@ -82,7 +97,7 @@ channels:
   statistic-onboarding-outcome:
     subscribe:
       message:
-        $ref: '#/components/messages/OnboaringOutcome'
+        $ref: '#/components/messages/OnboardingOutcome'
       bindings:
         kafka:
           topic: idpay-onboarding-outcome
@@ -91,75 +106,117 @@ channels:
   statistic-transaction-evaluation:
     subscribe:
       message:
-        $ref: '#/components/messages/TransactionEvalutation'
+        $ref: '#/components/messages/TransactionEvaluation'
       bindings:
         kafka:
           topic: idpay-transactions
       tags:
         - name: "transactionEvalutation"
-  statistic-delete-initiative-error:
+
+  statistic-command-operation-payload-evaluation-error:
     publish:
       message:
-        $ref: '#/components/messages/DeleteInitiativeError'
+        $ref: '#/components/messages/CommandOperationPayloadEvaluationError'
       bindings:
         kafka:
           topic: idpay-errors
       tags:
-        - name: "deleteInitiativeError"
-  statistic-create-initiative-statistic-error:
+        - name: "commandOperationPayloadEvaluationError"
+  statistic-command-operation-payload-deserialization-error:
     publish:
       message:
-        $ref: '#/components/messages/CreateInitiativeStatisticsError'
+        $ref: '#/components/messages/CommandOperationPayloadDeserializeError'
       bindings:
         kafka:
           topic: idpay-errors
       tags:
-        - name: "createInitiativeStatisticsError"
-  statistic-create-merchant-counters-error:
+        - name: "commandOperationPayloadDeserializeError"
+  statistic-command-operation-not-retryable-error:
     publish:
       message:
-        $ref: '#/components/messages/CreateMerchantCountersError'
+        $ref: '#/components/messages/CommandOperationNotRetryableError'
       bindings:
         kafka:
           topic: idpay-errors
       tags:
-        - name: "createMerchantCountersError"
-  statistic-merchant-counters-notification-error:
+        - name: "commandOperationNotRetryableError"
+
+  statistic-merchant-counters-notification-payload-evalution-error:
     publish:
       message:
-        $ref: '#/components/messages/MerchantCountersNotificationError'
+        $ref: '#/components/messages/MerchantCountersNotificationPayloadEvaluationError'
       bindings:
         kafka:
           topic: idpay-errors
       tags:
-        - name: "merchantCountersNotificationError"
-  statistic-merchant-counters-transaction-error:
+        - name: "merchantCountersNotificationPayloadEvaluationError"
+  statistic-merchant-counters-notification-not-retryable-error:
     publish:
       message:
-        $ref: '#/components/messages/MerchantCountersTransactionError'
+        $ref: '#/components/messages/MerchantCountersNotificationNotRetryableError'
       bindings:
         kafka:
           topic: idpay-errors
       tags:
-        - name: "merchantCountersTransactionError"
-  statistic-onboarding-outcome-error:
+        - name: "merchantCountersNotificationNotRetryableError"
+
+  statistic-merchant-counters-transaction-payload-evalution-error:
     publish:
       message:
-        $ref: '#/components/messages/OnboaringOutcomeError'
-      bindings:
-        kafka:
-          topic: idpay-onboarding-outcome
-      tags:
-        - name: "onboaringOutcomeError"
-  statistic-transaction-evaluation-error:
-    publish:
-      message:
-        $ref: '#/components/messages/TransactionEvalutationError'
+        $ref: '#/components/messages/MerchantCountersTransactionPayloadEvaluationError'
       bindings:
         kafka:
           topic: idpay-errors
       tags:
-        - name: "transactionEvalutationError"
+        - name: "merchantCountersTransactionPayloadEvaluationError"
+  statistic-merchant-counters-transaction-not-retryable-error:
+    publish:
+      message:
+        $ref: '#/components/messages/MerchantCountersTransactionNotRetryableError'
+      bindings:
+        kafka:
+          topic: idpay-errors
+      tags:
+        - name: "merchantCountersTransactionNotRetryableError"
+
+  statistic-onboarding-outcome-payload-evalution-error:
+    publish:
+      message:
+        $ref: '#/components/messages/OnboardingOutcomePayloadEvaluationError'
+      bindings:
+        kafka:
+          topic: idpay-errors
+      tags:
+        - name: "onboardingOutcomePayloadEvaluationError"
+  statistic-onboarding-outcome-not-retryable-error:
+    publish:
+      message:
+        $ref: '#/components/messages/OnboardingOutcomeNotRetryableError'
+      bindings:
+        kafka:
+          topic: idpay-errors
+      tags:
+        - name: "onboardingOutcomeNotRetryableError"
+
+  statistic-transaction-evaluation-payload-evalution-error:
+    publish:
+      message:
+        $ref: '#/components/messages/TransactionEvaluationPayloadEvaluationError'
+      bindings:
+        kafka:
+          topic: idpay-errors
+      tags:
+        - name: "transactionEvaluationPayloadEvaluationError"
+  statistic-transaction-evaluation-not-retryable-error:
+    publish:
+      message:
+        $ref: '#/components/messages/TransactionEvaluationNotRetryableError'
+      bindings:
+        kafka:
+          topic: idpay-errors
+      tags:
+        - name: "transactionEvaluationNotRetryableError"
+
 components:
   messages:
     DeleteInitiative:
@@ -197,83 +254,125 @@ components:
       summary: Informs the application to update the counters of the merchant associated with the number of transactions and the total amount of them
       payload:
         $ref: "#/components/schemas/TransactionEvaluationDTO"
-    OnboaringOutcome:
+    OnboardingOutcome:
       contentType: application/json
       description: >-
         Event consumed by the application when updating the onboarding counters of the initiative
       summary: Informs the application to update the counters of the initiative associated with the number of onboaring
       payload:
         $ref: "#/components/schemas/OnboardingOutcomeDTO"
-    TransactionEvalutation:
+    TransactionEvaluation:
       contentType: application/json
       description: >-
         Event consumed by the application when updating the accrued reward counters of the initiative
       summary: Informs the application to update counters of the initiative associated with the number of rewarded transaction and the total amount of them
       payload:
         $ref: "#/components/schemas/TransactionEvaluationDTO"
-    DeleteInitiativeError:
+
+    CommandOperationPayloadEvaluationError:
       contentType: application/json
       description: >-
-        Event produced when error occurred during the evaluation of the payload in the initiative deletion flow
-      summary: Informs that and error occured during the evaluation of the payload in the initiative deletion
+        Event produced when error occurred during the evaluation of the payload in the command operation flow
+      summary: Informs that and error occured during the evaluation of the payload in the command operation flow
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
         $ref: "#/components/schemas/CommandOperationDTO"
-    CreateInitiativeStatisticsError:
+    CommandOperationPayloadDeserializeError:
       contentType: application/json
       description: >-
-        Event produced when error occurred during the evaluation of the payload in the initiative statistics creation flow
-      summary: Informs that and error occured during the evaluation of the payload in the initiative statistics creation flow
+        Event produced when error occurred during the deserialization of the payload in the command operation flow
+      summary: Informs that and error occurred during the evaluation of the payload in the command operation flow
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
         $ref: "#/components/schemas/CommandOperationDTO"
-    CreateMerchantCountersError:
+    CommandOperationNotRetryableError:
       contentType: application/json
       description: >-
-        Event produced when error occurred during the evaluation of the payload in the  merchant counters creation flow
-      summary: Informs that and error occured during the evaluation of the payload in the  merchant counters creation flows
+        Event produced when a message cannot be retryable in command operation flow
+      summary: Informs that a message cannot be retryable in command operation flow
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
         $ref: "#/components/schemas/CommandOperationDTO"
-    MerchantCountersNotificationError:
+
+    MerchantCountersNotificationPayloadEvaluationError:
       contentType: application/json
       description: >-
-        Event produced when error occurred during the evaluation of the payload in the  merchant counters update flow
-      summary: Informs that and error occured during the evaluation of the payload in the  merchant counters update flow
+        Event produced when error occurred during the evaluation of the payload in the merchant counters update flow
+      summary: Informs that and error occurred during the evaluation of the payload in the merchant counters update flow
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
         $ref: "#/components/schemas/RewardNotificationDTO"
-    MerchantCountersTransactionError:
+    MerchantCountersNotificationNotRetryableError:
       contentType: application/json
       description: >-
-        Event produced when error occurred during the evaluation of the payload in the  merchant counters update flow
-      summary: Informs that and error occured during the evaluation of the payload in the  merchant counters update flow
+        Event produced when a message cannot be retryable in the merchant counters update flow
+      summary: Informs that  a message cannot be retryable in the merchant counters update flow
+      headers:
+        $ref: "#/components/schemas/ErrorQueueHeader"
+      payload:
+        $ref: "#/components/schemas/RewardNotificationDTO"
+
+    MerchantCountersTransactionPayloadEvaluationError:
+      contentType: application/json
+      description: >-
+        Event produced when error occurred during the evaluation of the payload in the merchant counters update flow
+      summary: Informs that and error occured during the evaluation of the payload in the merchant counters update flow
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
         $ref: "#/components/schemas/TransactionEvaluationDTO"
-    OnboaringOutcomeError:
+    MerchantCountersTransactionNotRetryableError:
       contentType: application/json
       description: >-
-        Event produced when error occurred during the evaluation of the payload in the  initiative statistics update flow
-      summary: Informs that and error occured during the evaluation of the payload in the  merchant counters update flow
+        Event produced when error occurred during the evaluation of the payload in the merchant counters update flow
+      summary: Informs that when a message cannot be retryable in the  merchant counters update flow
+      headers:
+        $ref: "#/components/schemas/ErrorQueueHeader"
+      payload:
+        $ref: "#/components/schemas/TransactionEvaluationDTO"
+
+    OnboardingOutcomePayloadEvaluationError:
+      contentType: application/json
+      description: >-
+        Event produced when error occurred during the evaluation of the payload in the initiative statistics update flow
+      summary: Informs that and error occurred during the evaluation of the payload in the  merchant counters update flow
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
         $ref: "#/components/schemas/OnboardingOutcomeDTO"
-    TransactionEvalutationError:
+    OnboardingOutcomeNotRetryableError:
+      contentType: application/json
+      description: >-
+        Event produced when error occurred during the evaluation of the payload in the initiative statistics update flow
+      summary: Informs that when a message cannot be retryable in the merchant counters update flow
+      headers:
+        $ref: "#/components/schemas/ErrorQueueHeader"
+      payload:
+        $ref: "#/components/schemas/OnboardingOutcomeDTO"
+
+    TransactionEvaluationPayloadEvaluationError:
       contentType: application/json
       description: >-
         Event produced when error occurred during the evaluation  of the payload in the  initiative statistics update flow
-      summary: Informs that and error occured during the evaluation of the payload in the  initiative statistics update flow
+      summary: Informs that and error occurred during the evaluation of the payload in the  initiative statistics update flow
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
         $ref: "#/components/schemas/TransactionEvaluationDTO"
+    TransactionEvaluationNotRetryableError:
+      contentType: application/json
+      description: >-
+        Event produced when error occurred during the evaluation  of the payload in the  initiative statistics update flow
+      summary: Informs that when a message cannot be retryable in the initiative statistics update flow
+      headers:
+        $ref: "#/components/schemas/ErrorQueueHeader"
+      payload:
+        $ref: "#/components/schemas/TransactionEvaluationDTO"
+
   schemas:
     CommandOperationDTO:
       type: object
@@ -296,15 +395,15 @@ components:
       properties:
         id:
           type: string
-          description:  Id of the message
+          description:  Id of the refund transaction
           example: 661626073785876cb5aa7601
         externalId:
           type: string
-          description: External ID
+          description: Identifier to be used during exports, created because the original identifier contains the userId
           example: EXT661626073785876cb5aa7601
         rewardNotificationId:
           type: string
-          description: Id of the reward notification
+          description: Delivery Identifier
           example: RN661626073785876cb5aa7601
         initiativeId:
           type: string
@@ -331,16 +430,16 @@ components:
           example: IT60X0542811101000000123456
         status:
           type: string
-          description: Status
-          example: STATUS
+          description: Status of the refund
+          example: PENDING
         rewardStatus:
           type: string
-          description: Reward status
-          example: REWARDSTATUS
+          description: Status of the reward
+          example: REWARDED
         refundType:
           type: string
           description: Refund type
-          example: ORDINARY
+          example: refundType
         rewardCents:
           type: integer
           format: int64
@@ -387,7 +486,7 @@ components:
         transferDate:
           type: string
           format: date
-          description: Transfer date
+          description: Date of transfer
           example: "2024-04-15"
         userNotificationDate:
           type: string
@@ -403,7 +502,7 @@ components:
       properties:
         id:
           type: string
-          description: ID of the message
+          description: ID of the transaction
           example: 661626073785876cb5aa7601
         userId:
           type: string
@@ -419,13 +518,17 @@ components:
           example: "CHARGE"
         status:
           type: string
-          description: Status
+          description: Status of transaction
           example: "REWARDED"
         rewards:
           type: object
-          description: Map of rewards associated with the transaction
-          additionalProperties:
-            $ref: "#/components/schemas/Reward"
+          description:  Map [Initiative ID - Reward]
+          properties:
+            initiativeId:
+              type: string
+            reward:
+              type: object
+              $ref: "#/components/schemas/Reward"
     Reward:
       type: object
       properties:
@@ -467,7 +570,7 @@ components:
           example: ORG661626073785876cb5aa7601
         status:
           type: string
-          description: Status
+          description: Onboarding status
           example: ONBOARDING_OK
     ErrorQueueHeader:
       type: object
@@ -487,7 +590,7 @@ components:
         description:
           type: string
           description: Description of the error.
-          example: "[TRANSACTION_EVALUATION] An error occurred while updateing the merchant counters"
+          example: "[TRANSACTION_EVALUATION] An error occurred while updating the merchant counters"
         retryable:
           type: boolean
           description: Indicates whether the error is retryable or not.
@@ -512,7 +615,7 @@ components:
           type: string
           description: The name of the application that generated the error.
           example: "idpay-payment"
-          group:
-            type: string
-            description: The Kafka group to which the error message belongs.
-            example: "group"
+        group:
+          type: string
+          description: The Kafka group to which the error message belongs.
+          example: "group"
