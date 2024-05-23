@@ -222,76 +222,94 @@ components:
     DeleteInitiative:
       contentType: application/json
       description: >-
-        Event sent to the application when a delete initiative command has published
-      summary: Delete documents of the initiative
+        This event is sent to the application when a command to delete an initiative is published.
+        It triggers the deletion of all documents related to the specified initiative.
+      summary: Notifies the application to delete all documents associated with the initiative.
       payload:
         $ref: "#/components/schemas/CommandOperationDTO"
+
     CreateInitiativeStatistics:
       contentType: application/json
       description: >-
-        Event sent to the application for initializing statistic for an initiative
-      summary: Informs the application that it needs to initialize statistic of an initiative
+        This event is sent to the application to initialize statistics for a specific initiative.
+        It sets up the required statistical data for the initiative.
+      summary: Notifies the application to initialize statistics for the initiative.
       payload:
         $ref: "#/components/schemas/CommandOperationDTO"
+
     CreateMerchantCounters:
       contentType: application/json
       description: >-
-        Event sent to the application for initializing counters for merchant of an initiative
-      summary: Informs the application that it needs to initialize the counter of a merchant associated to an initiative
+        This event is sent to the application to initialize counters for merchants associated with an initiative.
+        It sets up the necessary counters for tracking merchant info within the initiative.
+      summary: Notifies the application to initialize merchant counters for the initiative.
       payload:
         $ref: "#/components/schemas/CommandOperationDTO"
+
     MerchantCountersNotification:
       contentType: application/json
       description: >-
-        Event consumed by the application when updating the refound counters
-      summary: Informs the application to update the  counters of the merchant associated with the number of refounds and the total amount of them
+        This event is consumed by the application to update the refund counters for a merchant.
+        It updates the count and total amount of refunds associated with the merchant.
+      summary: Updates the merchant's refund counters with the number and total amount of refunds.
       payload:
         $ref: "#/components/schemas/RewardNotificationDTO"
+
     MerchantCountersTransaction:
       contentType: application/json
       description: >-
-        Event consumed by the application when updating the transaction counters of the merchant
-      summary: Informs the application to update the counters of the merchant associated with the number of transactions and the total amount of them
+        This event is consumed by the application to update the transaction counters for a merchant.
+        It updates the count and total amount of transactions associated with the merchant.
+      summary: Updates the merchant's transaction counters with the number and total amount of transactions.
       payload:
         $ref: "#/components/schemas/TransactionEvaluationDTO"
+
     OnboardingOutcome:
       contentType: application/json
       description: >-
-        Event consumed by the application when updating the onboarding counters of the initiative
-      summary: Informs the application to update the counters of the initiative associated with the number of onboaring
+        This event is consumed by the application to update the onboarding counters for an initiative.
+        It tracks the number of successful onboardings for the initiative.
+      summary: Updates the initiative's counters with the number of successful onboardings.
       payload:
         $ref: "#/components/schemas/OnboardingOutcomeDTO"
+
     TransactionEvaluation:
       contentType: application/json
       description: >-
-        Event consumed by the application when updating the accrued reward counters of the initiative
-      summary: Informs the application to update counters of the initiative associated with the number of rewarded transaction and the total amount of them
+        This event is consumed by the application to update the accrued reward counters for an initiative.
+        It tracks the number of rewarded transactions and their total amount.
+      summary: Updates the initiative's counters with the number and total amount of rewarded transactions.
       payload:
         $ref: "#/components/schemas/TransactionEvaluationDTO"
 
     CommandOperationPayloadEvaluationError:
       contentType: application/json
       description: >-
-        Event produced when error occurred during the evaluation of the payload in the command operation flow
-      summary: Informs that and error occured during the evaluation of the payload in the command operation flow
+        This event is produced when an error occurs during the evaluation of the payload in the command operation flow.
+        It includes details about the evaluation failure.
+      summary: Notifies that an error occurred during the evaluation of the payload in the command operation flow.
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
         $ref: "#/components/schemas/CommandOperationDTO"
+
     CommandOperationPayloadDeserializeError:
       contentType: application/json
       description: >-
-        Event produced when error occurred during the deserialization of the payload in the command operation flow
-      summary: Informs that and error occurred during the evaluation of the payload in the command operation flow
+        This event is produced when an error occurs during the deserialization of the payload in the command operation flow.
+        It includes details about the deserialization failure.
+      summary: Notifies that an error occurred during the deserialization of the payload in the command operation flow.
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
         $ref: "#/components/schemas/CommandOperationDTO"
+
     CommandOperationNotRetryableError:
       contentType: application/json
       description: >-
-        Event produced when a message cannot be retryable in command operation flow
-      summary: Informs that a message cannot be retryable in command operation flow
+        This event is produced when a message cannot be retried in the command operation flow.
+        It includes details about why the message is not retryable.
+      summary: Notifies that a message cannot be retried in the command operation flow.
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
@@ -300,17 +318,20 @@ components:
     MerchantCountersNotificationPayloadEvaluationError:
       contentType: application/json
       description: >-
-        Event produced when error occurred during the evaluation of the payload in the merchant counters update flow
-      summary: Informs that and error occurred during the evaluation of the payload in the merchant counters update flow
+        This event is produced when an error occurs during the evaluation of the payload in the merchant counters update flow.
+        It includes details about the evaluation failure.
+      summary: Notifies that an error occurred during the evaluation of the payload in the merchant counters update flow.
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
         $ref: "#/components/schemas/RewardNotificationDTO"
+
     MerchantCountersNotificationNotRetryableError:
       contentType: application/json
       description: >-
-        Event produced when a message cannot be retryable in the merchant counters update flow
-      summary: Informs that  a message cannot be retryable in the merchant counters update flow
+        This event is produced when a message cannot be retried in the merchant counters update flow.
+        It includes details about why the message is not retryable.
+      summary: Notifies that a message cannot be retried in the merchant counters update flow.
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
@@ -319,17 +340,20 @@ components:
     MerchantCountersTransactionPayloadEvaluationError:
       contentType: application/json
       description: >-
-        Event produced when error occurred during the evaluation of the payload in the merchant counters update flow
-      summary: Informs that and error occured during the evaluation of the payload in the merchant counters update flow
+        This event is produced when an error occurs during the evaluation of the payload in the merchant transaction counters update flow.
+        It includes details about the evaluation failure.
+      summary: Notifies that an error occurred during the evaluation of the payload in the merchant transaction counters update flow.
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
         $ref: "#/components/schemas/TransactionEvaluationDTO"
+
     MerchantCountersTransactionNotRetryableError:
       contentType: application/json
       description: >-
-        Event produced when error occurred during the evaluation of the payload in the merchant counters update flow
-      summary: Informs that when a message cannot be retryable in the  merchant counters update flow
+        This event is produced when a message cannot be retried in the merchant transaction counters update flow.
+        It includes details about why the message is not retryable.
+      summary: Notifies that a message cannot be retried in the merchant transaction counters update flow.
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
@@ -338,17 +362,20 @@ components:
     OnboardingOutcomePayloadEvaluationError:
       contentType: application/json
       description: >-
-        Event produced when error occurred during the evaluation of the payload in the initiative statistics update flow
-      summary: Informs that and error occurred during the evaluation of the payload in the  merchant counters update flow
+        This event is produced when an error occurs during the evaluation of the payload in the initiative statistics update flow.
+        It includes details about the evaluation failure.
+      summary: Notifies that an error occurred during the evaluation of the payload in the initiative statistics update flow.
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
         $ref: "#/components/schemas/OnboardingOutcomeDTO"
+
     OnboardingOutcomeNotRetryableError:
       contentType: application/json
       description: >-
-        Event produced when error occurred during the evaluation of the payload in the initiative statistics update flow
-      summary: Informs that when a message cannot be retryable in the merchant counters update flow
+        This event is produced when a message cannot be retried in the initiative statistics update flow.
+        It includes details about why the message is not retryable.
+      summary: Notifies that a message cannot be retried in the initiative statistics update flow.
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
@@ -357,21 +384,25 @@ components:
     TransactionEvaluationPayloadEvaluationError:
       contentType: application/json
       description: >-
-        Event produced when error occurred during the evaluation  of the payload in the  initiative statistics update flow
-      summary: Informs that and error occurred during the evaluation of the payload in the  initiative statistics update flow
+        This event is produced when an error occurs during the evaluation of the payload in the initiative statistics update flow.
+        It includes details about the evaluation failure.
+      summary: Notifies that an error occurred during the evaluation of the payload in the initiative statistics update flow.
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
         $ref: "#/components/schemas/TransactionEvaluationDTO"
+
     TransactionEvaluationNotRetryableError:
       contentType: application/json
       description: >-
-        Event produced when error occurred during the evaluation  of the payload in the  initiative statistics update flow
-      summary: Informs that when a message cannot be retryable in the initiative statistics update flow
+        This event is produced when a message cannot be retried in the initiative statistics update flow.
+        It includes details about why the message is not retryable.
+      summary: Notifies that a message cannot be retried in the initiative statistics update flow.
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
         $ref: "#/components/schemas/TransactionEvaluationDTO"
+
 
   schemas:
     CommandOperationDTO:
