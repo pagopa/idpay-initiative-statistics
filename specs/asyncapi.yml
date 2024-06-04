@@ -226,7 +226,7 @@ components:
         It triggers the deletion of all documents related to the specified initiative.
       summary: Notifies the application to delete all documents associated with the initiative.
       payload:
-        $ref: "#/components/schemas/CommandOperationDTO"
+        $ref: "https://raw.githubusercontent.com/pagopa/idpay-portal-welfare-backend-initiative/main/specs/asyncapi.yml#/components/schemas/QueueCommandOperationDTO"
 
     CreateInitiativeStatistics:
       contentType: application/json
@@ -262,7 +262,7 @@ components:
         It updates the count and total amount of transactions associated with the merchant.
       summary: Updates the merchant's transaction counters with the number and total amount of transactions.
       payload:
-        $ref: "#/components/schemas/TransactionEvaluationDTO"
+        $ref: "https://raw.githubusercontent.com/pagopa/idpay-payment/main/specs/asyncapi.yml#/components/schemas/TransactionInProgress"
 
     OnboardingOutcome:
       contentType: application/json
@@ -271,7 +271,10 @@ components:
         It tracks the number of successful onboardings for the initiative.
       summary: Updates the initiative's counters with the number of successful onboardings.
       payload:
-        $ref: "#/components/schemas/OnboardingOutcomeDTO"
+        oneOf:
+          - $ref: "https://raw.githubusercontent.com/pagopa/idpay-admissibility-assessor/main/specs/asyncapi.yml#/components/schemas/EvaluationCompletedDTO"
+          - $ref: "https://raw.githubusercontent.com/pagopa/idpay-ranking/main/specs/asyncapi.yml#/components/schemas/EvaluationRankingDTO"
+          - $ref: "https://raw.githubusercontent.com/pagopa/idpay-onboarding-workflow/main/specs/asyncapi.yaml#/components/schemas/EvaluationDTO"
 
     TransactionEvaluation:
       contentType: application/json
@@ -280,7 +283,10 @@ components:
         It tracks the number of rewarded transactions and their total amount.
       summary: Updates the initiative's counters with the number and total amount of rewarded transactions.
       payload:
-        $ref: "#/components/schemas/TransactionEvaluationDTO"
+        oneOf:
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-payment/main/specs/asyncapi.yml#/components/schemas/TransactionInProgress'
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-reward-calculator/main/specs/asyncapi.yaml#/components/schemas/TransactionProcessed'
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-reward-user-id-splitter/main/specs/asyncapi.yaml#/components/schemas/TransactionRejectedDTO'
 
     CommandOperationPayloadEvaluationError:
       contentType: application/json
@@ -346,7 +352,7 @@ components:
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
-        $ref: "#/components/schemas/TransactionEvaluationDTO"
+        $ref: "https://raw.githubusercontent.com/pagopa/idpay-payment/main/specs/asyncapi.yml#/components/schemas/TransactionInProgress"
 
     MerchantCountersTransactionNotRetryableError:
       contentType: application/json
@@ -357,7 +363,7 @@ components:
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
-        $ref: "#/components/schemas/TransactionEvaluationDTO"
+        $ref: "https://raw.githubusercontent.com/pagopa/idpay-payment/main/specs/asyncapi.yml#/components/schemas/TransactionInProgress"
 
     OnboardingOutcomePayloadEvaluationError:
       contentType: application/json
@@ -368,7 +374,10 @@ components:
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
-        $ref: "#/components/schemas/OnboardingOutcomeDTO"
+        oneOf:
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-payment/main/specs/asyncapi.yml#/components/schemas/TransactionInProgress'
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-reward-calculator/main/specs/asyncapi.yaml#/components/schemas/TransactionProcessed'
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-reward-user-id-splitter/main/specs/asyncapi.yaml#/components/schemas/TransactionRejectedDTO'
 
     OnboardingOutcomeNotRetryableError:
       contentType: application/json
@@ -379,7 +388,10 @@ components:
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
-        $ref: "#/components/schemas/OnboardingOutcomeDTO"
+        oneOf:
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-payment/main/specs/asyncapi.yml#/components/schemas/TransactionInProgress'
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-reward-calculator/main/specs/asyncapi.yaml#/components/schemas/TransactionProcessed'
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-reward-user-id-splitter/main/specs/asyncapi.yaml#/components/schemas/TransactionRejectedDTO'
 
     TransactionEvaluationPayloadEvaluationError:
       contentType: application/json
@@ -390,7 +402,10 @@ components:
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
-        $ref: "#/components/schemas/TransactionEvaluationDTO"
+        oneOf:
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-payment/main/specs/asyncapi.yml#/components/schemas/TransactionInProgress'
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-reward-calculator/main/specs/asyncapi.yaml#/components/schemas/TransactionProcessed'
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-reward-user-id-splitter/main/specs/asyncapi.yaml#/components/schemas/TransactionRejectedDTO'
 
     TransactionEvaluationNotRetryableError:
       contentType: application/json
@@ -401,7 +416,10 @@ components:
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
-        $ref: "#/components/schemas/TransactionEvaluationDTO"
+        oneOf:
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-payment/main/specs/asyncapi.yml#/components/schemas/TransactionInProgress'
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-reward-calculator/main/specs/asyncapi.yaml#/components/schemas/TransactionProcessed'
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-reward-user-id-splitter/main/specs/asyncapi.yaml#/components/schemas/TransactionRejectedDTO'
 
 
   schemas:
@@ -528,81 +546,7 @@ components:
           type: string
           description: Operation Reference Code
           example: "CRO1234567890"
-    TransactionEvaluationDTO:
-      type: object
-      properties:
-        id:
-          type: string
-          description: ID of the transaction
-          example: 661626073785876cb5aa7601
-        userId:
-          type: string
-          description: ID of the User
-          example: USER661626073785876cb5aa7601
-        merchantId:
-          type: string
-          description: ID of the Merchant
-          example: MERCHANT661626073785876cb5aa7601
-        operationTypeTranscoded:
-          type: string
-          description: Transcoded operation type
-          example: "CHARGE"
-        status:
-          type: string
-          description: Status of transaction
-          example: "REWARDED"
-        rewards:
-          type: object
-          description:  Map [Initiative ID - Reward]
-          properties:
-            initiativeId:
-              type: string
-            reward:
-              type: object
-              $ref: "#/components/schemas/Reward"
-    Reward:
-      type: object
-      properties:
-        initiativeId:
-          type: string
-          description: ID the Initiative
-          example: INI661626073785876cb5aa7601
-        organizationId:
-          type: string
-          description: ID the Organization ID
-          example: ORG661626073785876cb5aa7601
-        accruedRewardCents:
-          type: integer
-          format: int64
-          description: Effective reward in cents
-          example: 30000
-        refund:
-          type: boolean
-          description: Flag indicating if it's a refunding reward
-          example: false
-        completeRefund:
-          type: boolean
-          description: Flag indicating if it's a complete refunding reward
-          example: false
-    OnboardingOutcomeDTO:
-      type: object
-      properties:
-        userId:
-          type: string
-          description: User ID
-          example: USER661626073785876cb5aa7601
-        initiativeId:
-          type: string
-          description: Initiative ID
-          example: INI661626073785876cb5aa7601
-        organizationId:
-          type: string
-          description: Organization ID
-          example: ORG661626073785876cb5aa7601
-        status:
-          type: string
-          description: Onboarding status
-          example: ONBOARDING_OK
+
     ErrorQueueHeader:
       type: object
       properties:
