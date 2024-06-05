@@ -49,7 +49,7 @@ tags:
     description: "Send transaction evaluation not retryable message"
 
 channels:
-  statistic-delete-initiative:
+  statistics-delete-initiative:
     subscribe:
       message:
         $ref: '#/components/messages/DeleteInitiative'
@@ -58,7 +58,7 @@ channels:
           topic: idpay-commands
       tags:
         - name: "deleteInitiative"
-  statistic-create-initiative-statistic:
+  statistics-create-initiative-statistic:
     subscribe:
       message:
         $ref: '#/components/messages/CreateInitiativeStatistics'
@@ -67,7 +67,7 @@ channels:
           topic: idpay-commands
       tags:
         - name: "createInitiativeStatistics"
-  statistic-create-merchant-counters:
+  statistics-create-merchant-counters:
     subscribe:
       message:
         $ref: '#/components/messages/CreateMerchantCounters'
@@ -76,7 +76,7 @@ channels:
           topic: idpay-commands
       tags:
         - name: "createMerchantCounters"
-  statistic-merchant-counters-notification:
+  statistics-merchant-counters-notification:
     subscribe:
       message:
         $ref: '#/components/messages/MerchantCountersNotification'
@@ -85,7 +85,7 @@ channels:
           topic: idpay-reward-notification-response
       tags:
         - name: "merchantCountersNotification"
-  statistic-merchant-counters-transaction:
+  statistics-merchant-counters-transaction:
     subscribe:
       message:
         $ref: '#/components/messages/MerchantCountersTransaction'
@@ -94,7 +94,7 @@ channels:
           topic: idpay-transactions
       tags:
         - name: "merchantCountersTransaction"
-  statistic-onboarding-outcome:
+  statistics-onboarding-outcome:
     subscribe:
       message:
         $ref: '#/components/messages/OnboardingOutcome'
@@ -103,7 +103,7 @@ channels:
           topic: idpay-onboarding-outcome
       tags:
         - name: "onboaringOutcome"
-  statistic-transaction-evaluation:
+  statistics-transaction-evaluation:
     subscribe:
       message:
         $ref: '#/components/messages/TransactionEvaluation'
@@ -113,7 +113,7 @@ channels:
       tags:
         - name: "transactionEvalutation"
 
-  statistic-command-operation-payload-evaluation-error:
+  statistics-command-operation-payload-evaluation-error:
     publish:
       message:
         $ref: '#/components/messages/CommandOperationPayloadEvaluationError'
@@ -122,7 +122,7 @@ channels:
           topic: idpay-errors
       tags:
         - name: "commandOperationPayloadEvaluationError"
-  statistic-command-operation-payload-deserialization-error:
+  statistics-command-operation-payload-deserialization-error:
     publish:
       message:
         $ref: '#/components/messages/CommandOperationPayloadDeserializeError'
@@ -131,7 +131,7 @@ channels:
           topic: idpay-errors
       tags:
         - name: "commandOperationPayloadDeserializeError"
-  statistic-command-operation-not-retryable-error:
+  statistics-command-operation-not-retryable-error:
     publish:
       message:
         $ref: '#/components/messages/CommandOperationNotRetryableError'
@@ -141,7 +141,7 @@ channels:
       tags:
         - name: "commandOperationNotRetryableError"
 
-  statistic-merchant-counters-notification-payload-evalution-error:
+  statistics-merchant-counters-notification-payload-evalution-error:
     publish:
       message:
         $ref: '#/components/messages/MerchantCountersNotificationPayloadEvaluationError'
@@ -150,7 +150,7 @@ channels:
           topic: idpay-errors
       tags:
         - name: "merchantCountersNotificationPayloadEvaluationError"
-  statistic-merchant-counters-notification-not-retryable-error:
+  statistics-merchant-counters-notification-not-retryable-error:
     publish:
       message:
         $ref: '#/components/messages/MerchantCountersNotificationNotRetryableError'
@@ -160,7 +160,7 @@ channels:
       tags:
         - name: "merchantCountersNotificationNotRetryableError"
 
-  statistic-merchant-counters-transaction-payload-evalution-error:
+  statistics-merchant-counters-transaction-payload-evalution-error:
     publish:
       message:
         $ref: '#/components/messages/MerchantCountersTransactionPayloadEvaluationError'
@@ -169,7 +169,7 @@ channels:
           topic: idpay-errors
       tags:
         - name: "merchantCountersTransactionPayloadEvaluationError"
-  statistic-merchant-counters-transaction-not-retryable-error:
+  statistics-merchant-counters-transaction-not-retryable-error:
     publish:
       message:
         $ref: '#/components/messages/MerchantCountersTransactionNotRetryableError'
@@ -179,7 +179,7 @@ channels:
       tags:
         - name: "merchantCountersTransactionNotRetryableError"
 
-  statistic-onboarding-outcome-payload-evalution-error:
+  statistics-onboarding-outcome-payload-evalution-error:
     publish:
       message:
         $ref: '#/components/messages/OnboardingOutcomePayloadEvaluationError'
@@ -188,7 +188,7 @@ channels:
           topic: idpay-errors
       tags:
         - name: "onboardingOutcomePayloadEvaluationError"
-  statistic-onboarding-outcome-not-retryable-error:
+  statistics-onboarding-outcome-not-retryable-error:
     publish:
       message:
         $ref: '#/components/messages/OnboardingOutcomeNotRetryableError'
@@ -198,7 +198,7 @@ channels:
       tags:
         - name: "onboardingOutcomeNotRetryableError"
 
-  statistic-transaction-evaluation-payload-evalution-error:
+  statistics-transaction-evaluation-payload-evalution-error:
     publish:
       message:
         $ref: '#/components/messages/TransactionEvaluationPayloadEvaluationError'
@@ -207,7 +207,7 @@ channels:
           topic: idpay-errors
       tags:
         - name: "transactionEvaluationPayloadEvaluationError"
-  statistic-transaction-evaluation-not-retryable-error:
+  statistics-transaction-evaluation-not-retryable-error:
     publish:
       message:
         $ref: '#/components/messages/TransactionEvaluationNotRetryableError'
