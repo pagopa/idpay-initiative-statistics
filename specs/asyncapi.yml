@@ -49,7 +49,7 @@ tags:
     description: "Send transaction evaluation not retryable message"
 
 channels:
-  statistic-delete-initiative:
+  statistics-delete-initiative:
     subscribe:
       message:
         $ref: '#/components/messages/DeleteInitiative'
@@ -58,7 +58,7 @@ channels:
           topic: idpay-commands
       tags:
         - name: "deleteInitiative"
-  statistic-create-initiative-statistic:
+  statistics-create-initiative-statistic:
     subscribe:
       message:
         $ref: '#/components/messages/CreateInitiativeStatistics'
@@ -67,7 +67,7 @@ channels:
           topic: idpay-commands
       tags:
         - name: "createInitiativeStatistics"
-  statistic-create-merchant-counters:
+  statistics-create-merchant-counters:
     subscribe:
       message:
         $ref: '#/components/messages/CreateMerchantCounters'
@@ -76,7 +76,7 @@ channels:
           topic: idpay-commands
       tags:
         - name: "createMerchantCounters"
-  statistic-merchant-counters-notification:
+  statistics-merchant-counters-notification:
     subscribe:
       message:
         $ref: '#/components/messages/MerchantCountersNotification'
@@ -85,7 +85,7 @@ channels:
           topic: idpay-reward-notification-response
       tags:
         - name: "merchantCountersNotification"
-  statistic-merchant-counters-transaction:
+  statistics-merchant-counters-transaction:
     subscribe:
       message:
         $ref: '#/components/messages/MerchantCountersTransaction'
@@ -94,7 +94,7 @@ channels:
           topic: idpay-transactions
       tags:
         - name: "merchantCountersTransaction"
-  statistic-onboarding-outcome:
+  statistics-onboarding-outcome:
     subscribe:
       message:
         $ref: '#/components/messages/OnboardingOutcome'
@@ -103,7 +103,7 @@ channels:
           topic: idpay-onboarding-outcome
       tags:
         - name: "onboaringOutcome"
-  statistic-transaction-evaluation:
+  statistics-transaction-evaluation:
     subscribe:
       message:
         $ref: '#/components/messages/TransactionEvaluation'
@@ -113,7 +113,7 @@ channels:
       tags:
         - name: "transactionEvalutation"
 
-  statistic-command-operation-payload-evaluation-error:
+  statistics-command-operation-payload-evaluation-error:
     publish:
       message:
         $ref: '#/components/messages/CommandOperationPayloadEvaluationError'
@@ -122,7 +122,7 @@ channels:
           topic: idpay-errors
       tags:
         - name: "commandOperationPayloadEvaluationError"
-  statistic-command-operation-payload-deserialization-error:
+  statistics-command-operation-payload-deserialization-error:
     publish:
       message:
         $ref: '#/components/messages/CommandOperationPayloadDeserializeError'
@@ -131,7 +131,7 @@ channels:
           topic: idpay-errors
       tags:
         - name: "commandOperationPayloadDeserializeError"
-  statistic-command-operation-not-retryable-error:
+  statistics-command-operation-not-retryable-error:
     publish:
       message:
         $ref: '#/components/messages/CommandOperationNotRetryableError'
@@ -141,7 +141,7 @@ channels:
       tags:
         - name: "commandOperationNotRetryableError"
 
-  statistic-merchant-counters-notification-payload-evalution-error:
+  statistics-merchant-counters-notification-payload-evalution-error:
     publish:
       message:
         $ref: '#/components/messages/MerchantCountersNotificationPayloadEvaluationError'
@@ -150,7 +150,7 @@ channels:
           topic: idpay-errors
       tags:
         - name: "merchantCountersNotificationPayloadEvaluationError"
-  statistic-merchant-counters-notification-not-retryable-error:
+  statistics-merchant-counters-notification-not-retryable-error:
     publish:
       message:
         $ref: '#/components/messages/MerchantCountersNotificationNotRetryableError'
@@ -160,7 +160,7 @@ channels:
       tags:
         - name: "merchantCountersNotificationNotRetryableError"
 
-  statistic-merchant-counters-transaction-payload-evalution-error:
+  statistics-merchant-counters-transaction-payload-evalution-error:
     publish:
       message:
         $ref: '#/components/messages/MerchantCountersTransactionPayloadEvaluationError'
@@ -169,7 +169,7 @@ channels:
           topic: idpay-errors
       tags:
         - name: "merchantCountersTransactionPayloadEvaluationError"
-  statistic-merchant-counters-transaction-not-retryable-error:
+  statistics-merchant-counters-transaction-not-retryable-error:
     publish:
       message:
         $ref: '#/components/messages/MerchantCountersTransactionNotRetryableError'
@@ -179,7 +179,7 @@ channels:
       tags:
         - name: "merchantCountersTransactionNotRetryableError"
 
-  statistic-onboarding-outcome-payload-evalution-error:
+  statistics-onboarding-outcome-payload-evalution-error:
     publish:
       message:
         $ref: '#/components/messages/OnboardingOutcomePayloadEvaluationError'
@@ -188,7 +188,7 @@ channels:
           topic: idpay-errors
       tags:
         - name: "onboardingOutcomePayloadEvaluationError"
-  statistic-onboarding-outcome-not-retryable-error:
+  statistics-onboarding-outcome-not-retryable-error:
     publish:
       message:
         $ref: '#/components/messages/OnboardingOutcomeNotRetryableError'
@@ -198,7 +198,7 @@ channels:
       tags:
         - name: "onboardingOutcomeNotRetryableError"
 
-  statistic-transaction-evaluation-payload-evalution-error:
+  statistics-transaction-evaluation-payload-evalution-error:
     publish:
       message:
         $ref: '#/components/messages/TransactionEvaluationPayloadEvaluationError'
@@ -207,7 +207,7 @@ channels:
           topic: idpay-errors
       tags:
         - name: "transactionEvaluationPayloadEvaluationError"
-  statistic-transaction-evaluation-not-retryable-error:
+  statistics-transaction-evaluation-not-retryable-error:
     publish:
       message:
         $ref: '#/components/messages/TransactionEvaluationNotRetryableError'
@@ -226,7 +226,7 @@ components:
         It triggers the deletion of all documents related to the specified initiative.
       summary: Notifies the application to delete all documents associated with the initiative.
       payload:
-        $ref: "#/components/schemas/CommandOperationDTO"
+        $ref: "https://raw.githubusercontent.com/pagopa/idpay-portal-welfare-backend-initiative/main/specs/asyncapi.yml#/components/schemas/QueueCommandOperationDTO"
 
     CreateInitiativeStatistics:
       contentType: application/json
@@ -253,7 +253,7 @@ components:
         It updates the count and total amount of refunds associated with the merchant.
       summary: Updates the merchant's refund counters with the number and total amount of refunds.
       payload:
-        $ref: "#/components/schemas/RewardNotificationDTO"
+        $ref: "https://raw.githubusercontent.com/pagopa/idpay-reward-notification/main/specs/asyncapi.yaml#/components/schemas/RewardFeedbackDTO"
 
     MerchantCountersTransaction:
       contentType: application/json
@@ -262,7 +262,7 @@ components:
         It updates the count and total amount of transactions associated with the merchant.
       summary: Updates the merchant's transaction counters with the number and total amount of transactions.
       payload:
-        $ref: "#/components/schemas/TransactionEvaluationDTO"
+        $ref: "https://raw.githubusercontent.com/pagopa/idpay-payment/main/specs/asyncapi.yml#/components/schemas/TransactionInProgress"
 
     OnboardingOutcome:
       contentType: application/json
@@ -271,7 +271,10 @@ components:
         It tracks the number of successful onboardings for the initiative.
       summary: Updates the initiative's counters with the number of successful onboardings.
       payload:
-        $ref: "#/components/schemas/OnboardingOutcomeDTO"
+        oneOf:
+          - $ref: "https://raw.githubusercontent.com/pagopa/idpay-admissibility-assessor/main/specs/asyncapi.yml#/components/schemas/EvaluationCompletedDTO"
+          - $ref: "https://raw.githubusercontent.com/pagopa/idpay-ranking/main/specs/asyncapi.yml#/components/schemas/EvaluationRankingDTO"
+          - $ref: "https://raw.githubusercontent.com/pagopa/idpay-onboarding-workflow/main/specs/asyncapi.yaml#/components/schemas/EvaluationDTO"
 
     TransactionEvaluation:
       contentType: application/json
@@ -280,7 +283,10 @@ components:
         It tracks the number of rewarded transactions and their total amount.
       summary: Updates the initiative's counters with the number and total amount of rewarded transactions.
       payload:
-        $ref: "#/components/schemas/TransactionEvaluationDTO"
+        oneOf:
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-payment/main/specs/asyncapi.yml#/components/schemas/TransactionInProgress'
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-reward-calculator/main/specs/asyncapi.yaml#/components/schemas/TransactionProcessed'
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-reward-user-id-splitter/main/specs/asyncapi.yaml#/components/schemas/TransactionRejectedDTO'
 
     CommandOperationPayloadEvaluationError:
       contentType: application/json
@@ -324,7 +330,7 @@ components:
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
-        $ref: "#/components/schemas/RewardNotificationDTO"
+        $ref: "https://raw.githubusercontent.com/pagopa/idpay-reward-notification/main/specs/asyncapi.yaml#/components/schemas/RewardFeedbackDTO"
 
     MerchantCountersNotificationNotRetryableError:
       contentType: application/json
@@ -335,7 +341,7 @@ components:
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
-        $ref: "#/components/schemas/RewardNotificationDTO"
+        $ref: "https://raw.githubusercontent.com/pagopa/idpay-reward-notification/main/specs/asyncapi.yaml#/components/schemas/RewardFeedbackDTO"
 
     MerchantCountersTransactionPayloadEvaluationError:
       contentType: application/json
@@ -346,7 +352,7 @@ components:
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
-        $ref: "#/components/schemas/TransactionEvaluationDTO"
+        $ref: "https://raw.githubusercontent.com/pagopa/idpay-payment/main/specs/asyncapi.yml#/components/schemas/TransactionInProgress"
 
     MerchantCountersTransactionNotRetryableError:
       contentType: application/json
@@ -357,7 +363,7 @@ components:
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
-        $ref: "#/components/schemas/TransactionEvaluationDTO"
+        $ref: "https://raw.githubusercontent.com/pagopa/idpay-payment/main/specs/asyncapi.yml#/components/schemas/TransactionInProgress"
 
     OnboardingOutcomePayloadEvaluationError:
       contentType: application/json
@@ -368,7 +374,10 @@ components:
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
-        $ref: "#/components/schemas/OnboardingOutcomeDTO"
+        oneOf:
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-payment/main/specs/asyncapi.yml#/components/schemas/TransactionInProgress'
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-reward-calculator/main/specs/asyncapi.yaml#/components/schemas/TransactionProcessed'
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-reward-user-id-splitter/main/specs/asyncapi.yaml#/components/schemas/TransactionRejectedDTO'
 
     OnboardingOutcomeNotRetryableError:
       contentType: application/json
@@ -379,7 +388,10 @@ components:
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
-        $ref: "#/components/schemas/OnboardingOutcomeDTO"
+        oneOf:
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-payment/main/specs/asyncapi.yml#/components/schemas/TransactionInProgress'
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-reward-calculator/main/specs/asyncapi.yaml#/components/schemas/TransactionProcessed'
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-reward-user-id-splitter/main/specs/asyncapi.yaml#/components/schemas/TransactionRejectedDTO'
 
     TransactionEvaluationPayloadEvaluationError:
       contentType: application/json
@@ -390,7 +402,10 @@ components:
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
-        $ref: "#/components/schemas/TransactionEvaluationDTO"
+        oneOf:
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-payment/main/specs/asyncapi.yml#/components/schemas/TransactionInProgress'
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-reward-calculator/main/specs/asyncapi.yaml#/components/schemas/TransactionProcessed'
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-reward-user-id-splitter/main/specs/asyncapi.yaml#/components/schemas/TransactionRejectedDTO'
 
     TransactionEvaluationNotRetryableError:
       contentType: application/json
@@ -401,7 +416,10 @@ components:
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
-        $ref: "#/components/schemas/TransactionEvaluationDTO"
+        oneOf:
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-payment/main/specs/asyncapi.yml#/components/schemas/TransactionInProgress'
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-reward-calculator/main/specs/asyncapi.yaml#/components/schemas/TransactionProcessed'
+          - $ref: 'https://raw.githubusercontent.com/pagopa/idpay-reward-user-id-splitter/main/specs/asyncapi.yaml#/components/schemas/TransactionRejectedDTO'
 
 
   schemas:
@@ -421,188 +439,7 @@ components:
           format: date-time
           description: Time of the operation
           example: "2024-05-14T12:30:45"
-    RewardNotificationDTO:
-      type: object
-      properties:
-        id:
-          type: string
-          description:  Id of the refund transaction
-          example: 661626073785876cb5aa7601
-        externalId:
-          type: string
-          description: Identifier to be used during exports, created because the original identifier contains the userId
-          example: EXT661626073785876cb5aa7601
-        rewardNotificationId:
-          type: string
-          description: Delivery Identifier
-          example: RN661626073785876cb5aa7601
-        initiativeId:
-          type: string
-          description: Id of the initiative
-          example: INT661626073785876cb5aa7601
-        beneficiaryId:
-          type: string
-          description:  Id of the Beneficiary
-          example: BEN661626073785876cb5aa7601
-        beneficiaryType:
-          type: string
-          description: Beneficiary type
-          enum:
-            - CITIZEN
-            - MERCHANT
-          example: CITIZEN
-        organizationId:
-          type: string
-          description:  Id of the Organization
-          example: ORG661626073785876cb5aa7601
-        iban:
-          type: string
-          description: IBAN (International Bank Account Number)
-          example: IT60X0542811101000000123456
-        status:
-          type: string
-          description: Status of the refund
-          example: PENDING
-        rewardStatus:
-          type: string
-          description: Status of the reward
-          example: REWARDED
-        refundType:
-          type: string
-          description: Refund type
-          example: refundType
-        rewardCents:
-          type: integer
-          format: int64
-          description: Reward in cents
-          example: 30000
-        effectiveRewardCents:
-          type: integer
-          format: int64
-          description: Effective reward in cents
-          example: 30000
-        startDate:
-          type: string
-          format: date
-          description: Start date
-          example: "2024-04-10"
-        endDate:
-          type: string
-          format: date
-          description: End date
-          example: "2024-04-15"
-        feedbackDate:
-          type: string
-          format: date-time
-          description: Feedback date
-          example: "2024-04-10T07:41:38.644+02:00"
-        rejectionCode:
-          type: string
-          description: Rejection code
-          example: ERR001
-        rejectionReason:
-          type: string
-          description: Rejection reason
-          example: Insufficient funds
-        feedbackProgressive:
-          type: integer
-          format: int64
-          description: Feedback progressive
-          example: 12345
-        executionDate:
-          type: string
-          format: date
-          description: Execution date
-          example: "2024-04-15"
-        transferDate:
-          type: string
-          format: date
-          description: Date of transfer
-          example: "2024-04-15"
-        userNotificationDate:
-          type: string
-          format: date
-          description: User notification date
-          example: "2024-04-16"
-        cro:
-          type: string
-          description: Operation Reference Code
-          example: "CRO1234567890"
-    TransactionEvaluationDTO:
-      type: object
-      properties:
-        id:
-          type: string
-          description: ID of the transaction
-          example: 661626073785876cb5aa7601
-        userId:
-          type: string
-          description: ID of the User
-          example: USER661626073785876cb5aa7601
-        merchantId:
-          type: string
-          description: ID of the Merchant
-          example: MERCHANT661626073785876cb5aa7601
-        operationTypeTranscoded:
-          type: string
-          description: Transcoded operation type
-          example: "CHARGE"
-        status:
-          type: string
-          description: Status of transaction
-          example: "REWARDED"
-        rewards:
-          type: object
-          description:  Map [Initiative ID - Reward]
-          properties:
-            initiativeId:
-              type: string
-            reward:
-              type: object
-              $ref: "#/components/schemas/Reward"
-    Reward:
-      type: object
-      properties:
-        initiativeId:
-          type: string
-          description: ID the Initiative
-          example: INI661626073785876cb5aa7601
-        organizationId:
-          type: string
-          description: ID the Organization ID
-          example: ORG661626073785876cb5aa7601
-        accruedRewardCents:
-          type: integer
-          format: int64
-          description: Effective reward in cents
-          example: 30000
-        refund:
-          type: boolean
-          description: Flag indicating if it's a refunding reward
-          example: false
-        completeRefund:
-          type: boolean
-          description: Flag indicating if it's a complete refunding reward
-          example: false
-    OnboardingOutcomeDTO:
-      type: object
-      properties:
-        userId:
-          type: string
-          description: User ID
-          example: USER661626073785876cb5aa7601
-        initiativeId:
-          type: string
-          description: Initiative ID
-          example: INI661626073785876cb5aa7601
-        organizationId:
-          type: string
-          description: Organization ID
-          example: ORG661626073785876cb5aa7601
-        status:
-          type: string
-          description: Onboarding status
-          example: ONBOARDING_OK
+
     ErrorQueueHeader:
       type: object
       properties:
