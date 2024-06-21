@@ -233,9 +233,9 @@ components:
       description: >-
         This event is sent to the application to initialize statistics for a specific initiative.
         It sets up the required statistical data for the initiative.
-      summary: Notifies the application to initialize statistics for the initiative.
+      summary: Notifies the application to initialize statistics for the initiative. OperationType field is set to CREATE_INITIATIVE_STATISTICS.
       payload:
-        $ref: "#/components/schemas/CommandOperationDTO"
+        $ref: "https://raw.githubusercontent.com/pagopa/idpay-portal-welfare-backend-initiative/main/specs/asyncapi.yml#/components/schemas/QueueCommandOperationDTO"
 
     CreateMerchantCounters:
       contentType: application/json
@@ -244,7 +244,7 @@ components:
         It sets up the necessary counters for tracking merchant info within the initiative.
       summary: Notifies the application to initialize merchant counters for the initiative.
       payload:
-        $ref: "#/components/schemas/CommandOperationDTO"
+        $ref: "https://raw.githubusercontent.com/pagopa/idpay-merchant/main/specs/asyncapi.yml#/components/schemas/QueueCommandOperationDTO"
 
     MerchantCountersNotification:
       contentType: application/json
@@ -297,7 +297,7 @@ components:
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
-        $ref: "#/components/schemas/CommandOperationDTO"
+        $ref: "https://raw.githubusercontent.com/pagopa/idpay-portal-welfare-backend-initiative/main/specs/asyncapi.yml#/components/schemas/QueueCommandOperationDTO"
 
     CommandOperationPayloadDeserializeError:
       contentType: application/json
@@ -308,7 +308,7 @@ components:
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
-        $ref: "#/components/schemas/CommandOperationDTO"
+        $ref: "https://raw.githubusercontent.com/pagopa/idpay-portal-welfare-backend-initiative/main/specs/asyncapi.yml#/components/schemas/QueueCommandOperationDTO"
 
     CommandOperationNotRetryableError:
       contentType: application/json
@@ -319,7 +319,7 @@ components:
       headers:
         $ref: "#/components/schemas/ErrorQueueHeader"
       payload:
-        $ref: "#/components/schemas/CommandOperationDTO"
+        $ref: "https://raw.githubusercontent.com/pagopa/idpay-portal-welfare-backend-initiative/main/specs/asyncapi.yml#/components/schemas/QueueCommandOperationDTO"
 
     MerchantCountersNotificationPayloadEvaluationError:
       contentType: application/json
@@ -423,23 +423,6 @@ components:
 
 
   schemas:
-    CommandOperationDTO:
-      type: object
-      properties:
-        entityId:
-          type: string
-          description: ID of the entity
-          example: "ENT663dd1c4335f626497e098dd"
-        operationType:
-          type: string
-          description: Type of operation
-          example: "DELETE_INITIATIVE"
-        operationTime:
-          type: string
-          format: date-time
-          description: Time of the operation
-          example: "2024-05-14T12:30:45"
-
     ErrorQueueHeader:
       type: object
       properties:
