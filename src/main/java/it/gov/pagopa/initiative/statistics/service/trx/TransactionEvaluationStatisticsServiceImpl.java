@@ -11,7 +11,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -81,7 +80,7 @@ public class TransactionEvaluationStatisticsServiceImpl extends BaseStatisticsEv
 
     public static long aggregateTrxNumber(List<Reward> records) {
         return records.stream()
-                .filter(r -> r.getAccruedReward().compareTo(BigDecimal.ZERO) != 0)
+                .filter(r -> r.getAccruedRewardCents().compareTo(0L) != 0)
                 .mapToLong(r -> {
                     if (r.isCompleteRefund()) {
                         return -1L;
@@ -93,7 +92,7 @@ public class TransactionEvaluationStatisticsServiceImpl extends BaseStatisticsEv
                 }).sum();
     }
 
-    public static BigDecimal aggregateReward(List<Reward> records) {
-        return records.stream().map(Reward::getAccruedReward).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+    public static Long aggregateReward(List<Reward> records) {
+        return records.stream().map(Reward::getAccruedRewardCents).reduce(Long::sum).orElse(0L);
     }
 }

@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 class InitiativeStatAtomicOpsRepositoryTest extends BaseStatisticsIntegrationTest {
@@ -138,7 +137,7 @@ class InitiativeStatAtomicOpsRepositoryTest extends BaseStatisticsIntegrationTes
     void testUpdateAccruedReward(){
         // increasing when not initiative
         try{
-            repository.updateAccruedRewards(initiativeid, BigDecimal.valueOf(0), 0L, 0, 0);
+            repository.updateAccruedRewards(initiativeid, 0L, 0L, 0, 0);
         } catch (IllegalStateException e){
             Assertions.assertTrue(
                     e.getMessage().matches("\\[INITIATIVE_STATISTICS_EVALUATION](?:\\[INC_rewardedTrxs]|\\[INC_accruedRewardsCents]){2} Counter increase called on not existent initiativeId-topicPartition: INITIATIVEID 0"),
@@ -150,7 +149,7 @@ class InitiativeStatAtomicOpsRepositoryTest extends BaseStatisticsIntegrationTes
         repository.save(entity);
 
         try{
-            repository.updateAccruedRewards(initiativeid, BigDecimal.valueOf(0), 0L, 0, 0);
+            repository.updateAccruedRewards(initiativeid, 0L, 0L, 0, 0);
         } catch (IllegalStateException e){
             Assertions.assertTrue(
                     e.getMessage().matches("\\[INITIATIVE_STATISTICS_EVALUATION](?:\\[INC_rewardedTrxs]|\\[INC_accruedRewardsCents]){2} Counter increase called on not existent initiativeId-topicPartition: INITIATIVEID 0"),
@@ -163,7 +162,7 @@ class InitiativeStatAtomicOpsRepositoryTest extends BaseStatisticsIntegrationTes
         entity.setTransactionEvaluationCommittedOffsets(List.of(new CommittedOffset(1, -1)));
         repository.save(entity);
 
-        repository.updateAccruedRewards(initiativeid, BigDecimal.valueOf(5), 1L, 1, 10);
+        repository.updateAccruedRewards(initiativeid, 500L, 1L, 1, 10);
 
         InitiativeStatistics result = repository.findById(buildCounterId(initiativeid)).orElse(null);
         Assertions.assertNotNull(result);

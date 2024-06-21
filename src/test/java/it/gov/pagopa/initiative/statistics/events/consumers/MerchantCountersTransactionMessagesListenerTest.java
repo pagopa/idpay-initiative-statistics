@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.util.Pair;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -74,7 +73,7 @@ class MerchantCountersTransactionMessagesListenerTest extends BaseMerchantStatis
         List<TransactionEvaluationDTO> out = buildValidTransactionEvaluationEntities(bias, size, initiativeId);
         out.forEach(t -> {
             t.setRewards(new HashMap<>(t.getRewards()));
-            t.getRewards().put(initiativeId+"_2", new Reward(initiativeId+"_2", "ORGANIZATIONID_"+initiativeId, BigDecimal.valueOf(2)));
+            t.getRewards().put(initiativeId+"_2", new Reward(initiativeId+"_2", "ORGANIZATIONID_"+initiativeId, 200L));
         });
 
         return out;
