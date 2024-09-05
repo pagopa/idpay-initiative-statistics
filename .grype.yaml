@@ -1,0 +1,2 @@
+ignore:
+  - vulnerability: CVE-2024-34750 # solved in tomcat-embed-core 10.1.25
