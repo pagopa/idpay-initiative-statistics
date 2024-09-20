@@ -63,7 +63,7 @@ microservice-chart:
     KAFKA_COMMANDS_GROUP_ID: "idpay-commands-statistics-consumer-group"
     DELETE_PAGINATION_SIZE: "100"
     DELETE_DELAY_TIME: "1000"
-    HEALTH_MONGO_ENABLED: false
+    HEALTH_MONGO_ENABLED: "false"
 
   externalConfigMapValues:
     idpay-common:
