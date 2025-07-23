@@ -21,8 +21,6 @@ public class InitiativeApiControllerImpl implements InitiativeApiController {
         decimalFormatterSymbols.setDecimalSeparator(',');
     }
 
-
-
     private final InitiativeStatService initiativeStatService;
 
     public InitiativeApiControllerImpl(InitiativeStatService initiativeStatService) {
