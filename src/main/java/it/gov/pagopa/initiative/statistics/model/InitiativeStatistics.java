@@ -34,4 +34,6 @@ public class InitiativeStatistics {
   private long rewardedTrxs;
   private List<CommittedOffset> transactionEvaluationCommittedOffsets;
 
+  private LocalDateTime createdAt;
+
 }
