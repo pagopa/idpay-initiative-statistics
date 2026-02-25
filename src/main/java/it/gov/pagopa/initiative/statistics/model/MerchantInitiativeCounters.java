@@ -48,11 +48,14 @@ public class MerchantInitiativeCounters {
 
     private LocalDateTime lastUpdatedDateTime;
 
+    private LocalDateTime createdAt;
+
     public MerchantInitiativeCounters(@NonNull String merchantId, @NonNull String initiativeId) {
         this.id = buildId(merchantId, initiativeId);
         this.merchantId = merchantId;
         this.initiativeId = initiativeId;
         this.lastUpdatedDateTime = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
     }
 
     public static String buildId(String merchantId, String initiativeId) {
