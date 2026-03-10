@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -31,6 +32,7 @@ public class CreateInitiativeStatisticsServiceImpl implements CreateInitiativeSt
             InitiativeStatistics initiativeStatistics = InitiativeStatistics.builder()
                     .initiativeId(initiativeId)
                     .organizationId(organizationId)
+                    .createdAt(LocalDateTime.now())
                     .build();
             initiativeStatRepository.save(initiativeStatistics);
             log.info("Initialized statistics for initiative {}", initiativeId);
