@@ -1,171 +1,67 @@
 package it.gov.pagopa.initiative.statistics.events.consumers;
 
-import it.gov.pagopa.common.utils.TestUtils;
-import it.gov.pagopa.initiative.statistics.dto.events.Reward;
-import it.gov.pagopa.initiative.statistics.dto.events.TransactionEvaluationDTO;
-import it.gov.pagopa.initiative.statistics.model.CommittedOffset;
-import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
-import it.gov.pagopa.initiative.statistics.service.StatisticsEvaluationService;
 import it.gov.pagopa.initiative.statistics.service.trx.TransactionEvaluationStatisticsService;
-import it.gov.pagopa.initiative.statistics.test.fakers.TransactionEvaluationDTOFaker;
-import it.gov.pagopa.initiative.statistics.utils.Constants;
+import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.data.util.Pair;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.kafka.support.Acknowledgment;
 
-import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.regex.Pattern;
-import java.util.stream.IntStream;
+import java.util.List;
 
-class TransactionEvaluationMessagesListenerTest extends BaseInitiativeStatisticsMessageListenerTest {
+import static org.mockito.Mockito.*;
 
-    @SpyBean
+@ExtendWith(MockitoExtension.class)
+class TransactionEvaluationMessagesListenerTest {
+
+    @Mock
     private TransactionEvaluationStatisticsService transactionEvaluationStatisticsService;
 
+    @Mock
+    private Consumer<String, String> consumer;
+
+    @Mock
+    private Acknowledgment acknowledgment;
+
     @Test
-    @Override
-    void test(){
-        super.test();
+    void shouldDelegateRecordsToTransactionEvaluationStatisticsService() {
+        // Arrange
+        TransactionEvaluationMessagesListener listener =
+                new TransactionEvaluationMessagesListener(transactionEvaluationStatisticsService);
+
+        ConsumerRecord<String, String> record =
+                new ConsumerRecord<>("transaction-evaluation-topic", 0, 0L, "userId", "{json}");
+
+        List<ConsumerRecord<String, String>> records = List.of(record);
+
+        // Act
+        listener.onMessage(records, acknowledgment, consumer);
+
+        // Assert
+        verify(transactionEvaluationStatisticsService, times(1))
+                .evaluate(records, consumer);
+
+        // L'acknowledgment non deve essere utilizzato
+        verifyNoInteractions(acknowledgment);
     }
 
-    @Override
-    protected StatisticsEvaluationService getStatisticsEvaluationServiceSpy() {
-        return transactionEvaluationStatisticsService;
+    @Test
+    void shouldDelegateEvenWhenRecordsAreEmpty() {
+        // Arrange
+        TransactionEvaluationMessagesListener listener =
+                new TransactionEvaluationMessagesListener(transactionEvaluationStatisticsService);
+
+        List<ConsumerRecord<String, String>> records = List.of();
+
+        // Act
+        listener.onMessage(records, acknowledgment, consumer);
+
+        // Assert
+        verify(transactionEvaluationStatisticsService)
+                .evaluate(records, consumer);
+
+        verifyNoInteractions(acknowledgment);
     }
-
-    @Override
-    protected String getStatisticsMessagesTopic() {
-        return topicTransactionEvaluation;
-    }
-
-    @Override
-    protected String getStatisticsMessagesGroupId() {
-        return groupIdTransactionEvaluation;
-    }
-
-    @Override
-    protected List<TransactionEvaluationDTO> buildValidEntities(int bias, int size, String initiativeId) {
-        List<TransactionEvaluationDTO> out = buildValidTransactionEvaluationEntities(bias, size, initiativeId);
-        out.forEach(t -> {
-            t.setRewards(new HashMap<>(t.getRewards()));
-            t.getRewards().put(initiativeId+"_2", new Reward(initiativeId+"_2", "ORGANIZATIONID_"+initiativeId, 200L));
-        });
-        return out;
-    }
-
-    @Override
-    protected List<TransactionEvaluationDTO> buildSkippedEntities(int bias, int size) {
-        return buildTransactionSkippedEntities(bias, size);
-    }
-
-    public static List<TransactionEvaluationDTO> buildTransactionSkippedEntities(int bias, int size) {
-        return IntStream.range(bias, bias + size)
-                .mapToObj(i -> {
-                    TransactionEvaluationDTO out = TransactionEvaluationDTOFaker.mockInstance(i, INITIATIVEID1);
-                    if (i % 5 == 0) {
-                        out.setRewards(null);
-                    } else if (i % 5 == 1) {
-                        out.setRewards(Collections.emptyMap());
-                    } else if (i % 5 == 2) {
-                        out.setRewards(Map.of(INITIATIVEID1, new Reward(INITIATIVEID1, "ORGANIZATIONID", 0L)));
-                    } else if (i % 5 == 3) {
-                        out.setStatus(Constants.TRX_STATUS_AUTHORIZED);
-                    } else {
-                        out.setStatus(Constants.TRX_STATUS_CANCELLED);
-                    }
-                    return out;
-                })
-                .toList();
-    }
-
-    @Override
-    protected List<Pair<Supplier<String>, Consumer<ConsumerRecord<String, String>>>> getErrorUseCases() {
-        return errorUseCases;
-    }
-
-    @Override
-    protected Function<InitiativeStatistics, Long> getGetterCounter() {
-        return InitiativeStatistics::getAccruedRewardsCents;
-    }
-
-    @Override
-    protected BiConsumer<InitiativeStatistics, Long> getSetterCounter() {
-        return InitiativeStatistics::setAccruedRewardsCents;
-    }
-
-    @Override
-    protected Function<InitiativeStatistics, List<CommittedOffset>> getGetterStatisticsCommittedOffsets() {
-        return InitiativeStatistics::getTransactionEvaluationCommittedOffsets;
-    }
-
-    @Override
-    protected BiConsumer<InitiativeStatistics, List<CommittedOffset>> getSetterStatisticsCommittedOffsets() {
-        return InitiativeStatistics::setTransactionEvaluationCommittedOffsets;
-    }
-
-    @Override
-    protected long getExpectedCounterValue(int validMsgs) {
-        return validMsgs * 100L;
-    }
-
-    @Override
-    protected void publishIntoEmbeddedKafka(Integer partition, String key, String payload) {
-        if(key==null){
-            key = TestUtils.readJsonStringFieldValue(payload, "userId");
-        }
-        super.publishIntoEmbeddedKafka(partition, key, payload);
-    }
-
-    @Override
-    protected long waitForCounterResult(String initiativeId, String organizationId, long expectedCounterValue, long maxWaitingMs) {
-        super.waitForCounterResult(initiativeId+"_2", organizationId, expectedCounterValue*2, maxWaitingMs);
-        return super.waitForCounterResult(initiativeId, organizationId, expectedCounterValue, maxWaitingMs);
-    }
-
-    @Override
-    protected long verifyPartitionOffsetStored(long expectOffsetSum, String initiativeid, boolean assertEquals) {
-        long i1Offsets = super.verifyPartitionOffsetStored(expectOffsetSum, initiativeid, assertEquals);
-        long i2Offsets = super.verifyPartitionOffsetStored(expectOffsetSum, initiativeid + "_2", assertEquals);
-        return Math.max(i1Offsets, i2Offsets);
-    }
-
-    @Override
-    protected long checkResults(int validMsgs, long maxWaitingMs) {
-        long out = super.checkResults(validMsgs, maxWaitingMs);
-
-        int expectedTrxsCount = getExpectedTrxsCount(validMsgs);
-        Assertions.assertEquals(expectedTrxsCount, initiativeStatRepository.findById(INITIATIVEID1).map(InitiativeStatistics::getRewardedTrxs).orElse(null));
-        Assertions.assertEquals(expectedTrxsCount, initiativeStatRepository.findById(INITIATIVEID2).map(InitiativeStatistics::getRewardedTrxs).orElse(null));
-
-        return out;
-    }
-
-    //region not valid useCases
-    // all use cases configured must have a unique id recognized by the regexp getErrorUseCaseIdPatternMatch
-    protected Pattern getErrorUseCaseIdPatternMatch() {
-        return Pattern.compile("\"userId\":\"USERID([0-9]+)\"");
-    }
-
-    private final List<Pair<Supplier<String>, Consumer<ConsumerRecord<String, String>>>> errorUseCases = new ArrayList<>();
-
-    {
-        String jsonNotExpected = "{\"userId\":\"USERID0\",unexpectedStructure:0}";
-        errorUseCases.add(Pair.of(
-                () -> jsonNotExpected,
-                errorMessage -> checkErrorMessageHeaders(errorMessage, "[INITIATIVE_STATISTICS_EVALUATION][TRANSACTION_EVALUATION] Unexpected json: {\"userId\":\"USERID0\",unexpectedStructure:0}", jsonNotExpected, "USERID0")
-        ));
-
-        String jsonNotValid = "{\"userId\":\"USERID1\",invalidJson";
-        errorUseCases.add(Pair.of(
-                () -> jsonNotValid,
-                errorMessage -> checkErrorMessageHeaders(errorMessage, "[INITIATIVE_STATISTICS_EVALUATION][TRANSACTION_EVALUATION] Unexpected json: {\"userId\":\"USERID1\",invalidJson", jsonNotValid, "USERID1")
-        ));
-    }
-    //endregion
 }

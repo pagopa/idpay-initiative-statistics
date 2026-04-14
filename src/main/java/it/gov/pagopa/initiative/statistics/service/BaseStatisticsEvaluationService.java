@@ -1,6 +1,5 @@
 package it.gov.pagopa.initiative.statistics.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -10,8 +9,9 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.consumer.OffsetCommitCallback;
 import org.apache.kafka.common.TopicPartition;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -59,7 +59,7 @@ public abstract class BaseStatisticsEvaluationService<E, I> extends BaseKafkaCon
                 .map(r -> {
                     try {
                         return Pair.of(r, deserialize(r.value()));
-                    } catch (IOException e) {
+                    } catch (JacksonException e) {
                         errorRecords.add(Triple.of(r,
                                 "[INITIATIVE_STATISTICS_EVALUATION][%s] Unexpected json: %s".formatted(getFlowName(), r.value()),
                                 e));
