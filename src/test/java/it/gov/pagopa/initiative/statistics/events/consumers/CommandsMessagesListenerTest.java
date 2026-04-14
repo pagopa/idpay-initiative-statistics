@@ -57,11 +57,11 @@ class CommandsMessagesListenerTest {
         List<ConsumerRecord<String, String>> records = List.of();
 
         Consumer<String, String> stringConsumer = mock(Consumer.class);
-        Acknowledgment acknowledgment = mock(Acknowledgment.class);
+        Acknowledgment mockAcknowledgment = mock(Acknowledgment.class);
 
-        listener.onMessage(records, acknowledgment, stringConsumer);
+        listener.onMessage(records, mockAcknowledgment, stringConsumer);
 
         verify(commandsMediatorService)
-                .evaluate(records, acknowledgment, stringConsumer);
+                .evaluate(records, mockAcknowledgment, stringConsumer);
     }
 }
