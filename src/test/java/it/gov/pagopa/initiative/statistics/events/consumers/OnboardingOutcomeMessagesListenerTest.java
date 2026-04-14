@@ -25,9 +25,9 @@ class OnboardingOutcomeMessagesListenerTest {
     @Test
     void shouldDelegateRecordsToOnboardingStatisticsService() {
         // Arrange
-        ConsumerRecord<String, String> record =
+        ConsumerRecord<String, String> consumerRecord =
                 new ConsumerRecord<>("onboarding-topic", 0, 0L, "key", "value");
-        List<ConsumerRecord<String, String>> records = List.of(record);
+        List<ConsumerRecord<String, String>> records = List.of(consumerRecord);
 
         @SuppressWarnings("unchecked")
         Consumer<String, String> consumer = mock(Consumer.class);

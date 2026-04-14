@@ -33,9 +33,9 @@ class MerchantCountersTransactionMessagesListenerTest {
     @Test
     void shouldDelegateToStatisticsService() {
         // Arrange
-        ConsumerRecord<String, String> record =
+        ConsumerRecord<String, String> consumerRecord =
                 new ConsumerRecord<>("merchant-counters-transaction", 0, 0L, "key", "value");
-        List<ConsumerRecord<String, String>> records = List.of(record);
+        List<ConsumerRecord<String, String>> records = List.of(consumerRecord);
 
         // Act
         listener.onMessage(records, acknowledgment, consumer);
@@ -63,9 +63,9 @@ class MerchantCountersTransactionMessagesListenerTest {
     @Test
     void shouldPropagateExceptionThrownByService() {
         // Arrange
-        ConsumerRecord<String, String> record =
+        ConsumerRecord<String, String> consumerRecord =
                 new ConsumerRecord<>("merchant-counters-transaction", 0, 0L, "key", "value");
-        List<ConsumerRecord<String, String>> records = List.of(record);
+        List<ConsumerRecord<String, String>> records = List.of(consumerRecord);
 
         doThrow(new RuntimeException("Test exception"))
                 .when(merchantTransactionStatisticsService)

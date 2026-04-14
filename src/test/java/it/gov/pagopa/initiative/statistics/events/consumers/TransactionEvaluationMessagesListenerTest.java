@@ -31,10 +31,10 @@ class TransactionEvaluationMessagesListenerTest {
         TransactionEvaluationMessagesListener listener =
                 new TransactionEvaluationMessagesListener(transactionEvaluationStatisticsService);
 
-        ConsumerRecord<String, String> record =
+        ConsumerRecord<String, String> consumerRecord =
                 new ConsumerRecord<>("transaction-evaluation-topic", 0, 0L, "userId", "{json}");
 
-        List<ConsumerRecord<String, String>> records = List.of(record);
+        List<ConsumerRecord<String, String>> records = List.of(consumerRecord);
 
         // Act
         listener.onMessage(records, acknowledgment, consumer);

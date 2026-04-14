@@ -10,7 +10,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.Message;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -24,10 +25,10 @@ class StatisticsErrorNotifierServiceImplTest {
 
     @Test
     void shouldDelegateNotifyOnboardingOutcome() {
-        ConsumerRecord<String, String> record =
+        ConsumerRecord<String, String> consumerRecord =
                 new ConsumerRecord<>("topic", 0, 0L, "key1", "value1");
 
-        service.notifyOnboardingOutcome(record, "desc", true, new RuntimeException("err"));
+        service.notifyOnboardingOutcome(consumerRecord, "desc", true, new RuntimeException("err"));
 
         ArgumentCaptor<Message<String>> messageCaptor = ArgumentCaptor.forClass(Message.class);
 
@@ -42,10 +43,10 @@ class StatisticsErrorNotifierServiceImplTest {
 
     @Test
     void shouldDelegateNotifyTransactionEvaluation() {
-        ConsumerRecord<String, String> record =
+        ConsumerRecord<String, String> consumerRecord =
                 new ConsumerRecord<>("topic", 1, 1L, "key2", "value2");
 
-        service.notifyTransactionEvaluation(record, "desc", false, null);
+        service.notifyTransactionEvaluation(consumerRecord, "desc", false, null);
 
         verify(errorNotifierService, times(1))
                 .notify(any(), any(), any(), any(), any(),
@@ -54,10 +55,10 @@ class StatisticsErrorNotifierServiceImplTest {
 
     @Test
     void shouldConvertHeadersAndPayloadCorrectly() {
-        ConsumerRecord<String, String> record =
+        ConsumerRecord<String, String> consumerRecord =
                 new ConsumerRecord<>("topic", 2, 2L, "k", "v");
 
-        service.notifyCommandsOperation(record, "test", true, null);
+        service.notifyCommandsOperation(consumerRecord, "test", true, null);
 
         ArgumentCaptor<Message<String>> captor = ArgumentCaptor.forClass(Message.class);
 
@@ -77,10 +78,10 @@ class StatisticsErrorNotifierServiceImplTest {
 
     @Test
     void shouldHandleNullKey() {
-        ConsumerRecord<String, String> record =
+        ConsumerRecord<String, String> consumerRecord =
                 new ConsumerRecord<>("topic", 0, 0L, null, "value");
 
-        service.notifyMerchantCountersTransaction(record, "desc", true, null);
+        service.notifyMerchantCountersTransaction(consumerRecord, "desc", true, null);
 
         ArgumentCaptor<Message<String>> captor = ArgumentCaptor.forClass(Message.class);
 

@@ -32,10 +32,10 @@ class CommandsMessagesListenerTest {
         CommandsMessagesListener listener =
                 new CommandsMessagesListener(commandsMediatorService);
 
-        ConsumerRecord<String, String> record =
+        ConsumerRecord<String, String> consumerRecord =
                 new ConsumerRecord<>("commands-topic", 0, 0L, "key", "value");
 
-        List<ConsumerRecord<String, String>> records = List.of(record);
+        List<ConsumerRecord<String, String>> records = List.of(consumerRecord);
 
         // Act
         listener.onMessage(records, acknowledgment, consumer);
@@ -56,12 +56,12 @@ class CommandsMessagesListenerTest {
 
         List<ConsumerRecord<String, String>> records = List.of();
 
-        Consumer<String, String> consumer = mock(Consumer.class);
+        Consumer<String, String> stringConsumer = mock(Consumer.class);
         Acknowledgment acknowledgment = mock(Acknowledgment.class);
 
-        listener.onMessage(records, acknowledgment, consumer);
+        listener.onMessage(records, acknowledgment, stringConsumer);
 
         verify(commandsMediatorService)
-                .evaluate(records, acknowledgment, consumer);
+                .evaluate(records, acknowledgment, stringConsumer);
     }
 }

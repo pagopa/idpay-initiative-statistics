@@ -36,10 +36,12 @@ class BaseGenericConsumerServiceTest {
 
         @Override
         protected void onDeserializeError(ConsumerRecord<String, String> message, String description, Throwable exception) {
+            //empty
         }
 
         @Override
         protected void evaluate(String payload) {
+            //empty
         }
 
         @Override
@@ -53,12 +55,13 @@ class BaseGenericConsumerServiceTest {
         }
 
         @Override
-        protected boolean isNotRetry(ConsumerRecord<String, String> record) {
+        protected boolean isNotRetry(ConsumerRecord<String, String> consumerRecord) {
             return true;
         }
 
         @Override
         protected void onRecordError2notify(ConsumerRecord<String, String> message, String description, Throwable exception) {
+            //
         }
 
         @Override
@@ -77,8 +80,8 @@ class BaseGenericConsumerServiceTest {
     @Test
     void evaluate_shouldProcessRecordsAndAcknowledge() {
         // Given
-        ConsumerRecord<String, String> record = new ConsumerRecord<>("topic", 0, 0L, "key", "payload");
-        List<ConsumerRecord<String, String>> records = List.of(record);
+        ConsumerRecord<String, String> consumerRecord = new ConsumerRecord<>("topic", 0, 0L, "key", "payload");
+        List<ConsumerRecord<String, String>> records = List.of(consumerRecord);
 
         // When
         service.evaluate(records, acknowledgmentMock, kafkaConsumerMock);
@@ -92,40 +95,40 @@ class BaseGenericConsumerServiceTest {
     void evaluate_shouldHandleDeserializationError() throws JacksonException {
         // Given
         String invalidJson = "invalid";
-        ConsumerRecord<String, String> record = new ConsumerRecord<>("topic", 0, 0L, "key", invalidJson);
+        ConsumerRecord<String, String> consumerRecord = new ConsumerRecord<>("topic", 0, 0L, "key", invalidJson);
 
         // Forziamo l'errore di deserializzazione
         doThrow(mock(JacksonException.class)).when(service).deserialize(invalidJson);
 
         // When
-        service.evaluate(List.of(record), acknowledgmentMock, kafkaConsumerMock);
+        service.evaluate(List.of(consumerRecord), acknowledgmentMock, kafkaConsumerMock);
 
         // Then
-        verify(service, times(1)).onDeserializeError(eq(record), anyString(), any(JacksonException.class));
+        verify(service, times(1)).onDeserializeError(eq(consumerRecord), anyString(), any(JacksonException.class));
         verify(acknowledgmentMock, times(1)).acknowledge();
     }
 
     @Test
     void evaluate_shouldHandleGenericProcessingError() {
         // Given
-        ConsumerRecord<String, String> record = new ConsumerRecord<>("topic", 0, 0L, "key", "payload");
+        ConsumerRecord<String, String> consumerRecord = new ConsumerRecord<>("topic", 0, 0L, "key", "payload");
         doThrow(new RuntimeException("Error")).when(service).evaluate("payload");
 
         // When
-        service.evaluate(List.of(record), acknowledgmentMock, kafkaConsumerMock);
+        service.evaluate(List.of(consumerRecord), acknowledgmentMock, kafkaConsumerMock);
 
         // Then
-        verify(service, times(1)).onRecordError2notify(eq(record), anyString(), any(RuntimeException.class));
+        verify(service, times(1)).onRecordError2notify(eq(consumerRecord), anyString(), any(RuntimeException.class));
         verify(acknowledgmentMock, times(1)).acknowledge();
     }
 
     @Test
     void evaluate_shouldNotAcknowledgeIfNull() {
         // Given
-        ConsumerRecord<String, String> record = new ConsumerRecord<>("topic", 0, 0L, "key", "payload");
+        ConsumerRecord<String, String> consumerRecord = new ConsumerRecord<>("topic", 0, 0L, "key", "payload");
 
         // When
-        service.evaluate(List.of(record), null, kafkaConsumerMock);
+        service.evaluate(List.of(consumerRecord), null, kafkaConsumerMock);
 
         // Then
         verify(service, times(1)).evaluate("payload");

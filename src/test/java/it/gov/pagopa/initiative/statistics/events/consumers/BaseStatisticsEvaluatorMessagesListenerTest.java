@@ -21,10 +21,10 @@ class BaseStatisticsEvaluatorMessagesListenerTest {
         BaseStatisticsEvaluatorMessagesListener listener =
                 new BaseStatisticsEvaluatorMessagesListener(service) {};
 
-        ConsumerRecord<String, String> record =
+        ConsumerRecord<String, String> consumerRecord =
                 new ConsumerRecord<>("topic", 0, 0L, "key", "value");
 
-        List<ConsumerRecord<String, String>> records = List.of(record);
+        List<ConsumerRecord<String, String>> records = List.of(consumerRecord);
 
         Consumer<String, String> consumer = mock(Consumer.class);
         Acknowledgment ack = mock(Acknowledgment.class);
