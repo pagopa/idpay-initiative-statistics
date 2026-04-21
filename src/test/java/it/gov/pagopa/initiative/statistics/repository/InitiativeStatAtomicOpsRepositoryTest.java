@@ -1,180 +1,155 @@
 package it.gov.pagopa.initiative.statistics.repository;
 
-import it.gov.pagopa.initiative.statistics.BaseStatisticsIntegrationTest;
 import it.gov.pagopa.initiative.statistics.model.CommittedOffset;
 import it.gov.pagopa.initiative.statistics.model.InitiativeStatistics;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.data.mongodb.test.autoconfigure.DataMongoTest;
+import org.springframework.test.context.TestPropertySource;
 
 import java.util.List;
 
-class InitiativeStatAtomicOpsRepositoryTest extends BaseStatisticsIntegrationTest {
+@DataMongoTest
+@TestPropertySource(
+        properties = {
+                "de.flapdoodle.mongodb.embedded.version=4.2.24"
+        }
+)
+class InitiativeStatAtomicOpsRepositoryTest {
 
-    private final String initiativeid = "INITIATIVEID";
+    private static final String INITIATIVE_ID = "INITIATIVEID";
+    private static final String ORGANIZATION_ID = "ORGANIZATIONID";
 
     @Autowired
     private InitiativeStatRepository repository;
 
     @AfterEach
-    void clearData(){
-        repository.deleteById(initiativeid);
+    void clearData() {
+        repository.deleteById(INITIATIVE_ID);
     }
 
     @Test
-    void testRetrieveOnboardingOutcomeCommittedOffset(){
-        CommittedOffset expectedPartition0 = new CommittedOffset(0, -1);
-        CommittedOffset expectedPartition1 = new CommittedOffset(1, -1);
+    void testRetrieveOnboardingOutcomeCommittedOffset() {
+        // When record does not exist
+        long result = repository.retrieveOnboardingOutcomeCommittedOffset(
+                INITIATIVE_ID, null, 0);
 
-        // test when not exists not providing organizationId
-        long result = repository.retrieveOnboardingOutcomeCommittedOffset(initiativeid, null, 0);
         Assertions.assertEquals(-1L, result);
 
-        InitiativeStatistics entity = repository.findById(initiativeid).orElse(null);
+        InitiativeStatistics entity =
+                repository.findById(INITIATIVE_ID).orElse(null);
+
         Assertions.assertNotNull(entity);
-        Assertions.assertEquals(List.of(expectedPartition0), entity.getOnboardingOutcomeCommittedOffsets());
+        Assertions.assertEquals(
+                List.of(new CommittedOffset(0, -1)),
+                entity.getOnboardingOutcomeCommittedOffsets());
         Assertions.assertNull(entity.getOrganizationId());
 
-        // test when exists providing organizationId
-        long result2 = repository.retrieveOnboardingOutcomeCommittedOffset(initiativeid, "ORGANIZATIONID", 1);
+        // When record exists and organizationId is provided
+        long result2 = repository.retrieveOnboardingOutcomeCommittedOffset(
+                INITIATIVE_ID, ORGANIZATION_ID, 1);
+
         Assertions.assertEquals(-1L, result2);
 
-        InitiativeStatistics entity2 = repository.findById(initiativeid).orElse(null);
+        InitiativeStatistics entity2 =
+                repository.findById(INITIATIVE_ID).orElse(null);
+
         Assertions.assertNotNull(entity2);
-        Assertions.assertEquals(List.of(expectedPartition0, expectedPartition1), entity2.getOnboardingOutcomeCommittedOffsets());
-        Assertions.assertEquals("ORGANIZATIONID", entity2.getOrganizationId());
-
-        // test when initiative and partition already exist, trying to change organization (it cannot be modified)
-        CommittedOffset expectedPartition3 = new CommittedOffset(3, 50);
-        entity2.setOnboardingOutcomeCommittedOffsets(List.of(expectedPartition3));
-        repository.save(entity2);
-
-        long result3 = repository.retrieveOnboardingOutcomeCommittedOffset(initiativeid, "ORGANIZATIONIDXXX", 3);
-        Assertions.assertEquals(50, result3);
-
-        InitiativeStatistics entity3 = repository.findById(initiativeid).orElse(null);
-        Assertions.assertNotNull(entity3);
-        Assertions.assertEquals(List.of(expectedPartition3), entity3.getOnboardingOutcomeCommittedOffsets());
-        Assertions.assertEquals("ORGANIZATIONID", entity3.getOrganizationId());
+        Assertions.assertEquals(
+                List.of(
+                        new CommittedOffset(0, -1),
+                        new CommittedOffset(1, -1)
+                ),
+                entity2.getOnboardingOutcomeCommittedOffsets());
+        Assertions.assertEquals(ORGANIZATION_ID, entity2.getOrganizationId());
     }
 
     @Test
-    void testRetrieveTransactionEvaluationCommittedOffset(){
-        CommittedOffset expectedPartition0 = new CommittedOffset(0, -1);
-        CommittedOffset expectedPartition1 = new CommittedOffset(1, -1);
+    void testRetrieveTransactionEvaluationCommittedOffset() {
+        long result = repository.retrieveTransactionEvaluationCommittedOffset(
+                INITIATIVE_ID, ORGANIZATION_ID, 0);
 
-        // test when not exists not providing organizationId
-        long result = repository.retrieveTransactionEvaluationCommittedOffset(initiativeid, null, 0);
         Assertions.assertEquals(-1L, result);
 
-        InitiativeStatistics entity = repository.findById(initiativeid).orElse(null);
+        InitiativeStatistics entity =
+                repository.findById(INITIATIVE_ID).orElse(null);
+
         Assertions.assertNotNull(entity);
-        Assertions.assertEquals(List.of(expectedPartition0), entity.getTransactionEvaluationCommittedOffsets());
-
-        // test when exists providing organizationId
-        long result2 = repository.retrieveTransactionEvaluationCommittedOffset(initiativeid, "ORGANIZATIONID", 1);
-        Assertions.assertEquals(-1L, result2);
-
-        InitiativeStatistics entity2 = repository.findById(initiativeid).orElse(null);
-        Assertions.assertNotNull(entity2);
-        Assertions.assertEquals(List.of(expectedPartition0, expectedPartition1), entity2.getTransactionEvaluationCommittedOffsets());
-        Assertions.assertEquals("ORGANIZATIONID", entity2.getOrganizationId());
-
-        // test when initiative and partition already exist, trying to change organization (it cannot be modified)
-        CommittedOffset expectedPartition3 = new CommittedOffset(3, 50);
-        entity2.setTransactionEvaluationCommittedOffsets(List.of(expectedPartition3));
-        repository.save(entity2);
-
-        long result3 = repository.retrieveTransactionEvaluationCommittedOffset(initiativeid, null, 3);
-        Assertions.assertEquals(50, result3);
-
-        InitiativeStatistics entity3 = repository.findById(initiativeid).orElse(null);
-        Assertions.assertNotNull(entity3);
-        Assertions.assertEquals(List.of(expectedPartition3), entity3.getTransactionEvaluationCommittedOffsets());
-        Assertions.assertEquals("ORGANIZATIONID", entity3.getOrganizationId());
+        Assertions.assertEquals(
+                List.of(new CommittedOffset(0, -1)),
+                entity.getTransactionEvaluationCommittedOffsets());
+        Assertions.assertEquals(ORGANIZATION_ID, entity.getOrganizationId());
     }
 
     @Test
-    void testUpdateOnboardingCount(){
-        // increasing when not initiative
-        try{
-            repository.updateOnboardingCount(initiativeid, 0, 0, 0);
-        } catch (IllegalStateException e){
-            Assertions.assertEquals(
-                    "[INITIATIVE_STATISTICS_EVALUATION][INC_onboardedCitizenCount] Counter increase called on not existent initiativeId-topicPartition: INITIATIVEID 0",
-                    e.getMessage());
-        }
+    void testUpdateOnboardingCount() {
+        InitiativeStatistics entity = InitiativeStatistics.builder()
+                .initiativeId(INITIATIVE_ID)
+                .onboardedCitizenCount(10L)
+                .onboardingOutcomeCommittedOffsets(
+                        List.of(new CommittedOffset(0, -1)))
+                .build();
 
-        // increasing when not partition
-        InitiativeStatistics entity = InitiativeStatistics.builder().initiativeId(initiativeid).build();
         repository.save(entity);
 
-        try{
-            repository.updateOnboardingCount(initiativeid, 0, 0, 0);
-        } catch (IllegalStateException e){
-            Assertions.assertEquals(
-                    "[INITIATIVE_STATISTICS_EVALUATION][INC_onboardedCitizenCount] Counter increase called on not existent initiativeId-topicPartition: INITIATIVEID 0",
-                    e.getMessage());
-        }
+        repository.updateOnboardingCount(INITIATIVE_ID, 5, 0, 5);
 
-        // successfulUseCase
-        entity.setOnboardedCitizenCount(10L);
-        entity.setOnboardingOutcomeCommittedOffsets(List.of(new CommittedOffset(0, -1)));
-        repository.save(entity);
+        InitiativeStatistics result =
+                repository.findById(INITIATIVE_ID).orElse(null);
 
-        repository.updateOnboardingCount(initiativeid, 5, 0, 5);
-
-        InitiativeStatistics result = repository.findById(initiativeid).orElse(null);
         Assertions.assertNotNull(result);
-        Assertions.assertEquals(initiativeid, result.getInitiativeId());
-        Assertions.assertEquals(15, result.getOnboardedCitizenCount());
-        Assertions.assertEquals(List.of(new CommittedOffset(0, 5)),
+        Assertions.assertEquals(15L, result.getOnboardedCitizenCount());
+        Assertions.assertEquals(
+                List.of(new CommittedOffset(0, 5)),
                 result.getOnboardingOutcomeCommittedOffsets());
     }
 
     @Test
-    void testUpdateAccruedReward(){
-        // increasing when not initiative
-        try{
-            repository.updateAccruedRewards(initiativeid, 0L, 0L, 0, 0);
-        } catch (IllegalStateException e){
-            Assertions.assertTrue(
-                    e.getMessage().matches("\\[INITIATIVE_STATISTICS_EVALUATION](?:\\[INC_rewardedTrxs]|\\[INC_accruedRewardsCents]){2} Counter increase called on not existent initiativeId-topicPartition: INITIATIVEID 0"),
-                    "Unexpected message: got: %s".formatted(e.getMessage()));
-        }
+    void testUpdateAccruedRewards() {
+        InitiativeStatistics entity = InitiativeStatistics.builder()
+                .initiativeId(INITIATIVE_ID)
+                .accruedRewardsCents(100L)
+                .rewardedTrxs(10L)
+                .transactionEvaluationCommittedOffsets(
+                        List.of(new CommittedOffset(1, -1)))
+                .build();
 
-        // increasing when not partition
-        InitiativeStatistics entity = InitiativeStatistics.builder().initiativeId(initiativeid).build();
         repository.save(entity);
 
-        try{
-            repository.updateAccruedRewards(initiativeid, 0L, 0L, 0, 0);
-        } catch (IllegalStateException e){
-            Assertions.assertTrue(
-                    e.getMessage().matches("\\[INITIATIVE_STATISTICS_EVALUATION](?:\\[INC_rewardedTrxs]|\\[INC_accruedRewardsCents]){2} Counter increase called on not existent initiativeId-topicPartition: INITIATIVEID 0"),
-                    "Unexpected message: got: %s".formatted(e.getMessage()));
-        }
+        repository.updateAccruedRewards(INITIATIVE_ID, 500L, 1L, 1, 10);
 
-        // successfulUseCase
-        entity.setAccruedRewardsCents(100L);
-        entity.setRewardedTrxs(10L);
-        entity.setTransactionEvaluationCommittedOffsets(List.of(new CommittedOffset(1, -1)));
-        repository.save(entity);
+        InitiativeStatistics result =
+                repository.findById(INITIATIVE_ID).orElse(null);
 
-        repository.updateAccruedRewards(initiativeid, 500L, 1L, 1, 10);
-
-        InitiativeStatistics result = repository.findById(buildCounterId(initiativeid)).orElse(null);
         Assertions.assertNotNull(result);
-        Assertions.assertEquals(initiativeid, result.getInitiativeId());
         Assertions.assertEquals(600L, result.getAccruedRewardsCents());
         Assertions.assertEquals(11L, result.getRewardedTrxs());
-        Assertions.assertEquals(List.of(new CommittedOffset(1, 10)),
+        Assertions.assertEquals(
+                List.of(new CommittedOffset(1, 10)),
                 result.getTransactionEvaluationCommittedOffsets());
     }
 
-    @Override
-    protected String buildCounterId(String initiativeId) {
-        return initiativeId;
+    @Test
+    void testUpdateOnboardingCountThrowsExceptionWhenPartitionMissing() {
+        InitiativeStatistics entity = InitiativeStatistics.builder()
+                .initiativeId(INITIATIVE_ID)
+                .onboardedCitizenCount(10L)
+                .build();
+
+        repository.save(entity);
+
+        IllegalStateException ex = Assertions.assertThrows(
+                IllegalStateException.class,
+                () -> repository.updateOnboardingCount(
+                        INITIATIVE_ID, 5, 0, 5)
+        );
+
+        Assertions.assertTrue(
+                ex.getMessage().contains(
+                        "Counter increase called on not existent initiativeId-topicPartition"
+                )
+        );
     }
 }

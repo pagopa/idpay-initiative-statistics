@@ -1,6 +1,6 @@
 package it.gov.pagopa.initiative.statistics.service.onboarding;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import it.gov.pagopa.initiative.statistics.dto.events.OnboardingOutcomeDTO;
 import it.gov.pagopa.initiative.statistics.repository.InitiativeStatRepository;
 import it.gov.pagopa.initiative.statistics.service.BaseStatisticsEvaluationService;
