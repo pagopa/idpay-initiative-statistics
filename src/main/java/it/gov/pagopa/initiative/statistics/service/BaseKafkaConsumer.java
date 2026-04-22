@@ -1,12 +1,12 @@
 package it.gov.pagopa.initiative.statistics.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
 import it.gov.pagopa.common.kafka.utils.KafkaConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectReader;
 
 import java.nio.charset.StandardCharsets;
 
@@ -50,7 +50,7 @@ public abstract class BaseKafkaConsumer<E> {
     /** In case of errors reading a message */
     protected abstract void onRecordError2notify(ConsumerRecord<String, String> message, String description, Throwable exception);
 
-    protected E deserialize(String payload) throws JsonProcessingException {
+    protected E deserialize(String payload) throws JacksonException {
         return objectReader.readValue(payload);
     }
 

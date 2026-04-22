@@ -1,12 +1,12 @@
 package it.gov.pagopa.initiative.statistics.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.support.Acknowledgment;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -46,7 +46,7 @@ public abstract class BaseGenericConsumerService<E> extends BaseKafkaConsumer<E>
                 evaluate(payload);
             }
 
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             onDeserializeError(consumerRecord,
                     "[%s] Unexpected json: %s".formatted(getFlowName(), consumerRecord.value()),
                     e);

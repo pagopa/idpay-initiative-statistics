@@ -1,6 +1,6 @@
 package it.gov.pagopa.initiative.statistics.service.merchant.counters.notification;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import it.gov.pagopa.initiative.statistics.dto.events.RewardNotificationDTO;
 import it.gov.pagopa.initiative.statistics.model.MerchantInitiativeCounters;
 import it.gov.pagopa.initiative.statistics.repository.merchant.counters.MerchantInitiativeCountersRepository;
