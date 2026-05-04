@@ -1,7 +1,7 @@
 package it.gov.pagopa.initiative.statistics.config.kafka;
 
 import lombok.Setter;
-import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
+import org.springframework.boot.kafka.autoconfigure.KafkaProperties;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
@@ -36,7 +36,7 @@ abstract class BaseKafkaConsumerConfig extends KafkaProperties.Consumer {
 
     private ConsumerFactory<String, String> buildConsumerFactory(ConsumerFactory<String, String> consumerFactory){
         Map<String, Object> props = new HashMap<>(consumerFactory.getConfigurationProperties());
-        props.putAll(this.buildProperties(null));
+        props.putAll(this.buildProperties());
         return new DefaultKafkaConsumerFactory<>(props);
     }
 

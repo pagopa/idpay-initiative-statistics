@@ -1,6 +1,6 @@
 package it.gov.pagopa.initiative.statistics.service.merchant.counters.trx;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import it.gov.pagopa.initiative.statistics.dto.events.MerchantReward;
 import it.gov.pagopa.initiative.statistics.dto.events.Reward;
 import it.gov.pagopa.initiative.statistics.dto.events.TransactionEvaluationDTO;

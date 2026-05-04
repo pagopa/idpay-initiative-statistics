@@ -11,7 +11,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -33,11 +33,11 @@ import static org.mockito.Mockito.when;
 class DeleteInitiativeServiceImplTest {
     @Autowired
     private DeleteInitiativeService deleteInitiativeService;
-    @MockBean
+    @MockitoBean
     private InitiativeStatRepository initiativeStatRepository;
-    @MockBean
+    @MockitoBean
     private MerchantInitiativeCountersRepository merchantInitiativeCountersRepository;
-    @MockBean
+    @MockitoBean
     private AuditUtilities auditUtilities;
     private static final String INITIATIVE_ID = "INITIATIVE_ID";
     private static final String MERCHANT_INITIATIVE_COUNTERS_ID = "INITIATIVE_COUNTER_IS";
